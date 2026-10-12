@@ -31,3 +31,6 @@ export * from "./data/catalogs";
 export * from "./data/animations";
 export * from "./data/pictures";
 export * from "./data/loadShip";
+
+// Writing a ship as a mod.
+export * from "./mod/writeMod";

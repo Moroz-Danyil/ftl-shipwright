@@ -6,6 +6,9 @@
 import { existsSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import { parseShipBlueprint } from "../blueprint";
+import { parseLayoutTxt } from "../layoutTxt";
+import { parseLayoutXml } from "../layoutXml";
+import { buildShipMod, zipMod, type ShipPictureFiles } from "../mod/writeMod";
 import { GAME_ROOT, HAS_GAME_DATA } from "../testing/gameData";
 import { nodeDatAccess, nodeFolderAccess } from "../testing/nodeAccess";
 import { readPngSize } from "../testing/png";
@@ -19,7 +22,7 @@ import { loadCatalogs, type Catalogs } from "./catalogs";
 import { createGameView, type GameView } from "./gameView";
 import { loadShipFromGame } from "./loadShip";
 import { listInteriors, listMiniships, listShipPictures } from "./pictures";
-import { datSource, folderSource, memorySource, type FileSource } from "./sources";
+import { datSource, folderSource, memorySource, zipSource, type FileSource } from "./sources";
 import { loadTexts, lookupText, resolveText, type GameTexts } from "./texts";
 
 // The real game archive, for an optional read-only test: set FTL_DAT_PATH to the game's ftl.dat.
@@ -268,6 +271,59 @@ describe.skipIf(!HAS_GAME_DATA)("vanilla game data", () => {
     expect(loaded.pictures.hull).toBe("img/ship/my_ship_base.png");
     expect(loaded.pictures.floor).toBeUndefined();
     expect((await modded.list()).filter((p) => p.startsWith("data/my_ship"))).toHaveLength(2);
+  });
+
+  it("mod round trip: the Kestrel written to a zip and read back as a mod loads equal", async () => {
+    const original = (await loadShipFromGame(view, "PLAYER_SHIP_HARD"))!;
+    const read = async (p?: string | null) => (p ? (await view.readBytes(p))! : undefined);
+    const pictures: ShipPictureFiles = {
+      hull: (await read(original.pictures.hull))!,
+      floor: await read(original.pictures.floor),
+      cloak: await read(original.pictures.cloak),
+      shield: await read(original.pictures.shield),
+      miniship: await read(original.pictures.miniship),
+      gibs: await Promise.all(original.pictures.gibs.map(async (g) => (await read(g))!)),
+      interiors: Object.fromEntries(
+        await Promise.all(
+          Object.entries(original.pictures.interiors).map(
+            async ([k, p]) => [k, (await read(p))!] as const
+          )
+        )
+      ),
+    };
+    // Change one gib so that exactly one picture differs from the game's.
+    const changedGib = new Uint8Array(pictures.gibs[1]);
+    changedGib[changedGib.length - 1] ^= 0xff;
+    pictures.gibs[1] = changedGib;
+
+    const files = await buildShipMod({ ship: original.ship, pictures, game });
+    expect(files.map((f) => f.path)).toEqual([
+      "data/blueprints.xml.append",
+      "data/kestral.txt",
+      "data/kestral.xml",
+      "img/ship/kestral_gib2.png",
+    ]);
+
+    const zip = zipMod(files);
+    const mod = zipSource(zip);
+    expect((await mod.list()).sort()).toEqual(files.map((f) => f.path).sort());
+    const modded = createGameView(game, mod);
+    const again = (await loadShipFromGame(modded, "PLAYER_SHIP_HARD"))!;
+    expect(again.blueprintFromMod).toBe(true);
+    expect(again.ship).toStrictEqual(original.ship);
+    expect(again.pictures).toEqual(original.pictures);
+    expect(await modded.readBytes("img/ship/kestral_gib2.png")).toEqual(changedGib);
+    // The other definitions are still there; the mod's one wins.
+    const c = await loadCatalogs(modded);
+    expect(c.ships).toHaveLength(135);
+    expect(c.ships.find((s) => s.name === "PLAYER_SHIP_HARD")!.fromMod).toBe(true);
+    // Equal to what the core reads straight from the vanilla files.
+    expect(again.ship.layout).toStrictEqual(
+      parseLayoutTxt((await game.readText("data/kestral.txt"))!)
+    );
+    expect(again.ship.layoutXml).toStrictEqual(
+      parseLayoutXml((await game.readText("data/kestral.xml"))!)
+    );
   });
 });
 
