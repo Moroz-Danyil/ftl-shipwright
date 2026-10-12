@@ -1,6 +1,7 @@
 /**
  * The ship's pictures from the game: shield, hull, floor, cloak and gibs.
  */
+import { memo } from "react";
 import {
   cloakPositionPx,
   floorPositionPx,
@@ -77,7 +78,7 @@ interface Props {
   layers: Record<LayerId, boolean>;
 }
 
-export function ShipPictures({ ship, pictures, layers }: Props) {
+export const ShipPictures = memo(function ShipPictures({ ship, pictures, layers }: Props) {
   const { layout, layoutXml } = ship;
   const { source, paths } = pictures;
   const hull = hullRectPx(layout, layoutXml);
@@ -113,4 +114,4 @@ export function ShipPictures({ ship, pictures, layers }: Props) {
         ))}
     </g>
   );
-}
+});

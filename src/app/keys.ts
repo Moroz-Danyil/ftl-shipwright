@@ -5,8 +5,18 @@
  */
 import { TOOL_KEYS, WORKSPACES, workspaceKey, type ToolId, type WorkspaceId } from "./workspaces";
 
+export type MoveDirection = "up" | "down" | "left" | "right";
+
 export type CommandId =
-  "undo" | "redo" | "save" | "cancel" | "pan" | `workspace.${WorkspaceId}` | `tool.${ToolId}`;
+  | "undo"
+  | "redo"
+  | "save"
+  | "cancel"
+  | "pan"
+  | "delete"
+  | `move.${MoveDirection}`
+  | `workspace.${WorkspaceId}`
+  | `tool.${ToolId}`;
 
 export interface KeyBinding {
   /** Modifiers and key, e.g. `Ctrl+Shift+Z`, `1`, `Escape`, `Space`. */
@@ -21,6 +31,15 @@ export const DEFAULT_BINDINGS: KeyBinding[] = [
   { keys: "Ctrl+S", command: "save" },
   { keys: "Escape", command: "cancel" },
   { keys: "Space", command: "pan" },
+  { keys: "Delete", command: "delete" },
+  { keys: "Backspace", command: "delete" },
+  ...(["Up", "Down", "Left", "Right"] as const).flatMap((d) => {
+    const command = `move.${d.toLowerCase() as MoveDirection}` as const;
+    return [
+      { keys: `Arrow${d}`, command },
+      { keys: `Shift+Arrow${d}`, command },
+    ];
+  }),
   ...WORKSPACES.map((w) => ({ keys: workspaceKey(w), command: `workspace.${w}` as const })),
   ...(Object.entries(TOOL_KEYS) as Array<[ToolId, string]>).map(([tool, key]) => ({
     keys: key,

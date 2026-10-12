@@ -14,6 +14,7 @@ import type {
 } from "../core";
 import type { ModRef } from "../platform/types";
 import { canRedo, canUndo, createHistory, record, redo, undo, type History } from "./history";
+import { EMPTY_SELECTION, validSelection, type Selection } from "./selection";
 import { loadDatPath, loadMod, loadRecent, type RecentShip, type ShipOrigin } from "./settings";
 import { WORKSPACE_TOOLS, hasTool, type ToolId, type WorkspaceId } from "./workspaces";
 
@@ -68,8 +69,6 @@ export interface ShipDocument {
   saveTarget?: SaveTarget;
 }
 
-export type Selection = { kind: "room"; id: number } | { kind: "door"; index: number };
-
 // ---------------------------------------------------------------------------
 // View
 
@@ -81,6 +80,7 @@ export const LAYERS = [
   "grid",
   "rooms",
   "doors",
+  "stations",
   "mounts",
   "gibs",
 ] as const;
@@ -94,6 +94,7 @@ export const DEFAULT_LAYERS: Record<LayerId, boolean> = {
   grid: true,
   rooms: true,
   doors: true,
+  stations: true,
   mounts: true,
   gibs: false,
 };
@@ -127,7 +128,9 @@ export interface EditorState {
   game: GameState;
   recent: RecentShip[];
   doc?: ShipDocument;
-  selection: Selection | null;
+  selection: Selection;
+  /** The system whose station the Station tool places (index in the blueprint). */
+  stationSystem: number | null;
   workspace: WorkspaceId;
   /** The chosen tool of each workspace. */
   tools: Record<WorkspaceId, ToolId>;
@@ -145,13 +148,17 @@ export interface EditorState {
     saved: boolean;
   }): void;
   closeDocument(): void;
-  /** Applies an edit to the ship as one undo step. */
-  edit(change: (ship: Ship) => Ship): void;
+  /**
+   * Applies an edit to the ship as one undo step, and optionally sets what is
+   * selected afterwards.
+   */
+  edit(change: (ship: Ship) => Ship, selection?: Selection): void;
   undo(): void;
   redo(): void;
   /** Records that this ship (the present one, or an earlier state) was saved to the target. */
   markSaved(ship: Ship, target: SaveTarget, origin: ShipOrigin): void;
-  select(selection: Selection | null): void;
+  select(selection: Selection): void;
+  setStationSystem(system: number | null): void;
   setWorkspace(workspace: WorkspaceId): void;
   setTool(tool: ToolId): void;
   setLayer(layer: LayerId, visible: boolean): void;
@@ -180,7 +187,8 @@ export function initialEditorState() {
     game: { datPath, mod: datPath ? loadMod() : undefined, status: "none" } as GameState,
     recent: loadRecent(),
     doc: undefined,
-    selection: null,
+    selection: EMPTY_SELECTION,
+    stationSystem: null as number | null,
     workspace: "layout" as WorkspaceId,
     tools: initialTools(),
     view: {
@@ -194,23 +202,18 @@ export function initialEditorState() {
   };
 }
 
-/** A selection that still points at something in the ship, else `null`. */
-export function validSelection(ship: Ship, selection: Selection | null): Selection | null {
-  if (!selection) return null;
-  if (selection.kind === "room")
-    return ship.layout.rooms.some((r) => r.id === selection.id) ? selection : null;
-  return selection.index < ship.layout.doors.length ? selection : null;
-}
-
 export const useEditor = create<EditorState>()((set, get) => {
-  const changeHistory = (change: (h: History<Ship>) => History<Ship>) => {
+  const changeHistory = (change: (h: History<Ship>) => History<Ship>, next?: Selection) => {
     const { doc, selection } = get();
     if (!doc) return;
     const history = change(doc.history);
-    if (history === doc.history) return;
+    if (history === doc.history) {
+      if (next) set({ selection: validSelection(history.present, next) });
+      return;
+    }
     set({
       doc: { ...doc, history },
-      selection: validSelection(history.present, selection),
+      selection: validSelection(history.present, next ?? selection),
     });
   };
 
@@ -230,16 +233,17 @@ export const useEditor = create<EditorState>()((set, get) => {
           origin,
           saveTarget,
         },
-        selection: null,
+        selection: EMPTY_SELECTION,
+        stationSystem: null,
         workspace: "layout",
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
         dialog: null,
       }),
 
-    closeDocument: () => set({ doc: undefined, selection: null, dialog: null }),
+    closeDocument: () => set({ doc: undefined, selection: EMPTY_SELECTION, dialog: null }),
 
-    edit: (change) => changeHistory((h) => record(h, change(h.present))),
+    edit: (change, selection) => changeHistory((h) => record(h, change(h.present)), selection),
     undo: () => changeHistory(undo),
     redo: () => changeHistory(redo),
 
@@ -248,7 +252,11 @@ export const useEditor = create<EditorState>()((set, get) => {
       if (doc) set({ doc: { ...doc, saved: ship, saveTarget: target, origin } });
     },
 
-    select: (selection) => set({ selection }),
+    select: (selection) => {
+      const ship = get().doc?.history.present;
+      set({ selection: ship ? validSelection(ship, selection) : selection });
+    },
+    setStationSystem: (stationSystem) => set({ stationSystem }),
 
     setWorkspace: (workspace) => set({ workspace }),
 

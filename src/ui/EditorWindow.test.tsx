@@ -2,6 +2,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { addDoor, addRoom, type Point } from "../core";
+import { EMPTY_SELECTION, selectionOf } from "../app/selection";
 import { useEditor } from "../app/store";
 import { en } from "../text/en";
 import { withMiniShipOpen } from "../testing/editorFixtures";
@@ -21,11 +22,14 @@ function press(code: string, extra: Partial<KeyboardEventInit> = {}) {
 /** Clicks the canvas at a ship pixel. */
 function clickShip(p: Point) {
   const { camera } = state().view;
-  fireEvent.pointerDown(screen.getByRole("main", { name: en.canvas.label }), {
+  const main = screen.getByRole("main", { name: en.canvas.label });
+  const at = {
     button: 0,
     clientX: p.x * camera.scale + camera.x,
     clientY: p.y * camera.scale + camera.y,
-  });
+  };
+  fireEvent.pointerDown(main, at);
+  fireEvent.pointerUp(main, at);
 }
 
 let platform: FakePlatform;
@@ -102,7 +106,7 @@ describe("editor window", () => {
     expect(screen.getByTestId("room-0")).toHaveAttribute("data-selected", "true");
     const inspector = screen.getByRole("complementary", { name: en.inspector.label });
     expect(within(inspector).getByText(en.inspector.selectedRoom)).toBeInTheDocument();
-    expect(within(inspector).getByLabelText(en.inspector.width)).toHaveValue("2");
+    expect(within(inspector).getByLabelText(en.inspector.width)).toHaveValue(2);
     expect(within(inspector).getByText("pilot")).toBeInTheDocument();
 
     clickShip({ x: 35, y: 52 });
@@ -111,18 +115,18 @@ describe("editor window", () => {
     expect(within(inspector).getByText(en.inspector.airlock)).toBeInTheDocument();
 
     press("Escape");
-    expect(state().selection).toBeNull();
+    expect(state().selection).toEqual(EMPTY_SELECTION);
     expect(within(inspector).getByText(en.inspector.nothingSelected)).toBeInTheDocument();
 
     clickShip({ x: 50, y: 50 });
     clickShip({ x: 400, y: 400 });
-    expect(state().selection).toBeNull();
+    expect(state().selection).toEqual(EMPTY_SELECTION);
   });
 
   it("selects nothing with other tools", () => {
     press("KeyR");
     clickShip({ x: 50, y: 50 });
-    expect(state().selection).toBeNull();
+    expect(state().selection).toEqual(EMPTY_SELECTION);
   });
 
   it("toggles layers and the hangar preview", () => {
@@ -194,7 +198,7 @@ describe("editor window", () => {
     const dialog = screen.getByRole("dialog", { name: en.checks.title });
     const message = en.checks.messages["door-no-room"]({ door: 2 });
     fireEvent.click(within(dialog).getByRole("button", { name: message }));
-    expect(state().selection).toEqual({ kind: "door", index: 2 });
+    expect(state().selection).toEqual(selectionOf({ kind: "door", index: 2 }));
     expect(screen.getByTestId("door-2")).toHaveAttribute("data-kind", "loose");
   });
 

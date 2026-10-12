@@ -1,11 +1,12 @@
 /**
  * Mouse handling of the canvas: the wheel zooms around the cursor, the middle
- * button (or the left button while Space is held) pans, and a left click is
- * passed on to the current tool.
+ * button (or the left button while Space is held) pans, a right click cancels
+ * the current drag, and everything else goes to the current tool.
  */
 import { useEffect, useRef, useState, type PointerEvent, type RefObject } from "react";
 import type { Point } from "../core";
 import { useEditor } from "../app/store";
+import type { CanvasTool, ToolPointer } from "./tools/types";
 import { panBy, screenToShip, wheelFactor, zoomAt } from "./viewport";
 
 function localPoint(element: HTMLElement, clientX: number, clientY: number): Point {
@@ -13,12 +14,16 @@ function localPoint(element: HTMLElement, clientX: number, clientY: number): Poi
   return { x: clientX - rect.left, y: clientY - rect.top };
 }
 
-export function useCanvasInput(
-  ref: RefObject<HTMLElement | null>,
-  onClick: (shipPoint: Point, scale: number) => void
-) {
+function toolPointer(event: PointerEvent<HTMLElement>): ToolPointer {
+  const { camera } = useEditor.getState().view;
+  const local = localPoint(event.currentTarget, event.clientX, event.clientY);
+  return { p: screenToShip(camera, local), shift: event.shiftKey, scale: camera.scale };
+}
+
+export function useCanvasInput(ref: RefObject<HTMLElement | null>, tool: CanvasTool) {
   const [panning, setPanning] = useState(false);
   const last = useRef<Point | null>(null);
+  const toolDown = useRef(false);
 
   useEffect(() => {
     const element = ref.current;
@@ -36,21 +41,29 @@ export function useCanvasInput(
 
   const onPointerDown = (event: PointerEvent<HTMLElement>) => {
     const { view } = useEditor.getState();
-    const pan = event.button === 1 || (event.button === 0 && view.panHeld);
-    if (pan) {
+    if (event.button === 1 || (event.button === 0 && view.panHeld)) {
       event.preventDefault();
       event.currentTarget.setPointerCapture?.(event.pointerId);
       last.current = { x: event.clientX, y: event.clientY };
       setPanning(true);
       return;
     }
+    if (event.button === 2) {
+      toolDown.current = false;
+      tool.cancel();
+      return;
+    }
     if (event.button !== 0) return;
-    const p = localPoint(event.currentTarget, event.clientX, event.clientY);
-    onClick(screenToShip(view.camera, p), view.camera.scale);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    toolDown.current = true;
+    tool.down(toolPointer(event));
   };
 
   const onPointerMove = (event: PointerEvent<HTMLElement>) => {
-    if (!last.current) return;
+    if (!last.current) {
+      tool.move(toolPointer(event));
+      return;
+    }
     const dx = event.clientX - last.current.x;
     const dy = event.clientY - last.current.y;
     last.current = { x: event.clientX, y: event.clientY };
@@ -58,11 +71,24 @@ export function useCanvasInput(
     setCamera(panBy(view.camera, dx, dy));
   };
 
-  const endPan = (event: PointerEvent<HTMLElement>) => {
-    if (!last.current) return;
-    last.current = null;
+  const onPointerUp = (event: PointerEvent<HTMLElement>) => {
     event.currentTarget.releasePointerCapture?.(event.pointerId);
+    if (last.current) {
+      last.current = null;
+      setPanning(false);
+      return;
+    }
+    if (event.button !== 0 || !toolDown.current) return;
+    toolDown.current = false;
+    tool.up(toolPointer(event));
+  };
+
+  const onPointerCancel = (event: PointerEvent<HTMLElement>) => {
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    last.current = null;
     setPanning(false);
+    toolDown.current = false;
+    tool.cancel();
   };
 
   return {
@@ -70,8 +96,10 @@ export function useCanvasInput(
     handlers: {
       onPointerDown,
       onPointerMove,
-      onPointerUp: endPan,
-      onPointerCancel: endPan,
+      onPointerUp,
+      onPointerCancel,
+      onPointerLeave: () => tool.leave(),
+      onContextMenu: (event: { preventDefault(): void }) => event.preventDefault(),
     },
   };
 }

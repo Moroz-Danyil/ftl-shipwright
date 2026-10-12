@@ -271,12 +271,6 @@
   background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px);
   background-size: 18px 18px;
 }
-.cv-pan-ready {
-  cursor: grab;
-}
-.cv-panning {
-  cursor: grabbing;
-}
 .cv-svg {
   position: absolute;
   inset: 0;
@@ -399,4 +393,106 @@
   font-weight: 600;
   fill: var(--accent-ink);
   pointer-events: none;
+}
+
+/* Tool feedback */
+.cv-canvas[data-tool="room"],
+.cv-canvas[data-tool="door"] {
+  cursor: crosshair;
+}
+.cv-canvas[data-tool="station"] {
+  cursor: cell;
+}
+.cv-canvas.cv-pan-ready {
+  cursor: grab;
+}
+.cv-canvas.cv-panning {
+  cursor: grabbing;
+}
+.cv-hover {
+  fill: none;
+  stroke: var(--accent-soft);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+.cv-box {
+  fill: rgba(242, 169, 59, 0.08);
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+.cv-ghost {
+  fill: rgba(242, 169, 59, 0.25);
+  stroke: var(--accent);
+  stroke-width: 2;
+  pointer-events: none;
+}
+.cv-ghost--bad {
+  fill: rgba(239, 107, 107, 0.25);
+  stroke: var(--problem);
+}
+.cv-wall {
+  fill: rgba(242, 169, 59, 0.35);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+.cv-wall--taken {
+  fill: none;
+  stroke: var(--muted);
+}
+
+/* Crew stations */
+.cv-station-ring {
+  fill: rgba(16, 19, 24, 0.75);
+  stroke: #55606f;
+  stroke-width: 1;
+}
+.cv-station-facing {
+  stroke: var(--airlock);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.cv-station-figure {
+  fill: #8fc1f2;
+}
+.cv-station--selected .cv-station-ring {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+/* Layout inspector */
+.ed-directions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.ed-directions .btn {
+  padding: 0 6px;
+  font-size: 13px;
+}
+.ed-fieldset {
+  margin: 0;
+  border: none;
+}
+.ed-fieldset legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 4px;
+}
+.ed-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.ed-choice input {
+  accent-color: var(--accent);
+}
+.ed-link {
+  align-self: flex-start;
+  font-size: 13px;
 }

@@ -164,9 +164,21 @@ export const en = {
       grid: "Grid",
       rooms: "Rooms",
       doors: "Doors",
+      stations: "Crew stations",
       mounts: "Weapon mounts",
       gibs: "Explosion pieces",
     },
+  },
+
+  layout: {
+    problems: {
+      belowZero: "Rooms cannot go left of or above cell 0.",
+      overlap: "Rooms cannot overlap other rooms.",
+      tooSmall: "A room is at least 1 × 1 cell.",
+    },
+    confirmDelete: (systems: number) =>
+      `The rooms you are deleting hold ${plural(systems, "system", "systems")}. Delete the rooms together with their systems?`,
+    noStationSystem: "This room has no system with a crew station.",
   },
 
   inspector: {
@@ -194,15 +206,50 @@ export const en = {
     largeAirlock:
       "This airlock is on a room bigger than 2×2; the game only partly vents such rooms.",
     nothingSelected: "Nothing selected",
-    nothingSelectedHint: "Click a room or a door with the Select tool (V) to see its values.",
-    toolHelp: [
-      { title: "Select tool (V)", body: "Click a room or a door to select it. Esc clears." },
-      {
-        title: "Room tool (R)",
-        body: "Drag on the grid to draw a room. Rooms snap to cells and never cross the solid edge at 0.",
+    roomId: "Id",
+    doorsOnWalls: (n: number) =>
+      n === 0 ? "No doors on its walls" : `${plural(n, "door", "doors")} on its walls`,
+    changeInSystems: "Change in Systems (2)",
+    crewCell: (name: string, cell: number) => `${name}: crew cell ${cell}, kept as it is`,
+    delete: "Delete",
+    position: "Position",
+    selectedStation: "Selected crew station",
+    station: (system: string) => `${system} station`,
+    stationCell: "Cell",
+    facing: "Facing",
+    directions: { up: "Up", down: "Down", left: "Left", right: "Right" },
+    several: "Selected",
+    severalTitle: (n: number) => `${n} things`,
+    severalParts: (rooms: number, doors: number, stations: number) =>
+      [
+        rooms > 0 ? plural(rooms, "room", "rooms") : "",
+        doors > 0 ? plural(doors, "door", "doors") : "",
+        stations > 0 ? plural(stations, "station", "stations") : "",
+      ]
+        .filter((part) => part !== "")
+        .join(", "),
+    stationFor: "The Station tool places the station of",
+    stationChoice: (system: string, room: number) => `${system} · room ${room}`,
+    noStationSystems:
+      "No system on this ship has a crew station yet. Place pilot, doors, sensors, weapons, shields, engines or hacking in Systems first.",
+    toolHelp: {
+      select: {
+        title: "Select tool (V)",
+        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell; Delete removes the selection.",
       },
-      { title: "Door tool (D)", body: "Click a wall. Doors to space turn blue (airlocks)." },
-    ],
+      room: {
+        title: "Room tool (R)",
+        body: "Drag on the grid to draw a room. Rooms snap to cells and never cross the solid edge at 0 or overlap. Right-click or Esc cancels.",
+      },
+      door: {
+        title: "Door tool (D)",
+        body: "Click a wall next to a room. Doors to space are blue (airlocks).",
+      },
+      station: {
+        title: "Station tool (T)",
+        body: "Click a cell of a room with a system to put that system's crew station there. Select a station to turn it.",
+      },
+    },
     systems: {
       eyebrow: "Drag a system onto a room",
       title: "Systems",

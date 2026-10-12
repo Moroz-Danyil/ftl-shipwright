@@ -1,33 +1,30 @@
 /**
- * Rooms, doors and weapon mounts, drawn over the pictures.
+ * Rooms, doors and weapon mounts, drawn over the pictures. Each layer only
+ * redraws when its ship part or selection changes.
  */
-import { doorSegmentPx, mountPositionPx, roomRectPx, type Ship } from "../core";
-import type { Selection } from "../app/store";
-import { doorKind } from "./doors";
+import { memo } from "react";
+import { mountPositionPx, roomRectPx, type ShipLayout, type ShipLayoutXml } from "../core";
+import { doorKind, doorRectPx } from "./doors";
 
-const DOOR_LENGTH = 16;
-const DOOR_THICKNESS = 6;
 const MOUNT_RADIUS = 11;
 
-export function Rooms({
-  ship,
-  selection,
-  showIds,
-}: {
-  ship: Ship;
-  selection: Selection | null;
+interface RoomsProps {
+  layout: ShipLayout;
+  /** Ids of the selected rooms. */
+  selected: number[];
   showIds: boolean;
-}) {
-  const layout = ship.layout;
+}
+
+export const Rooms = memo(function Rooms({ layout, selected, showIds }: RoomsProps) {
   return (
     <g>
       {layout.rooms.map((room, i) => {
         const r = roomRectPx(layout, room);
-        const selected = selection?.kind === "room" && selection.id === room.id;
+        const isSelected = selected.includes(room.id);
         return (
-          <g key={i} data-testid={`room-${room.id}`} data-selected={selected || undefined}>
+          <g key={i} data-testid={`room-${room.id}`} data-selected={isSelected || undefined}>
             <rect
-              className={selected ? "cv-room cv-room--selected" : "cv-room"}
+              className={isSelected ? "cv-room cv-room--selected" : "cv-room"}
               x={r.x}
               y={r.y}
               width={r.w}
@@ -44,44 +41,45 @@ export function Rooms({
       })}
     </g>
   );
+});
+
+interface DoorsProps {
+  layout: ShipLayout;
+  /** Indices of the selected doors. */
+  selected: number[];
 }
 
-export function Doors({ ship, selection }: { ship: Ship; selection: Selection | null }) {
-  const layout = ship.layout;
+export const Doors = memo(function Doors({ layout, selected }: DoorsProps) {
   return (
     <g>
       {layout.doors.map((door, index) => {
-        const s = doorSegmentPx(layout, door);
-        const cx = (s.x1 + s.x2) / 2;
-        const cy = (s.y1 + s.y2) / 2;
-        const w = door.vertical ? DOOR_THICKNESS : DOOR_LENGTH;
-        const h = door.vertical ? DOOR_LENGTH : DOOR_THICKNESS;
+        const r = doorRectPx(layout, door);
         const kind = doorKind(layout, door);
-        const selected = selection?.kind === "door" && selection.index === index;
+        const isSelected = selected.includes(index);
         return (
           <g
             key={index}
             data-testid={`door-${index}`}
             data-kind={kind}
-            data-selected={selected || undefined}
+            data-selected={isSelected || undefined}
           >
-            {selected && (
+            {isSelected && (
               <rect
                 className="cv-selection-ring"
-                x={cx - w / 2 - 3}
-                y={cy - h / 2 - 3}
-                width={w + 6}
-                height={h + 6}
+                x={r.x - 3}
+                y={r.y - 3}
+                width={r.w + 6}
+                height={r.h + 6}
                 rx={3}
                 vectorEffect="non-scaling-stroke"
               />
             )}
             <rect
               className={`cv-door cv-door--${kind}`}
-              x={cx - w / 2}
-              y={cy - h / 2}
-              width={w}
-              height={h}
+              x={r.x}
+              y={r.y}
+              width={r.w}
+              height={r.h}
               rx={2}
             />
           </g>
@@ -89,10 +87,15 @@ export function Doors({ ship, selection }: { ship: Ship; selection: Selection | 
       })}
     </g>
   );
-}
+});
 
-export function Mounts({ ship }: { ship: Ship }) {
-  const { layout, layoutXml } = ship;
+export const Mounts = memo(function Mounts({
+  layout,
+  layoutXml,
+}: {
+  layout: ShipLayout;
+  layoutXml: ShipLayoutXml;
+}) {
   return (
     <g>
       {layoutXml.mounts.map((mount, i) => {
@@ -108,4 +111,4 @@ export function Mounts({ ship }: { ship: Ship }) {
       })}
     </g>
   );
-}
+});

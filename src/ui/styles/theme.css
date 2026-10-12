@@ -209,3 +209,9 @@ input[type="checkbox"] {
   height: 26px;
   font-size: 12px;
 }
+
+.btn--danger:hover:not(:disabled) {
+  border-color: var(--problem);
+  color: var(--problem);
+  background: var(--problem-bg);
+}

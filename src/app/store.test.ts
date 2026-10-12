@@ -8,8 +8,8 @@ import {
   resetEditorStore,
   undoAvailable,
   useEditor,
-  validSelection,
 } from "./store";
+import { EMPTY_SELECTION, selectionOf, validSelection } from "./selection";
 
 const pictures = { source: memorySource({}), paths: { gibs: [], interiors: {} } };
 
@@ -75,21 +75,25 @@ describe("editor store", () => {
   it("drops a selection that undo or redo leaves pointing at nothing", () => {
     state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
     state().edit((s) => addRoom(s, { x: 0, y: 3, w: 1, h: 1 }));
-    state().select({ kind: "room", id: 2 });
+    state().select(selectionOf({ kind: "room", id: 2 }));
     state().undo();
-    expect(state().selection).toBeNull();
-    state().select({ kind: "room", id: 1 });
+    expect(state().selection).toEqual(EMPTY_SELECTION);
+    state().select(selectionOf({ kind: "room", id: 1 }));
     state().redo();
-    expect(state().selection).toEqual({ kind: "room", id: 1 });
+    expect(state().selection.rooms).toEqual([1]);
     state().edit((s) => removeRoom(s, 1));
     expect(currentShip(state())!.layout.rooms).toHaveLength(2);
   });
 
   it("checks selections against the ship", () => {
     const ship = shipWithRooms();
-    expect(validSelection(ship, { kind: "room", id: 1 })).toEqual({ kind: "room", id: 1 });
-    expect(validSelection(ship, { kind: "room", id: 7 })).toBeNull();
-    expect(validSelection(ship, { kind: "door", index: 0 })).toBeNull();
+    const one = selectionOf({ kind: "room", id: 1 });
+    expect(validSelection(ship, one)).toBe(one);
+    expect(validSelection(ship, selectionOf({ kind: "room", id: 7 }))).toEqual(EMPTY_SELECTION);
+    expect(validSelection(ship, selectionOf({ kind: "door", index: 0 }))).toEqual(EMPTY_SELECTION);
+    expect(validSelection(ship, selectionOf({ kind: "station", system: 0 }))).toEqual(
+      EMPTY_SELECTION
+    );
   });
 
   it("keeps one tool per workspace and refuses tools a workspace does not have", () => {
@@ -111,12 +115,12 @@ describe("editor store", () => {
   it("starts each opened ship in Layout with the Select tool and nothing selected", () => {
     state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
     state().setWorkspace("details");
-    state().select({ kind: "room", id: 0 });
+    state().select(selectionOf({ kind: "room", id: 0 }));
     const firstId = state().doc!.id;
     state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
     expect(state().doc!.id).not.toBe(firstId);
     expect(state().workspace).toBe("layout");
-    expect(state().selection).toBeNull();
+    expect(state().selection).toEqual(EMPTY_SELECTION);
     state().closeDocument();
     expect(state().doc).toBeUndefined();
   });

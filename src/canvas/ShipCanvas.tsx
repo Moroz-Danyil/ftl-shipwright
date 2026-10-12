@@ -1,5 +1,5 @@
 /**
- * The ship on the game's grid, with zoom, pan and selection.
+ * The ship on the game's grid, with zoom, pan and the current tool.
  */
 import { useEffect, useRef } from "react";
 import { currentTool, useEditor } from "../app/store";
@@ -7,9 +7,11 @@ import { useTexts } from "../text";
 import { CanvasControls } from "./CanvasControls";
 import { shipBounds } from "./fit";
 import { CellZeroEdge, GridLines, ViewLimitFrame } from "./GridLayer";
-import { hitTest } from "./hitTest";
 import { ShipPictures } from "./ShipPictures";
 import { Doors, Mounts, Rooms } from "./ShipShapes";
+import { Stations } from "./Stations";
+import { ToolOverlay } from "./ToolOverlay";
+import { useCanvasTool } from "./tools/useCanvasTool";
 import { useCanvasInput } from "./useCanvasInput";
 import { useElementSize } from "./useElementSize";
 import { fitRect, screenToShip } from "./viewport";
@@ -20,11 +22,13 @@ export function ShipCanvas() {
   const view = useEditor((s) => s.view);
   const selection = useEditor((s) => s.selection);
   const workspace = useEditor((s) => s.workspace);
-  const tool = useEditor(currentTool);
+  const toolId = useEditor(currentTool);
   const ref = useRef<HTMLDivElement>(null);
   const size = useElementSize(ref);
   const fittedDoc = useRef<number | undefined>(undefined);
   const ship = doc?.history.present;
+  const { tool, overlay } = useCanvasTool(toolId, workspace, texts);
+  const { panning, handlers } = useCanvasInput(ref, tool);
 
   useEffect(() => {
     if (!doc || !size || size.width <= 0 || size.height <= 0) return;
@@ -32,13 +36,6 @@ export function ShipCanvas() {
     fittedDoc.current = doc.id;
     useEditor.getState().setCamera(fitRect(shipBounds(doc.history.present), size));
   }, [doc, size]);
-
-  const { panning, handlers } = useCanvasInput(ref, (point, scale) => {
-    const state = useEditor.getState();
-    const present = state.doc?.history.present;
-    if (!present || currentTool(state) !== "select") return;
-    state.select(hitTest(present, point, Math.min(10, Math.max(3, 6 / scale))));
-  });
 
   if (!doc || !ship) return null;
   const { camera, layers, hangarPreview } = view;
@@ -59,7 +56,7 @@ export function ShipCanvas() {
       ref={ref}
       className={`cv-canvas ${cursor}`}
       aria-label={texts.canvas.label}
-      data-tool={tool}
+      data-tool={toolId}
       {...handlers}
     >
       <svg className="cv-svg" width={width} height={height} data-testid="ship-svg">
@@ -71,10 +68,14 @@ export function ShipCanvas() {
               <CellZeroEdge ship={ship} area={area} />
             </>
           )}
-          {layers.rooms && <Rooms ship={ship} selection={selection} showIds={!hangarPreview} />}
-          {layers.doors && <Doors ship={ship} selection={selection} />}
-          {layers.mounts && <Mounts ship={ship} />}
+          {layers.rooms && (
+            <Rooms layout={ship.layout} selected={selection.rooms} showIds={!hangarPreview} />
+          )}
+          {layers.doors && <Doors layout={ship.layout} selected={selection.doors} />}
+          {layers.stations && <Stations ship={ship} selected={selection.stations} />}
+          {layers.mounts && <Mounts layout={ship.layout} layoutXml={ship.layoutXml} />}
           {!hangarPreview && <ViewLimitFrame ship={ship} />}
+          <ToolOverlay ship={ship} overlay={overlay} />
         </g>
       </svg>
       <div className="cv-hint">{texts.workspaces[workspace].hint}</div>

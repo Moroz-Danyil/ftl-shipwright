@@ -4,6 +4,7 @@ import { en } from "../text/en";
 import { createFakePlatform } from "../testing/fakePlatform";
 import { runCommand } from "./commands";
 import { commandForEvent, isTextField, keysOfEvent, type KeyEventLike } from "./keys";
+import { EMPTY_SELECTION, selectionOf } from "./selection";
 import { currentTool, resetEditorStore, useEditor } from "./store";
 
 const key = (code: string, extra: Partial<KeyEventLike> = {}): KeyEventLike => ({
@@ -76,9 +77,9 @@ describe("commands", () => {
     expect(currentTool(useEditor.getState())).toBe("mount");
     runCommand("tool.room", context);
     expect(currentTool(useEditor.getState())).toBe("mount");
-    useEditor.getState().select({ kind: "room", id: 0 });
+    useEditor.getState().select(selectionOf({ kind: "room", id: 0 }));
     runCommand("cancel", context);
-    expect(useEditor.getState().selection).toBeNull();
+    expect(useEditor.getState().selection).toEqual(EMPTY_SELECTION);
     runCommand("save", context);
     expect(useEditor.getState().dialog).toBe("save");
   });
