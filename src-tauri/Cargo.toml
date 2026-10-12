@@ -1,0 +1,28 @@
+[package]
+name = "ftl_shipwright"
+version = "0.1.0"
+description = "A desktop ship editor for FTL: Faster Than Light"
+license = "MIT"
+edition = "2021"
+
+[lib]
+# A separate library name keeps it from clashing with the binary of the same name on Windows.
+name = "ftl_shipwright_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+serde = { version = "1", features = ["derive"] }
+flate2 = "1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = 3
+panic = "abort"
+strip = true
