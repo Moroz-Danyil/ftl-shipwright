@@ -1,0 +1,174 @@
+.dlg-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 7, 10, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  padding: 24px;
+}
+.dlg {
+  width: 560px;
+  max-width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+.dlg-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.dlg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow: hidden;
+}
+.dlg-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Choice tiles (empty hull or copy; .ftl or folder) */
+.choice-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.choice:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+.choice:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.choice[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.choice-title {
+  font-weight: 600;
+}
+.choice-hint {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.dlg-warning {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* Ship picker */
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+.picker-list {
+  height: 340px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 4px;
+}
+.picker-group {
+  padding: 8px 4px 4px;
+}
+.picker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.picker-item:hover {
+  background: var(--raised);
+}
+.picker-item[aria-selected="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.picker-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.picker-name {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.picker-sub {
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.picker-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-soft);
+}
+.picker-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.ship-icon {
+  width: 64px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--tile);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ship-icon img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.ship-icon-mark {
+  color: var(--line-strong);
+}

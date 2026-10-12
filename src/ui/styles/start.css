@@ -1,0 +1,237 @@
+.st-screen {
+  height: 100%;
+  padding: 72px 96px;
+  display: flex;
+  gap: 64px;
+  background-color: var(--canvas);
+  background-image: radial-gradient(var(--start-dot) 1px, transparent 1px);
+  background-size: 18px 18px;
+  overflow: auto;
+}
+.st-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  min-width: 0;
+}
+.st-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.st-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.st-title {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.st-tagline {
+  color: var(--muted);
+  font-size: 15px;
+}
+.st-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.st-action {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.st-action--main {
+  border-color: var(--accent);
+}
+.st-action:hover:not(:disabled) {
+  background: var(--raised);
+}
+.st-action:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.st-action-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--text-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+}
+.st-action--main .st-action-icon {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+.st-action-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.st-action-body {
+  color: var(--muted);
+  line-height: 1.5;
+}
+.st-needs {
+  font-size: 13px;
+  color: var(--accent-soft);
+}
+.st-recent {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.st-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.st-recent-item:hover:not(:disabled) {
+  background: var(--raised);
+}
+.st-recent-item:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.st-recent-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.st-recent-name {
+  font-weight: 500;
+}
+.st-recent-where {
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.st-recent-when {
+  font-size: 12px;
+  color: var(--muted);
+}
+.st-side {
+  width: 380px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.st-card {
+  padding: 20px;
+  border-radius: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.st-card-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+.st-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.st-path {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  word-break: break-all;
+  user-select: text;
+}
+.st-hint {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.st-ok {
+  font-size: 13px;
+  color: var(--ok);
+}
+.st-error {
+  font-size: 13px;
+  color: var(--problem);
+  line-height: 1.5;
+  user-select: text;
+}
+.st-buttons {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.st-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--raised);
+  overflow: hidden;
+}
+.st-progress-bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s;
+}
+.st-menu {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.st-menu .btn {
+  justify-content: flex-start;
+  border-color: transparent;
+}
+.st-language {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.st-language select {
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+  padding: 0 10px;
+}
+.st-links {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
