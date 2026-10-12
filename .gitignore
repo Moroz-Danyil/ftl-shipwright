@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# Test and log output
+coverage/
+logs/
+*.log
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local-only files
+*.local
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.suo
+
+# Operating systems
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Packaged mods and release archives
+*.ftl
+*.zip
