@@ -19,3 +19,8 @@ export {
 export * from "./geometry";
 export * from "./validation";
 export * from "./ship";
+
+// Game files: the base game, mod folders and archives, and the game with a mod applied.
+export * from "./data/sources";
+export * from "./data/gameView";
+export { readTopLevelElements, readGameText, type LayeredElement } from "./data/xmlLayers";
