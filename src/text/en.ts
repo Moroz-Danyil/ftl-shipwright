@@ -2,7 +2,7 @@
  * The English texts of the interface. Every user-visible string of the app
  * comes from here; other languages are objects of the same type.
  */
-import type { ValidationCode } from "../core";
+import type { CheckCode } from "../app/checks";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const list = (ids: number[] | undefined) => (ids && ids.length > 0 ? ids.join(" and ") : "?");
@@ -181,6 +181,45 @@ export const en = {
     noStationSystem: "This room has no system with a crew station.",
   },
 
+  systems: {
+    /** Names for systems the game has no title for. */
+    fallbackNames: { artillery: "Artillery" } as Record<string, string>,
+    groups: { core: "Core", subsystems: "Subsystems", special: "Special" },
+    palette: "Systems",
+    inRoom: (id: number) => `room ${id}`,
+    help: "Drag a system onto a room, or select a room and click a system. Drop a system on empty space or back on this list to remove it.",
+    selectRoomFirst: "Select a room first, then click a system to put it there.",
+    problems: {
+      sameRoom: "The system is already in that room.",
+      noRoom: "There is no room there.",
+    },
+    selectedRoom: "Selected room",
+    roomTitle: (id: number) => `Room ${id}`,
+    empty: "No system in this room yet.",
+    level: "Starting level",
+    levelOf: (level: number, max: number) => `${level} / ${max}`,
+    minus: "−",
+    plus: "+",
+    lower: (what: string) => `Lower ${what}`,
+    higher: (what: string) => `Raise ${what}`,
+    installed: "Installed at the start",
+    upgradeLimit: "Upgrade limit",
+    remove: "Remove",
+    removeNamed: (name: string) => `Remove ${name}`,
+    interior: "Interior picture",
+    interiorNone: "None",
+    interiorAll: "Show all interior pictures",
+    interiorSize: (w: number, h: number) => `${w} × ${h} px`,
+    interiorMismatch: (w: number, h: number, rw: number, rh: number) =>
+      `The picture is ${w} × ${h} px but the room is ${rw} × ${rh} px.`,
+    cloakMismatch:
+      "A cloaking picture that does not fit its room made the game crash in testing. Pick one of the room's size.",
+    noInteriors: "The game has no interior picture for this system.",
+    artilleryWeapon: "Weapon",
+    unusualMix:
+      "The game's own ships never put these systems in one room; the game may not handle it.",
+  },
+
   inspector: {
     label: "Inspector",
     selectedRoom: "Selected room",
@@ -253,7 +292,6 @@ export const en = {
     systems: {
       eyebrow: "Drag a system onto a room",
       title: "Systems",
-      body: "Place the game's systems in rooms, choose their starting and maximum levels and which ones are bought later.",
     },
     art: {
       eyebrow: "Pictures, weapon mounts and explosion pieces",
@@ -298,7 +336,13 @@ export const en = {
         `A crew station lies outside room ${list(i.rooms)}.`,
       "system-unknown-room": (i: IssueRefs) =>
         `A system is in room ${list(i.rooms)}, which does not exist.`,
-    } satisfies Record<ValidationCode, (issue: IssueRefs) => string>,
+      "several-installed": (i: IssueRefs) =>
+        `Room ${list(i.rooms)} has more than one system installed at the start; only one of them can be.`,
+      "unusual-mix": (i: IssueRefs) =>
+        `Room ${list(i.rooms)} holds systems the game never puts together; the game may not handle it.`,
+      "cloak-interior-size": (i: IssueRefs) =>
+        `The cloaking interior picture of room ${list(i.rooms)} does not match the room size; such a picture made the game crash.`,
+    } satisfies Record<CheckCode, (issue: IssueRefs) => string>,
   },
 
   save: {

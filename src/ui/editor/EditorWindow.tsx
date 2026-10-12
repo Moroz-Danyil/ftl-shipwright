@@ -5,6 +5,7 @@ import { ChecksDialog } from "./ChecksButton";
 import { Inspector } from "./Inspector";
 import { SaveDialog } from "./SaveDialog";
 import { StatusBar } from "./StatusBar";
+import { DragChip } from "./systems/DragChip";
 import { ToolRail } from "./ToolRail";
 import { TopBar } from "./TopBar";
 
@@ -21,6 +22,7 @@ export function EditorWindow() {
       <StatusBar />
       {dialog === "save" && <SaveDialog />}
       {dialog === "checks" && <ChecksDialog />}
+      <DragChip />
     </div>
   );
 }

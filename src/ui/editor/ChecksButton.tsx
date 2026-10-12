@@ -1,6 +1,5 @@
 /** The checks button: how many things about the ship to look at, and the list of them. */
-import type { ValidationIssue } from "../../core";
-import { selectionOfIssue, useChecks } from "../../app/checks";
+import { selectionOfIssue, useChecks, type CheckIssue } from "../../app/checks";
 import { useEditor } from "../../app/store";
 import { useTexts } from "../../text";
 import { Dialog } from "../common/Dialog";
@@ -9,7 +8,8 @@ import { WarningIcon } from "../common/icons";
 export function ChecksButton() {
   const texts = useTexts();
   const ship = useEditor((s) => s.doc?.history.present);
-  const issues = useChecks(ship);
+  const source = useEditor((s) => s.doc?.pictures.source);
+  const issues = useChecks(ship, source);
   const openDialog = useEditor((s) => s.openDialog);
   const count = issues.length;
   return (
@@ -27,12 +27,13 @@ export function ChecksButton() {
 export function ChecksDialog() {
   const texts = useTexts();
   const ship = useEditor((s) => s.doc?.history.present);
-  const issues = useChecks(ship);
+  const source = useEditor((s) => s.doc?.pictures.source);
+  const issues = useChecks(ship, source);
   const close = () => useEditor.getState().openDialog(null);
 
-  const show = (issue: ValidationIssue) => {
+  const show = (issue: CheckIssue) => {
     const state = useEditor.getState();
-    state.setWorkspace("layout");
+    state.setWorkspace(issue.workspace);
     state.select(selectionOfIssue(issue));
     close();
   };

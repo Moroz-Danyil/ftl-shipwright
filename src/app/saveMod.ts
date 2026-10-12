@@ -8,6 +8,7 @@ import {
   zipMod,
   type FileSource,
   type ModFile,
+  type Ship,
   type ShipPictureFiles,
 } from "../core";
 import { diskFolderSource, folderOf } from "../platform/sources";
@@ -16,15 +17,17 @@ import type { Texts } from "../text";
 import { reasonOf } from "./errors";
 import type { ShipOrigin } from "./settings";
 import { rememberRecent } from "./ships";
+import { interiorPath } from "./systems/interiors";
 import { useEditor, type SaveTarget, type ShipPictureRefs } from "./store";
 
 /**
  * Reads the bytes of the ship's pictures. `undefined` when there is no hull
  * picture. Gibs are taken up to the first missing one, since gib N must be
- * the N-th picture.
+ * the N-th picture. Interiors are the pictures the ship's systems name.
  */
 export async function readPictureFiles(
-  refs: ShipPictureRefs
+  refs: ShipPictureRefs,
+  ship: Ship
 ): Promise<ShipPictureFiles | undefined> {
   const { source, paths } = refs;
   const read = async (path: string | undefined) =>
@@ -45,8 +48,8 @@ export async function readPictureFiles(
     if (!bytes) break;
     files.gibs.push(bytes);
   }
-  for (const [name, path] of Object.entries(paths.interiors)) {
-    const bytes = await source.readBytes(path);
+  for (const name of new Set(ship.blueprint.systems.flatMap((s) => (s.img ? [s.img] : [])))) {
+    const bytes = await source.readBytes(interiorPath(name));
     if (bytes) files.interiors[name] = bytes;
   }
   return files;
@@ -87,7 +90,7 @@ export async function saveShipMod(
   if (!doc || !game.data) return false;
   const ship = doc.history.present;
   try {
-    const pictures = await readPictureFiles(doc.pictures);
+    const pictures = await readPictureFiles(doc.pictures, ship);
     if (!pictures) {
       store.setNotice({ kind: "error", text: texts.save.needHull });
       return false;

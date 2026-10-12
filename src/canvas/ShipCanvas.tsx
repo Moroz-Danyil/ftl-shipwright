@@ -2,14 +2,17 @@
  * The ship on the game's grid, with zoom, pan and the current tool.
  */
 import { useEffect, useRef } from "react";
+import { useSystemName } from "../app/names";
 import { currentTool, useEditor } from "../app/store";
 import { useTexts } from "../text";
 import { CanvasControls } from "./CanvasControls";
+import { setCanvasElement } from "./canvasElement";
 import { shipBounds } from "./fit";
 import { CellZeroEdge, GridLines, ViewLimitFrame } from "./GridLayer";
 import { ShipPictures } from "./ShipPictures";
 import { Doors, Mounts, Rooms } from "./ShipShapes";
 import { Stations } from "./Stations";
+import { SystemDropTarget, SystemLabels } from "./SystemLabels";
 import { ToolOverlay } from "./ToolOverlay";
 import { useCanvasTool } from "./tools/useCanvasTool";
 import { useCanvasInput } from "./useCanvasInput";
@@ -29,6 +32,13 @@ export function ShipCanvas() {
   const ship = doc?.history.present;
   const { tool, overlay } = useCanvasTool(toolId, workspace, texts);
   const { panning, handlers } = useCanvasInput(ref, tool);
+  const nameOf = useSystemName();
+  const hasDoc = doc !== undefined;
+
+  useEffect(() => {
+    setCanvasElement(ref.current);
+    return () => setCanvasElement(null);
+  }, [hasDoc]);
 
   useEffect(() => {
     if (!doc || !size || size.width <= 0 || size.height <= 0) return;
@@ -73,9 +83,13 @@ export function ShipCanvas() {
           )}
           {layers.doors && <Doors layout={ship.layout} selected={selection.doors} />}
           {layers.stations && <Stations ship={ship} selected={selection.stations} />}
+          {workspace === "systems" && (
+            <SystemLabels layout={ship.layout} systems={ship.blueprint.systems} nameOf={nameOf} />
+          )}
           {layers.mounts && <Mounts layout={ship.layout} layoutXml={ship.layoutXml} />}
           {!hangarPreview && <ViewLimitFrame ship={ship} />}
           <ToolOverlay ship={ship} overlay={overlay} />
+          <SystemDropTarget ship={ship} />
         </g>
       </svg>
       <div className="cv-hint">{texts.workspaces[workspace].hint}</div>

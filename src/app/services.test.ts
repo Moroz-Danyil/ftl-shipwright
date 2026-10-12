@@ -1,12 +1,13 @@
 import { unzipSync, zipSync } from "fflate";
 import { beforeEach, describe, expect, it } from "vitest";
-import { addRoom, decodeText, encodeText, parseLayoutTxt } from "../core";
+import { addRoom, decodeText, encodeText, memorySource, parseLayoutTxt } from "../core";
+import { testShip } from "../testing/layoutFixtures";
 import { miniGame } from "../core/testing/miniGame";
 import { en } from "../text/en";
 import { DAT_PATH, withMiniGame, withMiniShipOpen } from "../testing/editorFixtures";
 import { createFakePlatform } from "../testing/fakePlatform";
 import { loadGameData, loadGameIntoStore } from "./gameData";
-import { saveShipMod } from "./saveMod";
+import { readPictureFiles, saveShipMod } from "./saveMod";
 import { createNewShip, newShipIds, openGameShip, openRecentShip, slugFromName } from "./ships";
 import { currentShip, hasUnsavedChanges, resetEditorStore, useEditor } from "./store";
 
@@ -171,5 +172,20 @@ describe("saving a mod", () => {
     expect(await saveShipMod(platform, en, { kind: "ftl", path: "out/x.ftl" })).toBe(false);
     expect(state().notice).toEqual({ kind: "error", text: en.save.failed("Access denied") });
     expect(hasUnsavedChanges(state())).toBe(false);
+  });
+});
+
+describe("picture files for saving", () => {
+  it("include the interior pictures the ship's systems name", async () => {
+    const source = memorySource({
+      "img/ship/a_base.png": new Uint8Array([1]),
+      "img/ship/interior/room_shields_3.png": new Uint8Array([2]),
+    });
+    const ship = testShip([{ system: "shields", power: 1, room: 0, img: "room_shields_3" }]);
+    const files = await readPictureFiles(
+      { source, paths: { hull: "img/ship/a_base.png", gibs: [], interiors: {} } },
+      ship
+    );
+    expect(files?.interiors).toEqual({ room_shields_3: new Uint8Array([2]) });
   });
 });

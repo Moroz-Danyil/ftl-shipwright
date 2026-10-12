@@ -116,6 +116,18 @@ export interface ViewState {
 
 export type DialogId = "newShip" | "openShip" | "save" | "checks";
 
+/** A system chip being dragged from the palette. */
+export interface SystemDrag {
+  system: string;
+  /** The pointer, in window coordinates. */
+  clientX: number;
+  clientY: number;
+  /** The room under the pointer, if any. */
+  room: number | null;
+  /** Where a drop would go: a room, empty canvas or the palette (both remove), or nowhere. */
+  target: "room" | "remove" | "none";
+}
+
 export interface Notice {
   kind: "error" | "info";
   text: string;
@@ -131,6 +143,7 @@ export interface EditorState {
   selection: Selection;
   /** The system whose station the Station tool places (index in the blueprint). */
   stationSystem: number | null;
+  systemDrag: SystemDrag | null;
   workspace: WorkspaceId;
   /** The chosen tool of each workspace. */
   tools: Record<WorkspaceId, ToolId>;
@@ -159,6 +172,7 @@ export interface EditorState {
   markSaved(ship: Ship, target: SaveTarget, origin: ShipOrigin): void;
   select(selection: Selection): void;
   setStationSystem(system: number | null): void;
+  setSystemDrag(drag: SystemDrag | null): void;
   setWorkspace(workspace: WorkspaceId): void;
   setTool(tool: ToolId): void;
   setLayer(layer: LayerId, visible: boolean): void;
@@ -189,6 +203,7 @@ export function initialEditorState() {
     doc: undefined,
     selection: EMPTY_SELECTION,
     stationSystem: null as number | null,
+    systemDrag: null as SystemDrag | null,
     workspace: "layout" as WorkspaceId,
     tools: initialTools(),
     view: {
@@ -235,6 +250,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         },
         selection: EMPTY_SELECTION,
         stationSystem: null,
+        systemDrag: null,
         workspace: "layout",
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
@@ -257,6 +273,7 @@ export const useEditor = create<EditorState>()((set, get) => {
       set({ selection: ship ? validSelection(ship, selection) : selection });
     },
     setStationSystem: (stationSystem) => set({ stationSystem }),
+    setSystemDrag: (systemDrag) => set({ systemDrag }),
 
     setWorkspace: (workspace) => set({ workspace }),
 

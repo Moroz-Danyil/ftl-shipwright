@@ -11,7 +11,7 @@ export function SaveDialog() {
   const texts = useTexts();
   const platform = usePlatform();
   const doc = useEditor((s) => s.doc);
-  const issues = useChecks(doc?.history.present);
+  const issues = useChecks(doc?.history.present, doc?.pictures.source);
   const [busy, setBusy] = useState(false);
   const close = () => useEditor.getState().openDialog(null);
   if (!doc) return null;
