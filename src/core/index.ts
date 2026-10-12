@@ -24,3 +24,10 @@ export * from "./ship";
 export * from "./data/sources";
 export * from "./data/gameView";
 export { readTopLevelElements, readGameText, type LayeredElement } from "./data/xmlLayers";
+
+// Texts, catalogs, animations and pictures of the modded game; loading a ship from it.
+export * from "./data/texts";
+export * from "./data/catalogs";
+export * from "./data/animations";
+export * from "./data/pictures";
+export * from "./data/loadShip";
