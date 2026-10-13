@@ -188,6 +188,24 @@ describe("Details workspace", () => {
     expect(within(inspector()).queryByRole("list", { name: en.details.races })).toBeNull();
   });
 
+  it("explains a field on hover, with the game's hull bar", async () => {
+    await setUp();
+    press("Digit5");
+    const hull = within(inspector()).getByRole("group", { name: en.details.hull });
+    fireEvent.pointerEnter(hull.parentElement!);
+    const help = screen.getByRole("tooltip");
+    expect(within(help).getByRole("region", { name: en.help.hull.title })).toHaveTextContent(
+      en.help.hull.body
+    );
+    expect(help.querySelectorAll(".hv-hull span")).toHaveLength(bp().health ?? 30);
+    fireEvent.pointerLeave(hull.parentElement!);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    fireEvent.focus(within(inspector()).getByLabelText(en.details.name));
+    expect(
+      within(screen.getByRole("tooltip")).getByText(en.help.shipName.body)
+    ).toBeInTheDocument();
+  });
+
   it("asks before giving a game ship a new save name", async () => {
     await setUp({ kind: "game" });
     press("Digit5");

@@ -7,6 +7,7 @@ import { isStationSystem } from "../../../app/layout/stations";
 import { systemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 import { NumberField } from "../../common/NumberField";
 import { Section } from "../../common/Section";
 import { SystemName } from "../../common/SystemIcon";
@@ -59,18 +60,26 @@ export function RoomPanel({ ship, room }: { ship: Ship; room: Room }) {
       </div>
       <Section id="room-position" title={texts.sections.position}>
         <div className="ed-grid2">
-          <NumberField label={texts.inspector.x} value={room.x} onCommit={(x) => apply({ x })} />
-          <NumberField label={texts.inspector.y} value={room.y} onCommit={(y) => apply({ y })} />
-          <NumberField
-            label={texts.inspector.width}
-            value={room.w}
-            onCommit={(w) => apply({ w })}
-          />
-          <NumberField
-            label={texts.inspector.height}
-            value={room.h}
-            onCommit={(h) => apply({ h })}
-          />
+          <Help topic="roomPosition">
+            <NumberField label={texts.inspector.x} value={room.x} onCommit={(x) => apply({ x })} />
+          </Help>
+          <Help topic="roomPosition">
+            <NumberField label={texts.inspector.y} value={room.y} onCommit={(y) => apply({ y })} />
+          </Help>
+          <Help topic="roomSize">
+            <NumberField
+              label={texts.inspector.width}
+              value={room.w}
+              onCommit={(w) => apply({ w })}
+            />
+          </Help>
+          <Help topic="roomSize">
+            <NumberField
+              label={texts.inspector.height}
+              value={room.h}
+              onCommit={(h) => apply({ h })}
+            />
+          </Help>
         </div>
         {message && (
           <div className="ed-group ed-group--problem" role="alert">

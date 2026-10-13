@@ -11,6 +11,7 @@ import { interiorFits, interiorsFor } from "../../../app/systems/rules";
 import { useEditor } from "../../../app/store";
 import { usePicture } from "../../../canvas/pictures";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 
 interface OptionProps {
   source: FileSource;
@@ -83,7 +84,11 @@ export function InteriorPicker({ index, room }: { index: number; room: Room }) {
   const group = `interior-${index}`;
   return (
     <fieldset className="sy-interiors">
-      <legend className="eyebrow">{texts.systems.interior}</legend>
+      <legend className="eyebrow">
+        <Help topic="interior">
+          <span>{texts.systems.interior}</span>
+        </Help>
+      </legend>
       {system.img && (
         <CurrentWarning source={source} name={system.img} room={room} system={system.system} />
       )}

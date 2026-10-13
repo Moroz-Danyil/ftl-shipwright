@@ -6,6 +6,7 @@ import { changeGib, deleteSelectedArt } from "../../../app/artActions";
 import { pictureName } from "../../../app/art/model";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 import { NumberField } from "../../common/NumberField";
 
 function RangeFields({
@@ -52,24 +53,34 @@ export function GibPanel({ ship, index }: { ship: Ship; index: number }) {
         <span className="ed-heading-title">{texts.art.gibName(index + 1)}</span>
       </div>
       <div className="ed-grid2">
-        <NumberField label={texts.art.x} value={gib.x} onCommit={(x) => set({ x })} />
-        <NumberField label={texts.art.y} value={gib.y} onCommit={(y) => set({ y })} />
+        <Help topic="gibPosition">
+          <NumberField label={texts.art.x} value={gib.x} onCommit={(x) => set({ x })} />
+        </Help>
+        <Help topic="gibPosition">
+          <NumberField label={texts.art.y} value={gib.y} onCommit={(y) => set({ y })} />
+        </Help>
       </div>
-      <RangeFields
-        label={texts.art.velocity}
-        range={gib.velocity}
-        onChange={(velocity) => set({ velocity })}
-      />
-      <RangeFields
-        label={texts.art.direction}
-        range={gib.direction}
-        onChange={(direction) => set({ direction })}
-      />
-      <RangeFields
-        label={texts.art.angular}
-        range={gib.angular}
-        onChange={(angular) => set({ angular })}
-      />
+      <Help topic="gibVelocity">
+        <RangeFields
+          label={texts.art.velocity}
+          range={gib.velocity}
+          onChange={(velocity) => set({ velocity })}
+        />
+      </Help>
+      <Help topic="gibDirection">
+        <RangeFields
+          label={texts.art.direction}
+          range={gib.direction}
+          onChange={(direction) => set({ direction })}
+        />
+      </Help>
+      <Help topic="gibTurning">
+        <RangeFields
+          label={texts.art.angular}
+          range={gib.angular}
+          onChange={(angular) => set({ angular })}
+        />
+      </Help>
       <div className="ed-row">
         <span>{texts.art.pictureOf(picture ? pictureName(picture) : texts.art.noPicture)}</span>
         <button

@@ -20,6 +20,7 @@ import {
 import { useEditor } from "../../../app/store";
 import { usePlatform } from "../../../platform/PlatformContext";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 import { RacePicture } from "../../common/ItemPictures";
 import { Section } from "../../common/Section";
 import { CrossIcon } from "../../common/icons";
@@ -34,22 +35,28 @@ function HangarTexts({ ship }: { ship: Ship }) {
   const value = (field: Field) => gameText(data, ship.blueprint.texts[field]) ?? "";
   return (
     <Section id="details-hangar" title={texts.sections.hangar}>
-      <TextField
-        label={texts.details.name}
-        value={value("name")}
-        onCommit={(v) => setShipText("name", v)}
-      />
-      <TextField
-        label={texts.details.class}
-        value={value("class")}
-        onCommit={(v) => setShipText("class", v)}
-      />
-      <TextField
-        label={texts.details.description}
-        value={value("desc")}
-        multiline
-        onCommit={(v) => setShipText("desc", v)}
-      />
+      <Help topic="shipName">
+        <TextField
+          label={texts.details.name}
+          value={value("name")}
+          onCommit={(v) => setShipText("name", v)}
+        />
+      </Help>
+      <Help topic="shipClass">
+        <TextField
+          label={texts.details.class}
+          value={value("class")}
+          onCommit={(v) => setShipText("class", v)}
+        />
+      </Help>
+      <Help topic="shipDescription">
+        <TextField
+          label={texts.details.description}
+          value={value("desc")}
+          multiline
+          onCommit={(v) => setShipText("desc", v)}
+        />
+      </Help>
     </Section>
   );
 }
@@ -59,18 +66,22 @@ function SaveName({ ship }: { ship: Ship }) {
   const platform = usePlatform();
   return (
     <Section id="details-save" title={texts.details.saveName}>
-      <TextField
-        label={texts.details.blueprintName}
-        className="input mono"
-        value={ship.blueprint.name}
-        onCommit={(name) => renameShip(platform, texts, { name })}
-      />
-      <TextField
-        label={texts.details.baseName}
-        className="input mono"
-        value={ship.blueprint.layout}
-        onCommit={(base) => renameShip(platform, texts, { base })}
-      />
+      <Help topic="blueprintName">
+        <TextField
+          label={texts.details.blueprintName}
+          className="input mono"
+          value={ship.blueprint.name}
+          onCommit={(name) => renameShip(platform, texts, { name })}
+        />
+      </Help>
+      <Help topic="baseName">
+        <TextField
+          label={texts.details.baseName}
+          className="input mono"
+          value={ship.blueprint.layout}
+          onCommit={(base) => renameShip(platform, texts, { base })}
+        />
+      </Help>
     </Section>
   );
 }
@@ -94,12 +105,14 @@ function Crew({ ship }: { ship: Ship }) {
         <div key={c.race} className="dt-crew" role="group" aria-label={title(c.race)}>
           <RacePicture race={c.race} size={36} />
           <span className="dt-crew-name">{title(c.race)}</span>
-          <NumberField
-            label={texts.details.amount}
-            ariaLabel={texts.details.amountOf(title(c.race))}
-            value={c.amount}
-            onCommit={(n) => setCrewAmount(c.race, n)}
-          />
+          <Help topic="crewAmount">
+            <NumberField
+              label={texts.details.amount}
+              ariaLabel={texts.details.amountOf(title(c.race))}
+              value={c.amount}
+              onCommit={(n) => setCrewAmount(c.race, n)}
+            />
+          </Help>
           <button
             type="button"
             className="btn btn--icon btn--small"
@@ -128,20 +141,24 @@ export function DetailsInspector() {
       <HangarTexts ship={ship} />
       <SaveName ship={ship} />
       <Section id="details-hull" title={texts.sections.hullReactor}>
-        <Stepper
-          label={texts.details.hull}
-          value={ship.blueprint.health ?? NEW_SHIP_HULL}
-          min={LIMITS.hull.min}
-          max={LIMITS.hull.max}
-          onChange={setShipHull}
-        />
-        <Stepper
-          label={texts.details.reactor}
-          value={ship.blueprint.maxPower ?? LIMITS.reactor.min}
-          min={LIMITS.reactor.min}
-          max={LIMITS.reactor.max}
-          onChange={setShipReactor}
-        />
+        <Help topic="hull">
+          <Stepper
+            label={texts.details.hull}
+            value={ship.blueprint.health ?? NEW_SHIP_HULL}
+            min={LIMITS.hull.min}
+            max={LIMITS.hull.max}
+            onChange={setShipHull}
+          />
+        </Help>
+        <Help topic="reactor">
+          <Stepper
+            label={texts.details.reactor}
+            value={ship.blueprint.maxPower ?? LIMITS.reactor.min}
+            min={LIMITS.reactor.min}
+            max={LIMITS.reactor.max}
+            onChange={setShipReactor}
+          />
+        </Help>
       </Section>
       <Crew ship={ship} />
     </>

@@ -434,6 +434,138 @@ export const en = {
       "Click a mount on the ship to edit it. Weapons take the mounts in the order of their numbers.",
   },
 
+  /** Hover help for the fields: a title (the field's label) and what it means in the game. */
+  help: {
+    roomPosition: {
+      title: "Room position",
+      body: "Where the room's top-left corner is, in tiles from the top-left of the ship's layout. One tile is 35 px.",
+    },
+    roomSize: {
+      title: "Room size",
+      body: "The room's width and height in tiles. The game's rooms are 1 or 2 tiles wide and high; interior pictures are drawn for those sizes.",
+    },
+    systemLevel: {
+      title: "Starting level",
+      body: "How many power bars the system has when a run starts.",
+    },
+    upgradeLimit: {
+      title: "Upgrade limit",
+      body: "The highest level the system can be upgraded to in stores. Without a limit, the game's own maximum for the system applies.",
+    },
+    installed: {
+      title: "Installed at the start",
+      body: "On: the ship starts with the system. Off: the room is ready for it, but the system has to be bought in a store first.",
+    },
+    artilleryWeapon: {
+      title: "Artillery weapon",
+      body: "The weapon the artillery system fires on its own, like the Federation Cruiser's beam.",
+    },
+    interior: {
+      title: "Interior picture",
+      body: "The consoles and furniture drawn in the room. Pick one made for the room's size, or none for a bare floor.",
+    },
+    mountOrder: {
+      title: "Mount order",
+      body: "Weapons take the mounts in order: the first weapon slot is drawn on mount 1, the second on mount 2, and so on.",
+    },
+    mountRotate: {
+      title: "Rotate",
+      body: "On: the weapon lies on its side, as on the player's ships, and fires to the right. Off: it stands upright, as on enemy ships.",
+    },
+    mountMirror: {
+      title: "Mirror",
+      body: "Flips the weapon picture. The player's ships mirror the weapons on the top half of the hull.",
+    },
+    mountSlide: {
+      title: "Slides out",
+      body: "The way the weapon slides out of the hull when it is powered.",
+    },
+    mountGib: {
+      title: "Flies off with",
+      body: "The explosion piece the weapon stays on when the ship is destroyed.",
+    },
+    mountPosition: {
+      title: "Mount position",
+      body: "Where the weapon sits, in pixels from the top-left of the hull picture.",
+    },
+    gibPosition: {
+      title: "Piece position",
+      body: "Where the explosion piece sits, in pixels from the top-left of the hull picture.",
+    },
+    gibVelocity: {
+      title: "Velocity",
+      body: "How fast the piece flies away when the ship explodes; the game picks a value between Min and Max.",
+    },
+    gibDirection: {
+      title: "Direction",
+      body: "The direction the piece flies away in, in degrees; the game picks a value between Min and Max.",
+    },
+    gibTurning: {
+      title: "Turning",
+      body: "How fast the piece spins as it flies; the game picks a value between Min and Max. Negative values spin the other way.",
+    },
+    moveWhich: {
+      title: "Picture to move",
+      body: "Which picture the Move picture tool moves: the one under the pointer, or always the one chosen here.",
+    },
+    keepMounts: {
+      title: "Keep mounts in place",
+      body: "Off: the weapon mounts move with the hull picture, since they sit on it. On: the mounts stay where they are on the ship while the hull picture moves under them.",
+    },
+    weaponSlots: {
+      title: "Weapon slots",
+      body: "How many weapons the ship can carry. The game's own ships have 3 or 4; the weapon bar shows 4 at most.",
+    },
+    droneSlots: {
+      title: "Drone slots",
+      body: "How many drones the ship can carry. The game's own ships have 2 or 3.",
+    },
+    missiles: {
+      title: "Starting missiles",
+      body: "Missiles in stock when a run starts. Missile weapons and bombs use one each shot.",
+    },
+    droneParts: {
+      title: "Starting drone parts",
+      body: "Drone parts in stock when a run starts. Launching a drone uses one.",
+    },
+    augments: {
+      title: "Augments",
+      body: "Upgrades the ship starts with, such as the Scrap Recovery Arm. A ship carries 3 at most.",
+    },
+    shipName: {
+      title: "Name",
+      body: "The ship's name, shown in large letters when the ship is chosen in the hangar.",
+    },
+    shipClass: {
+      title: "Class",
+      body: "The type of ship, shown under its name in the hangar.",
+    },
+    shipDescription: {
+      title: "Description",
+      body: "The text the hangar shows when the ship is selected.",
+    },
+    blueprintName: {
+      title: "Blueprint name",
+      body: "The name the game's files use for this ship, such as PLAYER_SHIP_HARD for the Kestrel. Keep a game ship's name to replace that ship in the hangar.",
+    },
+    baseName: {
+      title: "File name",
+      body: "The start of the ship's file names: the layout files and the pictures, such as kestral.txt and kestral_base.png for the Kestrel.",
+    },
+    hull: {
+      title: "Hull",
+      body: "The ship's hull points: how much damage it takes before it is destroyed. The game shows them as the green bar at the top left. The game's own ships start with 30.",
+    },
+    reactor: {
+      title: "Reactor",
+      body: "The reactor's power at the start: the bars that power the systems. It can be upgraded in stores up to 25.",
+    },
+    crewAmount: {
+      title: "Crew amount",
+      body: "How many crew members of this race the ship starts with. A ship holds 8 at most.",
+    },
+  },
+
   inspector: {
     label: "Inspector",
     selectedRoom: "Selected room",

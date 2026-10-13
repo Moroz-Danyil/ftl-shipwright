@@ -17,6 +17,7 @@ import { LIMITS, items, slots, type LoadoutKind } from "../../../app/loadout/rul
 import { singleTarget } from "../../../app/selection";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 import { NumberField } from "../../common/NumberField";
 import { Section } from "../../common/Section";
 import { Stepper } from "../../common/Stepper";
@@ -72,31 +73,39 @@ function Counts({ ship }: { ship: Ship }) {
   const bp = ship.blueprint;
   return (
     <Section id="loadout-slots" title={texts.sections.slots}>
-      <Stepper
-        label={texts.loadout.weaponSlots}
-        value={slots(ship, "weapon")}
-        min={items(ship, "weapon").length}
-        max={LIMITS.weaponSlots}
-        onChange={(n) => setSlotCount("weapon", n)}
-      />
-      <Stepper
-        label={texts.loadout.droneSlots}
-        value={slots(ship, "drone")}
-        min={items(ship, "drone").length}
-        max={LIMITS.droneSlots}
-        onChange={(n) => setSlotCount("drone", n)}
-      />
+      <Help topic="weaponSlots">
+        <Stepper
+          label={texts.loadout.weaponSlots}
+          value={slots(ship, "weapon")}
+          min={items(ship, "weapon").length}
+          max={LIMITS.weaponSlots}
+          onChange={(n) => setSlotCount("weapon", n)}
+        />
+      </Help>
+      <Help topic="droneSlots">
+        <Stepper
+          label={texts.loadout.droneSlots}
+          value={slots(ship, "drone")}
+          min={items(ship, "drone").length}
+          max={LIMITS.droneSlots}
+          onChange={(n) => setSlotCount("drone", n)}
+        />
+      </Help>
       <div className="ed-grid2">
-        <NumberField
-          label={texts.loadout.missiles}
-          value={bp.weaponList?.missiles ?? 0}
-          onCommit={setStartingMissiles}
-        />
-        <NumberField
-          label={texts.loadout.droneParts}
-          value={bp.droneList?.drones ?? 0}
-          onCommit={setStartingDroneParts}
-        />
+        <Help topic="missiles">
+          <NumberField
+            label={texts.loadout.missiles}
+            value={bp.weaponList?.missiles ?? 0}
+            onCommit={setStartingMissiles}
+          />
+        </Help>
+        <Help topic="droneParts">
+          <NumberField
+            label={texts.loadout.droneParts}
+            value={bp.droneList?.drones ?? 0}
+            onCommit={setStartingDroneParts}
+          />
+        </Help>
       </div>
     </Section>
   );
@@ -112,26 +121,28 @@ function Augments({ ship }: { ship: Ship }) {
       title={texts.sections.augments}
       count={texts.sections.count(augments.length, 3)}
     >
-      <div className="ed-stack" role="group" aria-label={texts.loadout.augments(augments.length)}>
-        {augments.length === 0 && <span className="muted">{texts.loadout.noAugments}</span>}
-        {augments.map((name, i) => {
-          const item = findItem(data, "augment", name);
-          const title = item ? itemTitle(data, item) : name;
-          return (
-            <div key={i} className="ed-row">
-              <span>{title}</span>
-              <button
-                type="button"
-                className="btn btn--small btn--danger"
-                aria-label={texts.loadout.removeNamed(title)}
-                onClick={() => removeShipAugment(i)}
-              >
-                {texts.loadout.remove}
-              </button>
-            </div>
-          );
-        })}
-      </div>
+      <Help topic="augments">
+        <div className="ed-stack" role="group" aria-label={texts.loadout.augments(augments.length)}>
+          {augments.length === 0 && <span className="muted">{texts.loadout.noAugments}</span>}
+          {augments.map((name, i) => {
+            const item = findItem(data, "augment", name);
+            const title = item ? itemTitle(data, item) : name;
+            return (
+              <div key={i} className="ed-row">
+                <span>{title}</span>
+                <button
+                  type="button"
+                  className="btn btn--small btn--danger"
+                  aria-label={texts.loadout.removeNamed(title)}
+                  onClick={() => removeShipAugment(i)}
+                >
+                  {texts.loadout.remove}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </Help>
     </Section>
   );
 }

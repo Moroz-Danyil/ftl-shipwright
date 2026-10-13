@@ -8,6 +8,7 @@ import type { MovablePicture } from "../../../app/art/pictures";
 import { selectionSize, singleTarget } from "../../../app/selection";
 import { currentTool, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 import { Section } from "../../common/Section";
 import { ToolHelp } from "../layout/ToolHelp";
 import { GibList } from "./GibList";
@@ -23,18 +24,22 @@ function MoveOptions() {
   const set = useEditor((s) => s.setArtTool);
   return (
     <Section id="art-move" title={texts.art.moveWhich}>
-      <fieldset className="ed-fieldset" aria-label={texts.art.moveOptions}>
-        {(["auto", ...MOVABLE] as const).map((picture) => (
-          <label key={picture} className="ed-choice">
-            <input
-              type="radio"
-              name="move-picture"
-              checked={options.picture === picture}
-              onChange={() => set({ picture })}
-            />
-            {picture === "auto" ? texts.art.moveAuto : texts.art.slots[picture]}
-          </label>
-        ))}
+      <Help topic="moveWhich">
+        <fieldset className="ed-fieldset" aria-label={texts.art.moveOptions}>
+          {(["auto", ...MOVABLE] as const).map((picture) => (
+            <label key={picture} className="ed-choice">
+              <input
+                type="radio"
+                name="move-picture"
+                checked={options.picture === picture}
+                onChange={() => set({ picture })}
+              />
+              {picture === "auto" ? texts.art.moveAuto : texts.art.slots[picture]}
+            </label>
+          ))}
+        </fieldset>
+      </Help>
+      <Help topic="keepMounts">
         <label className="ed-choice">
           <input
             type="checkbox"
@@ -43,7 +48,7 @@ function MoveOptions() {
           />
           {texts.art.keepMounts}
         </label>
-      </fieldset>
+      </Help>
     </Section>
   );
 }

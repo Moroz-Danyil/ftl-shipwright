@@ -22,6 +22,7 @@ import {
 } from "../../../app/systems/rules";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 import { Stepper } from "../../common/Stepper";
 import { SystemName } from "../../common/SystemIcon";
 import { InteriorPicker } from "./InteriorPicker";
@@ -32,21 +33,23 @@ function ArtilleryWeapon({ index, weapon }: { index: number; weapon: string | un
   const names = artilleryWeapons(weapons ?? []).map((w) => w.name);
   if (weapon && !names.includes(weapon)) names.unshift(weapon);
   return (
-    <label className="field">
-      {texts.systems.artilleryWeapon}
-      <select
-        className="input mono"
-        value={weapon ?? ""}
-        onChange={(e) => setSystemWeapon(index, e.target.value)}
-      >
-        {!weapon && <option value="" />}
-        {names.map((n) => (
-          <option key={n} value={n}>
-            {n}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Help topic="artilleryWeapon">
+      <label className="field">
+        {texts.systems.artilleryWeapon}
+        <select
+          className="input mono"
+          value={weapon ?? ""}
+          onChange={(e) => setSystemWeapon(index, e.target.value)}
+        >
+          {!weapon && <option value="" />}
+          {names.map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </select>
+      </label>
+    </Help>
   );
 }
 
@@ -75,30 +78,36 @@ function SystemCard({ ship, index, room }: { ship: Ship; index: number; room: Ro
           {texts.systems.remove}
         </button>
       </div>
-      <Stepper
-        label={texts.systems.level}
-        value={system.power}
-        min={1}
-        max={Math.max(max, system.power)}
-        onChange={(v) => setSystemLevel(index, v)}
-      />
-      {showsUpgradeLimit(ship, system) && (
+      <Help topic="systemLevel">
         <Stepper
-          label={texts.systems.upgradeLimit}
-          value={system.max ?? max}
+          label={texts.systems.level}
+          value={system.power}
           min={1}
-          max={max}
-          onChange={(v) => setSystemUpgradeLimit(index, v)}
+          max={Math.max(max, system.power)}
+          onChange={(v) => setSystemLevel(index, v)}
         />
+      </Help>
+      {showsUpgradeLimit(ship, system) && (
+        <Help topic="upgradeLimit">
+          <Stepper
+            label={texts.systems.upgradeLimit}
+            value={system.max ?? max}
+            min={1}
+            max={max}
+            onChange={(v) => setSystemUpgradeLimit(index, v)}
+          />
+        </Help>
       )}
-      <label className="ed-choice">
-        <input
-          type="checkbox"
-          checked={isInstalled(system)}
-          onChange={(e) => setSystemInstalled(index, e.target.checked)}
-        />
-        {texts.systems.installed}
-      </label>
+      <Help topic="installed">
+        <label className="ed-choice">
+          <input
+            type="checkbox"
+            checked={isInstalled(system)}
+            onChange={(e) => setSystemInstalled(index, e.target.checked)}
+          />
+          {texts.systems.installed}
+        </label>
+      </Help>
       {system.system === "artillery" && <ArtilleryWeapon index={index} weapon={system.weapon} />}
       <InteriorPicker index={index} room={room} />
     </section>

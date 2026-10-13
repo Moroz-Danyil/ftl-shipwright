@@ -15,6 +15,7 @@ import {
 } from "../../../app/artActions";
 import { SLIDES } from "../../../app/art/mounts";
 import { useTexts } from "../../../text";
+import { Help } from "../../common/Help";
 import { NumberField } from "../../common/NumberField";
 
 export function MountPanel({ ship, index }: { ship: Ship; index: number }) {
@@ -32,86 +33,100 @@ export function MountPanel({ ship, index }: { ship: Ship; index: number }) {
         <span className="ed-heading-title">{texts.art.mount(index + 1)}</span>
         <span className="muted">{weapon ? texts.art.weaponHere(weapon) : texts.art.noWeapon}</span>
       </div>
+      <Help topic="mountOrder">
+        <div className="ed-row">
+          <button
+            type="button"
+            className="btn"
+            disabled={index === 0}
+            onClick={() => reorderMount(index, -1)}
+          >
+            {texts.art.earlier}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            disabled={index === count - 1}
+            onClick={() => reorderMount(index, 1)}
+          >
+            {texts.art.later}
+          </button>
+        </div>
+      </Help>
       <div className="ed-row">
-        <button
-          type="button"
-          className="btn"
-          disabled={index === 0}
-          onClick={() => reorderMount(index, -1)}
-        >
-          {texts.art.earlier}
-        </button>
-        <button
-          type="button"
-          className="btn"
-          disabled={index === count - 1}
-          onClick={() => reorderMount(index, 1)}
-        >
-          {texts.art.later}
-        </button>
+        <Help topic="mountRotate">
+          <button
+            type="button"
+            className={mount.rotate ? "btn btn--on" : "btn"}
+            aria-pressed={mount.rotate}
+            onClick={() => rotateMount(index)}
+          >
+            {texts.art.rotate}
+          </button>
+        </Help>
+        <Help topic="mountMirror">
+          <button
+            type="button"
+            className={mount.mirror ? "btn btn--on" : "btn"}
+            aria-pressed={mount.mirror}
+            onClick={() => mirrorMount(index)}
+          >
+            {texts.art.mirror}
+          </button>
+        </Help>
       </div>
-      <div className="ed-row">
-        <button
-          type="button"
-          className={mount.rotate ? "btn btn--on" : "btn"}
-          aria-pressed={mount.rotate}
-          onClick={() => rotateMount(index)}
-        >
-          {texts.art.rotate}
-        </button>
-        <button
-          type="button"
-          className={mount.mirror ? "btn btn--on" : "btn"}
-          aria-pressed={mount.mirror}
-          onClick={() => mirrorMount(index)}
-        >
-          {texts.art.mirror}
-        </button>
-      </div>
-      <label className="field">
-        {texts.art.slide}
-        <select
-          className="input"
-          value={mount.slide ?? ""}
-          onChange={(e) => slideMount(index, e.target.value)}
-        >
-          {mount.slide === undefined && <option value="" />}
-          {slides.map((s) => (
-            <option key={s} value={s}>
-              {texts.art.slides[s] ?? s}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="field">
-        {texts.art.gib}
-        <select
-          className="input"
-          value={mount.gib}
-          onChange={(e) => linkMountGib(index, Number(e.target.value))}
-        >
-          <option value={0}>{texts.art.gibNone}</option>
-          {ship.layoutXml.gibs.map((_, i) => (
-            <option key={i} value={i + 1}>
-              {texts.art.gibName(i + 1)}
-            </option>
-          ))}
-          {mount.gib > ship.layoutXml.gibs.length && (
-            <option value={mount.gib}>{texts.art.gibName(mount.gib)}</option>
-          )}
-        </select>
-      </label>
+      <Help topic="mountSlide">
+        <label className="field">
+          {texts.art.slide}
+          <select
+            className="input"
+            value={mount.slide ?? ""}
+            onChange={(e) => slideMount(index, e.target.value)}
+          >
+            {mount.slide === undefined && <option value="" />}
+            {slides.map((s) => (
+              <option key={s} value={s}>
+                {texts.art.slides[s] ?? s}
+              </option>
+            ))}
+          </select>
+        </label>
+      </Help>
+      <Help topic="mountGib">
+        <label className="field">
+          {texts.art.gib}
+          <select
+            className="input"
+            value={mount.gib}
+            onChange={(e) => linkMountGib(index, Number(e.target.value))}
+          >
+            <option value={0}>{texts.art.gibNone}</option>
+            {ship.layoutXml.gibs.map((_, i) => (
+              <option key={i} value={i + 1}>
+                {texts.art.gibName(i + 1)}
+              </option>
+            ))}
+            {mount.gib > ship.layoutXml.gibs.length && (
+              <option value={mount.gib}>{texts.art.gibName(mount.gib)}</option>
+            )}
+          </select>
+        </label>
+      </Help>
       <div className="ed-grid2">
-        <NumberField
-          label={texts.art.x}
-          value={mount.x}
-          onCommit={(x) => placeMount(index, x, mount.y)}
-        />
-        <NumberField
-          label={texts.art.y}
-          value={mount.y}
-          onCommit={(y) => placeMount(index, mount.x, y)}
-        />
+        <Help topic="mountPosition">
+          <NumberField
+            label={texts.art.x}
+            value={mount.x}
+            onCommit={(x) => placeMount(index, x, mount.y)}
+          />
+        </Help>
+        <Help topic="mountPosition">
+          <NumberField
+            label={texts.art.y}
+            value={mount.y}
+            onCommit={(y) => placeMount(index, mount.x, y)}
+          />
+        </Help>
       </div>
       <div>
         <button type="button" className="btn btn--danger" onClick={() => deleteSelectedArt()}>

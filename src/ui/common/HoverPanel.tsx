@@ -6,14 +6,14 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { Anchor } from "./useHoverPanel";
 
-/** A large picture over the details, kept inside the window. */
+/** The details, under a large picture when there is one, kept inside the window. */
 export function HoverPanel({
   anchor,
   picture,
   children,
 }: {
   anchor: Anchor;
-  picture: ReactNode;
+  picture?: ReactNode;
   children: ReactNode;
 }) {
   const panel = useRef<HTMLDivElement>(null);
@@ -24,7 +24,7 @@ export function HoverPanel({
   }, [anchor.top, children]);
   return createPortal(
     <div ref={panel} className="hover-panel" role="tooltip" style={{ left: anchor.left, top }}>
-      <span className="hover-panel-pic">{picture}</span>
+      {picture && <span className="hover-panel-pic">{picture}</span>}
       {children}
     </div>,
     document.body
