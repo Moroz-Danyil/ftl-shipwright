@@ -149,30 +149,43 @@ describe("Details workspace", () => {
     const hull = within(inspector()).getByRole("group", { name: en.details.hull });
     fireEvent.click(within(hull).getByRole("button", { name: en.systems.higher(en.details.hull) }));
     expect(bp().health).toBe(31);
+    const add = within(inspector()).getByRole("button", { name: en.details.addRace });
+    fireEvent.click(add);
+    expect(add).toHaveAttribute("aria-expanded", "true");
     fireEvent.click(within(inspector()).getByRole("button", { name: /Engi/ }));
     expect(bp().crew).toEqual([
       { amount: 2, race: "human" },
       { amount: 1, race: "engi" },
     ]);
-    const humans = within(inspector()).getByRole("group", { name: "Human" });
-    const lower = within(humans).getByRole("button", { name: en.systems.lower("Human") });
-    fireEvent.click(lower);
-    fireEvent.click(lower);
-    expect(bp().crew).toEqual([{ amount: 1, race: "engi" }]);
+    // Every race of the game is in the crew now, so there is nothing left to add.
+    expect(within(inspector()).queryByRole("button", { name: en.details.addRace })).toBeNull();
+    commit(within(inspector()).getByLabelText(en.details.amountOf("Engi")), "3");
+    expect(bp().crew).toEqual([
+      { amount: 2, race: "human" },
+      { amount: 3, race: "engi" },
+    ]);
+    fireEvent.click(
+      within(inspector()).getByRole("button", { name: en.details.removeRace("Human") })
+    );
+    expect(bp().crew).toEqual([{ amount: 3, race: "engi" }]);
     expect(steps()).toBe(5);
   });
 
   it("shows a race's description and abilities beside the list on hover", async () => {
     await setUp();
     press("Digit5");
-    const card = within(inspector()).getByRole("button", { name: /Engi/ });
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.details.addRace }));
+    const list = within(inspector()).getByRole("list", { name: en.details.races });
+    const card = within(list).getByRole("button", { name: /Engi/ });
     fireEvent.pointerEnter(card);
     const details = within(screen.getByRole("tooltip")).getByRole("region", { name: "Engi" });
     expect(details).toHaveTextContent("Repair speed is doubled");
     expect(details).toHaveTextContent(en.details.abilities);
     expect(details).toHaveTextContent(en.loadout.units.scrap(45));
-    fireEvent.pointerLeave(card.parentElement!);
+    fireEvent.pointerLeave(list);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    fireEvent.keyDown(card, { key: "Escape" });
+    expect(within(inspector()).queryByRole("list", { name: en.details.races })).toBeNull();
   });
 
   it("asks before giving a game ship a new save name", async () => {

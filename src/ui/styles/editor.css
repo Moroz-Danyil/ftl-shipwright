@@ -949,14 +949,54 @@
 .dt-crew {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--raised);
 }
-.dt-crew .stepper {
+.dt-crew-name {
   flex: 1;
+  font-weight: 500;
 }
-.dt-races {
-  max-height: none;
-  overflow: visible;
+.dt-crew .field {
+  width: 72px;
+}
+.dt-add {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.dt-race-list {
+  align-self: stretch;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--raised);
+}
+.dt-race-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.dt-race-item:hover,
+.dt-race-item:focus-visible {
+  background: var(--tile);
+  outline: none;
 }
 textarea.input {
   height: auto;

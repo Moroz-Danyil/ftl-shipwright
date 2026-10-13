@@ -7,6 +7,8 @@ import { useState } from "react";
 
 interface Props {
   label: string;
+  /** A fuller name for screen readers when the visible label is short. */
+  ariaLabel?: string;
   value: number;
   /** Accept fractions (e.g. gib speeds); otherwise whole numbers only. */
   decimals?: boolean;
@@ -14,7 +16,7 @@ interface Props {
   onCommit: (value: number) => void;
 }
 
-export function NumberField({ label, value, decimals = false, onCommit }: Props) {
+export function NumberField({ label, ariaLabel, value, decimals = false, onCommit }: Props) {
   const [draft, setDraft] = useState<string | null>(null);
 
   const commit = () => {
@@ -31,6 +33,7 @@ export function NumberField({ label, value, decimals = false, onCommit }: Props)
       <input
         className="input mono"
         type="number"
+        aria-label={ariaLabel}
         step={decimals ? "any" : 1}
         value={draft ?? String(value)}
         onChange={(e) => setDraft(e.target.value)}

@@ -96,3 +96,11 @@ export function ChevronIcon() {
     </svg>
   );
 }
+
+export function CrossIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M2 2 L10 10 M10 2 L2 10" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}

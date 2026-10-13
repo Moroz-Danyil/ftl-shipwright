@@ -22,9 +22,11 @@ import { usePlatform } from "../../../platform/PlatformContext";
 import { useTexts } from "../../../text";
 import { RacePicture } from "../../common/ItemPictures";
 import { Section } from "../../common/Section";
+import { CrossIcon } from "../../common/icons";
+import { NumberField } from "../../common/NumberField";
 import { Stepper } from "../../common/Stepper";
 import { TextField } from "../../common/TextField";
-import { RaceCards } from "./RaceCards";
+import { RacePicker } from "./RacePicker";
 
 function HangarTexts({ ship }: { ship: Ship }) {
   const texts = useTexts();
@@ -89,19 +91,26 @@ function Crew({ ship }: { ship: Ship }) {
     >
       {crew.length === 0 && <span className="muted">{texts.details.noCrew}</span>}
       {crew.map((c) => (
-        <div key={c.race} className="dt-crew">
-          <RacePicture race={c.race} />
-          <Stepper
-            label={title(c.race)}
+        <div key={c.race} className="dt-crew" role="group" aria-label={title(c.race)}>
+          <RacePicture race={c.race} size={36} />
+          <span className="dt-crew-name">{title(c.race)}</span>
+          <NumberField
+            label={texts.details.amount}
+            ariaLabel={texts.details.amountOf(title(c.race))}
             value={c.amount}
-            min={0}
-            max={c.amount + LIMITS.crew - total}
-            showMax={false}
-            onChange={(n) => setCrewAmount(c.race, n)}
+            onCommit={(n) => setCrewAmount(c.race, n)}
           />
+          <button
+            type="button"
+            className="btn btn--icon btn--small"
+            aria-label={texts.details.removeRace(title(c.race))}
+            onClick={() => setCrewAmount(c.race, 0)}
+          >
+            <CrossIcon />
+          </button>
         </div>
       ))}
-      {total < LIMITS.crew && missing.length > 0 && <RaceCards races={missing} />}
+      {total < LIMITS.crew && missing.length > 0 && <RacePicker races={missing} />}
     </Section>
   );
 }

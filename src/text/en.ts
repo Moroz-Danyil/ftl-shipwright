@@ -407,11 +407,12 @@ export const en = {
     reactor: "Reactor",
     crew: (n: number) => `Crew ${n} / 8`,
     noCrew: "No crew yet.",
-    addRace: "Add race",
-    raceHint:
-      "Click a race to add one crew member. Hover a race for its description and abilities.",
+    addRace: "Add race…",
+    races: "Races",
     abilities: "Abilities",
-    amount: (race: string) => `${race} crew`,
+    amount: "Amount",
+    amountOf: (race: string) => `${race} crew`,
+    removeRace: (race: string) => `Remove ${race}`,
   },
 
   sections: {
