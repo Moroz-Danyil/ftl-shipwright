@@ -48,6 +48,11 @@ export function removeSelectedSlots(): boolean {
   return true;
 }
 
+/** Removes the weapon or drone in one slot; the later ones move up. */
+export function removeSlot(kind: LoadoutKind, index: number): void {
+  state().edit((s) => removeItems(s, kind, [index]), EMPTY_SELECTION);
+}
+
 /** Moves a weapon or drone one slot earlier or later; it stays selected. */
 export function moveSlot(kind: LoadoutKind, index: number, step: -1 | 1): void {
   const current = ship();

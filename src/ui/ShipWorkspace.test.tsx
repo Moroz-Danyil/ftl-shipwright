@@ -54,31 +54,46 @@ describe("Ship workspace: equipment", () => {
     expect(state().workspace).toBe("ship");
   });
 
-  it("shows the slots and adds items from the cards", () => {
+  const section = (name: string) => within(inspector()).getByRole("region", { name });
+  const cards = (kind: "weapon" | "drone" | "augment") =>
+    within(inspector()).getByRole("group", { name: en.loadout.catalog[kind] });
+  const listOf = (kind: "weapon" | "drone" | "augment") =>
+    within(inspector()).getByRole("list", { name: en.loadout.equipped[kind] });
+
+  it("shows the slots and adds weapons and drones from their cards", () => {
     expect(within(bar()).getByText(en.loadout.weaponsCount(1, 2))).toBeInTheDocument();
     expect(
       within(bar()).getByRole("button", { name: en.loadout.slotLabel(1, "Burst I") })
     ).toBeInTheDocument();
     expect(within(bar()).getByText(en.loadout.emptySlot.weapon)).toBeInTheDocument();
+    const weapons = section(en.sections.weapons);
+    expect(within(weapons).getByText(en.sections.count(1, 2))).toBeInTheDocument();
 
-    fireEvent.click(within(inspector()).getByRole("button", { name: /Artemis/ }));
+    fireEvent.click(within(cards("weapon")).getByRole("button", { name: /Artemis/ }));
     expect(bp().weaponList?.items).toEqual(["LASER_BURST_1", "MISSILES_1"]);
     expect(
       within(bar()).getByRole("button", { name: en.loadout.slotLabel(2, "Artemis") })
     ).toHaveAttribute("aria-pressed", "true");
-    fireEvent.click(within(inspector()).getByRole("button", { name: /Artemis/ }));
+    expect(
+      within(listOf("weapon")).getByRole("button", { name: en.loadout.slotLabel(2, "Artemis") })
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(within(weapons).getByText(en.sections.count(2, 2))).toBeInTheDocument();
+    fireEvent.click(within(cards("weapon")).getByRole("button", { name: /Artemis/ }));
     expect(state().notice?.text).toBe(en.loadout.full.weapon);
 
-    fireEvent.click(within(inspector()).getByRole("tab", { name: en.loadout.tabs.drone }));
-    expect(within(inspector()).getByRole("button", { name: /Combat Drone I/ })).toBeInTheDocument();
-    expect(within(inspector()).queryByRole("button", { name: /A store item/ })).toBeNull();
-    fireEvent.click(within(inspector()).getByRole("button", { name: /Combat Drone I/ }));
+    const drones = section(en.sections.drones);
+    expect(within(drones).getByText(en.loadout.noItems.drone)).toBeInTheDocument();
+    expect(within(cards("drone")).queryByRole("button", { name: /A store item/ })).toBeNull();
+    fireEvent.click(within(cards("drone")).getByRole("button", { name: /Combat Drone I/ }));
     expect(bp().droneList?.items).toEqual(["COMBAT_1"]);
+    expect(within(listOf("drone")).getAllByRole("listitem")).toHaveLength(1);
     expect(steps()).toBe(2);
   });
 
   it("shows an item's details beside the list on hover and hides them on leave", () => {
-    const card = within(inspector()).getByRole("button", { name: /Burst Laser I/ });
+    const card = within(cards("weapon")).getByRole("button", {
+      name: /Burst Laser I/,
+    });
     fireEvent.pointerEnter(card);
     const popover = screen.getByRole("tooltip");
     expect(inspector()).not.toContainElement(popover);
@@ -86,41 +101,101 @@ describe("Ship workspace: equipment", () => {
     expect(details).toHaveTextContent(en.loadout.details.fireChance);
     expect(details).toHaveTextContent(en.loadout.units.percent(1));
     expect(details).toHaveTextContent(en.loadout.units.seconds(11));
-    expect(within(inspector()).getByText(en.loadout.hint)).toBeInTheDocument();
+    expect(within(inspector()).getByText(en.loadout.hints.weapon)).toBeInTheDocument();
     fireEvent.pointerLeave(card.parentElement!);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 
-  it("selects, reorders and deletes slots", () => {
-    fireEvent.click(within(inspector()).getByRole("button", { name: /Artemis/ }));
+  it("selects, reorders and removes weapons from their list", () => {
+    fireEvent.click(within(cards("weapon")).getByRole("button", { name: /Artemis/ }));
+    const list = listOf("weapon");
     fireEvent.click(
-      within(bar()).getByRole("button", { name: en.loadout.slotLabel(2, "Artemis") })
+      within(list).getByRole("button", { name: en.loadout.slotLabel(1, "Burst Laser I") })
     );
-    expect(within(inspector()).getByText(en.loadout.drawnOnMount(2))).toBeInTheDocument();
-    fireEvent.click(within(inspector()).getByRole("button", { name: en.loadout.earlier }));
+    expect(state().selection.weapons).toEqual([0]);
+    expect(
+      within(bar()).getByRole("button", { name: en.loadout.slotLabel(1, "Burst I") })
+    ).toHaveAttribute("aria-pressed", "true");
+
+    expect(
+      within(list).getByRole("button", { name: en.loadout.earlierNamed("Burst Laser I") })
+    ).toBeDisabled();
+    fireEvent.click(within(list).getByRole("button", { name: en.loadout.earlierNamed("Artemis") }));
     expect(bp().weaponList?.items).toEqual(["MISSILES_1", "LASER_BURST_1"]);
+    expect(state().selection.weapons).toEqual([0]);
+    fireEvent.click(
+      within(listOf("weapon")).getByRole("button", { name: en.loadout.laterNamed("Artemis") })
+    );
+    expect(bp().weaponList?.items).toEqual(["LASER_BURST_1", "MISSILES_1"]);
+
+    fireEvent.click(
+      within(listOf("weapon")).getByRole("button", {
+        name: en.loadout.removeNamed("Burst Laser I"),
+      })
+    );
+    expect(bp().weaponList?.items).toEqual(["MISSILES_1"]);
+    expect(steps()).toBe(4);
+
+    fireEvent.click(
+      within(listOf("weapon")).getByRole("button", { name: en.loadout.slotLabel(1, "Artemis") })
+    );
     press("Delete");
-    expect(bp().weaponList?.items).toEqual(["LASER_BURST_1"]);
-    expect(bp().weaponList?.count).toBe(1);
+    expect(bp().weaponList?.items).toEqual([]);
+    expect(
+      within(section(en.sections.weapons)).getByText(en.loadout.noItems.weapon)
+    ).toBeInTheDocument();
   });
 
-  it("links the hovered slot and its mount", () => {
+  it("adds, reorders and removes drones from their list", () => {
+    const drones = section(en.sections.drones);
+    const slots = within(inspector()).getByRole("group", { name: en.loadout.droneSlots });
+    fireEvent.click(
+      within(slots).getByRole("button", { name: en.systems.higher(en.loadout.droneSlots) })
+    );
+    fireEvent.click(within(cards("drone")).getByRole("button", { name: /Combat Drone I/ }));
+    fireEvent.click(within(cards("drone")).getByRole("button", { name: /System Repair Drone/ }));
+    expect(bp().droneList?.items).toEqual(["COMBAT_1", "REPAIR"]);
+    expect(within(drones).getByText(en.sections.count(2, 2))).toBeInTheDocument();
+    fireEvent.click(
+      within(listOf("drone")).getByRole("button", {
+        name: en.loadout.earlierNamed("System Repair Drone"),
+      })
+    );
+    expect(bp().droneList?.items).toEqual(["REPAIR", "COMBAT_1"]);
+    expect(state().selection.drones).toEqual([0]);
+    fireEvent.click(
+      within(listOf("drone")).getByRole("button", {
+        name: en.loadout.removeNamed("Combat Drone I"),
+      })
+    );
+    expect(bp().droneList?.items).toEqual(["REPAIR"]);
+  });
+
+  it("links a hovered weapon, in the bar or in the list, to its mount", () => {
     act(() =>
       state().edit((s) => addMount(s, { x: 40, y: 40, rotate: false, mirror: false, gib: 0 }))
     );
-    fireEvent.pointerEnter(
-      within(bar()).getByRole("button", { name: en.loadout.slotLabel(1, "Burst I") })
-    );
+    const slot = within(bar()).getByRole("button", { name: en.loadout.slotLabel(1, "Burst I") });
+    fireEvent.pointerEnter(slot);
     expect(screen.getByTestId("mount-1")).toHaveAttribute("data-hovered", "true");
-    fireEvent.pointerLeave(
-      within(bar()).getByRole("button", { name: en.loadout.slotLabel(1, "Burst I") })
-    );
+    fireEvent.pointerLeave(slot);
     expect(screen.getByTestId("mount-1")).not.toHaveAttribute("data-hovered");
+    const row = within(listOf("weapon")).getByRole("button", {
+      name: en.loadout.slotLabel(1, "Burst Laser I"),
+    });
+    fireEvent.pointerEnter(row);
+    expect(screen.getByTestId("mount-1")).toHaveAttribute("data-hovered", "true");
+    expect(
+      within(screen.getByRole("tooltip")).getByRole("region", { name: "Burst Laser I" })
+    ).toBeInTheDocument();
+    fireEvent.pointerLeave(row);
+    expect(screen.getByTestId("mount-1")).not.toHaveAttribute("data-hovered");
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
     fireEvent.pointerEnter(screen.getByTestId("mount-1"));
     expect(state().hoverWeapon).toBe(0);
   });
 
-  it("changes slot counts, missiles and augments", () => {
+  it("changes slot counts and missiles", () => {
     const slots = within(inspector()).getByRole("group", { name: en.loadout.weaponSlots });
     fireEvent.click(
       within(slots).getByRole("button", { name: en.systems.higher(en.loadout.weaponSlots) })
@@ -128,14 +203,27 @@ describe("Ship workspace: equipment", () => {
     expect(bp().weaponSlots).toBe(3);
     commit(within(inspector()).getByLabelText(en.loadout.missiles), "6");
     expect(bp().weaponList?.missiles).toBe(6);
-    fireEvent.click(within(inspector()).getByRole("tab", { name: en.loadout.tabs.augment }));
-    fireEvent.click(within(inspector()).getByRole("button", { name: /Scrap Recovery Arm/ }));
-    const augments = within(inspector()).getByRole("group", { name: en.loadout.augments(1) });
+    expect(steps()).toBe(2);
+  });
+
+  it("adds an augment, shows its details on hover and removes it", () => {
+    const augments = section(en.sections.augments);
+    expect(within(augments).getByText(en.loadout.noAugments)).toBeInTheDocument();
+    expect(within(augments).getByText(en.loadout.hints.augment)).toBeInTheDocument();
+    fireEvent.click(within(cards("augment")).getByRole("button", { name: /Scrap Recovery Arm/ }));
+    expect(bp().augments).toEqual(["SCRAP_COLLECTOR"]);
+    expect(within(augments).getByText(en.sections.count(1, 3))).toBeInTheDocument();
+    const list = listOf("augment");
+    fireEvent.pointerEnter(within(list).getByText("Scrap Recovery Arm").closest(".eq-augment")!);
+    expect(
+      within(screen.getByRole("tooltip")).getByRole("region", { name: "Scrap Recovery Arm" })
+    ).toHaveTextContent(en.loadout.units.scrap(50));
     fireEvent.click(
-      within(augments).getByRole("button", { name: en.loadout.removeNamed("Scrap Recovery Arm") })
+      within(list).getByRole("button", { name: en.loadout.removeNamed("Scrap Recovery Arm") })
     );
     expect(bp().augments).toEqual([]);
-    expect(steps()).toBe(4);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(steps()).toBe(2);
   });
 });
 
@@ -155,8 +243,9 @@ describe("Ship workspace: info, stats and crew", () => {
       en.sections.info,
       en.sections.stats,
       en.sections.crew,
+      en.sections.weapons,
+      en.sections.drones,
       en.sections.augments,
-      en.sections.addItems,
     ]);
   });
 

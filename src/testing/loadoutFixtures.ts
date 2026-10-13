@@ -1,5 +1,5 @@
 /**
- * Game data and a ship for the Loadout and Hangar tests: a few weapons,
+ * Game data and a ship for the Ship workspace tests: a few weapons,
  * drones (one of them a store item), augments and races with titles.
  */
 import type { ShipText } from "../core";

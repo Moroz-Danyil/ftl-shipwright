@@ -26,7 +26,7 @@ export function ItemPicture({ item, size = 40 }: { item: CatalogItem; size?: num
   return <AugmentIcon size={size} />;
 }
 
-function Details({ item }: { item: CatalogItem }) {
+export function Details({ item }: { item: CatalogItem }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const desc = gameText(data, item.entry.desc);
@@ -75,7 +75,12 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
           onChange={(e) => setQuery(e.target.value)}
         />
       </label>
-      <div className="lo-cards" onPointerLeave={panel.hide}>
+      <div
+        className="lo-cards"
+        role="group"
+        aria-label={texts.loadout.catalog[kind]}
+        onPointerLeave={panel.hide}
+      >
         {matching.map((item) => (
           <button
             key={item.entry.name}
@@ -96,7 +101,7 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
         ))}
         {matching.length === 0 && <span className="muted">{texts.loadout.noMatches}</span>}
       </div>
-      <span className="ed-help">{texts.loadout.hint}</span>
+      <span className="ed-help">{texts.loadout.hints[kind]}</span>
       {panel.shown && (
         <HoverPanel
           anchor={panel.shown.anchor}

@@ -878,26 +878,56 @@
   justify-content: center;
   cursor: default;
 }
-.lo-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+/* The ship's weapons, drones and augments in the Ship inspector */
+.eq-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
   gap: 4px;
-  padding: 3px;
-  border-radius: 10px;
-  background: var(--bg);
-  border: 1px solid var(--line);
 }
-.lo-tab {
-  height: 30px;
-  border: none;
-  border-radius: 7px;
-  background: transparent;
-  color: var(--text-soft);
-  cursor: pointer;
+.eq-row {
+  gap: 4px;
 }
-.lo-tab[aria-selected="true"] {
+.eq-row .btn--icon {
+  width: 26px;
+  height: 28px;
+  flex-shrink: 0;
+}
+.eq-row .ar-thumb {
+  width: 44px;
+}
+.eq-row .ar-picture-text {
+  line-height: 1.3;
+}
+.eq-row .ar-picture-text .eyebrow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.eq-number {
+  width: 14px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--accent);
+  text-align: center;
+}
+.ar-gib-main[aria-pressed="true"] {
+  border-color: var(--accent);
   background: var(--accent-bg);
-  color: var(--accent-soft);
+}
+.eq-augment {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+  border-radius: 8px;
+}
+.eq-augment:focus-visible {
+  outline: 2px solid var(--accent);
 }
 .lo-cards {
   display: grid;

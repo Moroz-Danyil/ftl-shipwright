@@ -357,8 +357,6 @@ export const en = {
   },
 
   loadout: {
-    tabs: { weapon: "Weapons", drone: "Drones", augment: "Augments" },
-    tabsLabel: "Equipment",
     searchPlaceholder: {
       weapon: "Laser, ion, missile…",
       drone: "Combat, defense…",
@@ -382,15 +380,21 @@ export const en = {
     droneSlots: "Drone slots",
     missiles: "Starting missiles",
     droneParts: "Starting drone parts",
-    augments: (n: number) => `Augments ${n} / 3`,
-    noAugments: "No augments.",
-    remove: "Remove",
+    equipped: {
+      weapon: "The ship's weapons",
+      drone: "The ship's drones",
+      augment: "The ship's augments",
+    },
+    catalog: {
+      weapon: "The game's weapons",
+      drone: "The game's drones",
+      augment: "The game's augments",
+    },
+    noItems: { weapon: "No weapons yet.", drone: "No drones yet." },
+    noAugments: "No augments yet.",
     removeNamed: (name: string) => `Remove ${name}`,
-    earlier: "Earlier",
-    later: "Later",
-    selectedWeapon: (n: number) => `Weapon slot ${n}`,
-    selectedDrone: (n: number) => `Drone slot ${n}`,
-    drawnOnMount: (n: number) => `Drawn on mount ${n}.`,
+    earlierNamed: (name: string) => `Move ${name} to an earlier slot`,
+    laterNamed: (name: string) => `Move ${name} to a later slot`,
     noMatches: "Nothing matches.",
     unknownItem: (name: string) => `${name} (not in the game)`,
     stats: {
@@ -423,7 +427,11 @@ export const en = {
       seconds: (n: number) => `${n} s`,
       scrap: (n: number) => `${n} scrap`,
     },
-    hint: "Click a card to put it in the next free slot. Hover a card for its details.",
+    hints: {
+      weapon: "Click a card to put the weapon in the next free slot. Hover a card for its details.",
+      drone: "Click a card to put the drone in the next free slot. Hover a card for its details.",
+      augment: "Click a card to add the augment. Hover a card for its details.",
+    },
     hull: "Hull",
     reactor: "Reactor",
   },
@@ -460,8 +468,9 @@ export const en = {
     info: "Info",
     stats: "Stats",
     crew: "Crew",
+    weapons: "Weapons",
+    drones: "Drones",
     augments: "Augments",
-    addItems: "Add items",
     count: (n: number, max: number) => `${n} / ${max}`,
     mountsHint:
       "The Mount tool (M) adds mounts on the hull. Weapons take the mounts in the order of their numbers.",
@@ -564,10 +573,6 @@ export const en = {
     droneParts: {
       title: "Starting drone parts",
       body: "Drone parts in stock when a run starts. Launching a drone uses one.",
-    },
-    augments: {
-      title: "Augments",
-      body: "Upgrades the ship starts with, such as the Scrap Recovery Arm. A ship carries 3 at most.",
     },
     shipName: {
       title: "Name",

@@ -98,6 +98,24 @@ export function ChevronIcon() {
   );
 }
 
+/** An arrow pointing up (earlier) or down (later). */
+export function ArrowIcon({ direction }: { direction: "up" | "down" }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      <path
+        d={
+          direction === "up"
+            ? "M6 10.5 V2 M2.5 5.5 L6 2 L9.5 5.5"
+            : "M6 1.5 V10 M2.5 6.5 L6 10 L9.5 6.5"
+        }
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+      />
+    </svg>
+  );
+}
+
 export function CrossIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
