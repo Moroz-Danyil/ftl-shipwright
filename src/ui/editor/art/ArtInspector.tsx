@@ -13,6 +13,7 @@ import { Section } from "../../common/Section";
 import { ToolHelp } from "../layout/ToolHelp";
 import { GibList } from "./GibList";
 import { GibPanel } from "./GibPanel";
+import { MountList } from "./MountList";
 import { MountPanel } from "./MountPanel";
 import { PicturesPanel } from "./PicturesPanel";
 
@@ -85,13 +86,7 @@ export function ArtInspector() {
       <Section id="art-pictures" title={texts.sections.pictures}>
         <PicturesPanel />
       </Section>
-      <Section
-        id="art-mounts"
-        title={texts.sections.mounts}
-        count={texts.sections.count(ship.layoutXml.mounts.length, 8)}
-      >
-        <span className="ed-help">{texts.sections.mountsHint}</span>
-      </Section>
+      <MountList />
       <GibList />
       <ToolHelp />
     </>

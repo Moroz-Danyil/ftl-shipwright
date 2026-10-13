@@ -273,6 +273,8 @@ export const en = {
     },
     selectedMount: "Selected weapon mount",
     mount: (n: number) => `Mount ${n}`,
+    mountEmpty: "No weapon",
+    selectMount: (n: number) => `Select mount ${n} on the ship`,
     weaponHere: (name: string) => `Weapon ${name} is drawn here.`,
     noWeapon: "No weapon is equipped on this mount.",
     earlier: "Earlier",
@@ -436,7 +438,7 @@ export const en = {
     crew: "Crew",
     count: (n: number, max: number) => `${n} / ${max}`,
     mountsHint:
-      "Click a mount on the ship to edit it. Weapons take the mounts in the order of their numbers.",
+      "The Mount tool (M) adds mounts on the hull. Weapons take the mounts in the order of their numbers.",
   },
 
   /** Hover help for the fields: a title (the field's label) and what it means in the game. */

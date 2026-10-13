@@ -14,15 +14,19 @@ import {
   slideMount,
 } from "../../../app/artActions";
 import { SLIDES } from "../../../app/art/mounts";
+import { findItem, itemTitle } from "../../../app/loadout/catalog";
+import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
 import { NumberField } from "../../common/NumberField";
 
 export function MountPanel({ ship, index }: { ship: Ship; index: number }) {
   const texts = useTexts();
+  const data = useEditor((s) => s.game.data);
   const mount = ship.layoutXml.mounts[index];
   if (!mount) return null;
   const weapon = ship.blueprint.weaponList?.items[index];
+  const item = weapon === undefined ? undefined : findItem(data, "weapon", weapon);
   const count = ship.layoutXml.mounts.length;
   const slides: string[] = [...SLIDES];
   if (mount.slide !== undefined && !slides.includes(mount.slide)) slides.push(mount.slide);
@@ -31,7 +35,11 @@ export function MountPanel({ ship, index }: { ship: Ship; index: number }) {
       <div className="ed-heading">
         <span className="eyebrow">{texts.art.selectedMount}</span>
         <span className="ed-heading-title">{texts.art.mount(index + 1)}</span>
-        <span className="muted">{weapon ? texts.art.weaponHere(weapon) : texts.art.noWeapon}</span>
+        <span className="muted">
+          {weapon
+            ? texts.art.weaponHere(item ? itemTitle(data, item) : weapon)
+            : texts.art.noWeapon}
+        </span>
       </div>
       <Help topic="mountOrder">
         <div className="ed-row">

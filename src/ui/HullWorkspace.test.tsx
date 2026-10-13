@@ -214,3 +214,43 @@ describe("Hull checks", () => {
     expect(within(inspector()).getByText(en.art.selectedMount)).toBeInTheDocument();
   });
 });
+
+describe("Hull: the mount list", () => {
+  it("lists the mounts with their weapons, selects one with a click and removes another", () => {
+    act(() =>
+      state().edit((s) => {
+        const one = addMount(s, { x: 40, y: 40, rotate: false, mirror: false, gib: 0 });
+        const two = addMount(one, { x: 80, y: 40, rotate: false, mirror: false, gib: 0 });
+        return {
+          ...two,
+          blueprint: { ...two.blueprint, weaponList: { items: ["ARTILLERY_FED"], missiles: 0 } },
+        };
+      })
+    );
+    const list = within(inspector()).getByRole("region", { name: en.sections.mounts });
+    expect(list).toHaveTextContent(en.sections.count(2, 8));
+    expect(within(list).getByText(en.sections.mountsHint)).toBeInTheDocument();
+    const first = within(list).getByRole("button", { name: en.art.selectMount(1) });
+    expect(first).toHaveTextContent(en.art.mount(1));
+    expect(first).toHaveTextContent("ARTILLERY_FED");
+    const second = within(list).getByRole("button", { name: en.art.selectMount(2) });
+    expect(second).toHaveTextContent(en.art.mountEmpty);
+
+    fireEvent.click(second);
+    expect(state().selection.mounts).toEqual([1]);
+    expect(within(inspector()).getByText(en.art.selectedMount)).toBeInTheDocument();
+    press("Escape");
+
+    const before = steps();
+    fireEvent.click(
+      within(inspector()).getByRole("button", { name: en.art.removeNamed(en.art.mount(1)) })
+    );
+    expect(snap().ship.layoutXml.mounts).toEqual([
+      { x: 80, y: 40, rotate: false, mirror: false, gib: 0 },
+    ]);
+    expect(steps()).toBe(before + 1);
+    expect(
+      within(inspector()).queryByRole("button", { name: en.art.selectMount(2) })
+    ).not.toBeInTheDocument();
+  });
+});

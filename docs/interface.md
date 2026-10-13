@@ -80,6 +80,7 @@ Rooms, doors, the systems in the rooms and the crew stations.
 | Gib          | `G` | select and drag the explosion pieces                                                        |
 
 - Pictures (hull, floor, cloak, shield, ship icon) are chosen from the game or from a PNG file.
+- **Weapon mounts** lists the mounts (at most 8) with the weapon drawn on each; a click selects a mount on the ship, the cross removes it. The Mount tool adds mounts.
 - A selected mount shows its number (the weapon slot drawn on it), buttons to move it earlier or later, **Rotate** and **Mirror** (also `[` and `]`), the direction the weapon slides out, the explosion piece it flies off with, and whether it moves together with the hull picture.
 - The explosion pieces are listed with their pictures; the explosion can be played on the canvas.
 

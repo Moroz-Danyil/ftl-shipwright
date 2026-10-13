@@ -152,6 +152,11 @@ export function deleteSelectedArt(): boolean {
   return true;
 }
 
+/** Deletes one mount (from the list of weapon mounts). */
+export function removeMountAt(index: number): void {
+  state().edit((s) => removeMounts(s, [index]), EMPTY_SELECTION);
+}
+
 /** Deletes one gib (from the list of explosion pieces). */
 export function removeGib(index: number): void {
   state().editSnapshot((s) => removeGibs(s, [index]), EMPTY_SELECTION);
