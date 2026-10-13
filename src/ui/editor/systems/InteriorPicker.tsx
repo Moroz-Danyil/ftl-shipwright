@@ -11,6 +11,7 @@ import { interiorFits, interiorsFor } from "../../../app/systems/rules";
 import { useEditor } from "../../../app/store";
 import { usePicture } from "../../../canvas/pictures";
 import { useTexts } from "../../../text";
+import { PictureZoom } from "../../common/PictureZoom";
 import { Help } from "../../common/Help";
 
 interface OptionProps {
@@ -29,7 +30,9 @@ function InteriorOption({ source, name, room, group, checked, onPick }: OptionPr
   return (
     <label className={fits ? "sy-interior" : "sy-interior sy-interior--misfit"}>
       <input type="radio" name={group} checked={checked} onChange={onPick} />
-      <span className="sy-interior-preview">{picture && <img src={picture.url} alt="" />}</span>
+      <PictureZoom className="sy-interior-preview" picture={picture} title={name}>
+        {picture && <img src={picture.url} alt="" />}
+      </PictureZoom>
       <span className="sy-interior-text">
         <span className="sy-interior-name">{name}</span>
         {picture && (

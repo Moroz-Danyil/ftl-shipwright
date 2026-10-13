@@ -7,6 +7,7 @@ import { pictureName, type PictureRef, type PictureSlot } from "../../../app/art
 import { useEditor } from "../../../app/store";
 import { usePictureRef } from "../../../canvas/pictures";
 import { useTexts } from "../../../text";
+import { PictureZoom } from "../../common/PictureZoom";
 
 const SLOTS: PictureSlot[] = ["hull", "floor", "cloak", "shield", "miniship"];
 
@@ -17,7 +18,14 @@ function PictureRow({ slot, picture }: { slot: PictureSlot; picture: PictureRef 
   const label = texts.art.slots[slot];
   return (
     <div className="ar-picture" data-slot={slot}>
-      <span className="ar-thumb">{loaded && <img src={loaded.url} alt="" />}</span>
+      <PictureZoom
+        className="ar-thumb"
+        picture={loaded}
+        title={label}
+        name={picture ? pictureName(picture) : undefined}
+      >
+        {loaded && <img src={loaded.url} alt="" />}
+      </PictureZoom>
       <span className="ar-picture-text">
         <span>{label}</span>
         <span className="eyebrow">{picture ? pictureName(picture) : texts.art.noPicture}</span>

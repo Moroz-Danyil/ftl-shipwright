@@ -5,8 +5,10 @@
 import { removeGib } from "../../../app/artActions";
 import { selectionOf } from "../../../app/selection";
 import { useEditor } from "../../../app/store";
+import { pictureName } from "../../../app/art/model";
 import { usePictureRef } from "../../../canvas/pictures";
 import { useTexts } from "../../../text";
+import { PictureZoom } from "../../common/PictureZoom";
 import { CrossIcon } from "../../common/icons";
 import { Section } from "../../common/Section";
 
@@ -24,7 +26,14 @@ function GibRow({ index }: { index: number }) {
         aria-label={texts.art.selectGib(index + 1)}
         onClick={() => useEditor.getState().select(selectionOf({ kind: "gib", index }))}
       >
-        <span className="ar-thumb">{loaded && <img src={loaded.url} alt="" />}</span>
+        <PictureZoom
+          className="ar-thumb"
+          picture={loaded}
+          title={name}
+          name={picture ? pictureName(picture) : undefined}
+        >
+          {loaded && <img src={loaded.url} alt="" />}
+        </PictureZoom>
         <span>{name}</span>
       </button>
       <button

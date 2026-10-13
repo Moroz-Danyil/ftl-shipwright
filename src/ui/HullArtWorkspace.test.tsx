@@ -180,3 +180,21 @@ describe("Hull & art explosion pieces", () => {
     expect(within(inspector()).getByRole("button", { name: en.art.addGib })).toBeInTheDocument();
   });
 });
+
+describe("Hull & art picture zoom", () => {
+  it("shows a thumbnail large, with its name and size, while it is hovered", async () => {
+    const hull = within(inspector()).getByRole("button", {
+      name: en.art.changeNamed("Hull"),
+    }).parentElement!;
+    const thumb = hull.querySelector<HTMLElement>(".ar-thumb")!;
+    await waitFor(() => expect(thumb.querySelector("img")).not.toBeNull());
+    fireEvent.pointerEnter(thumb);
+    const zoom = screen.getByRole("tooltip");
+    expect(within(zoom).getByRole("region", { name: "Hull" })).toHaveTextContent(
+      en.art.pictureSize(200, 100)
+    );
+    expect(zoom.querySelector("img.zoom-img")).not.toBeNull();
+    fireEvent.pointerLeave(thumb);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+  });
+});
