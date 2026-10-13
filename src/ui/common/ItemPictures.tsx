@@ -13,22 +13,41 @@ interface Frame {
   sheet: { w: number; h: number };
 }
 
-/** One frame of a sprite sheet, scaled to fit a box. */
-function FramePicture({ frame, size }: { frame: Frame | undefined; size: number }) {
+/**
+ * One frame of a sprite sheet, scaled to fit a box. The inner `svg` clips the
+ * sheet to the frame, so neighbouring frames never show beside a narrow one.
+ * `turned` lays it on its side and mirrors it, as the game draws weapons on
+ * the player's ship: a weapon drawn barrel-up then points right, its left
+ * side facing down.
+ */
+function FramePicture({
+  frame,
+  size,
+  turned = false,
+}: {
+  frame: Frame | undefined;
+  size: number;
+  turned?: boolean;
+}) {
   const view = useEditor((s) => s.game.data?.view);
   const picture = usePicture(view, frame?.path);
   if (!frame || !picture)
     return <span className="item-pic" style={{ width: size, height: size }} />;
   const { rect } = frame;
+  const [w, h] = turned ? [rect.h, rect.w] : [rect.w, rect.h];
   return (
     <svg
       className="item-pic"
       width={size}
       height={size}
-      viewBox={`${rect.x} ${rect.y} ${rect.w} ${rect.h}`}
+      viewBox={`0 0 ${w} ${h}`}
       aria-hidden="true"
     >
-      <image href={picture.url} width={frame.sheet.w} height={frame.sheet.h} />
+      <g transform={turned ? `matrix(0 -1 -1 0 ${rect.h} ${rect.w})` : undefined}>
+        <svg width={rect.w} height={rect.h} viewBox={`${rect.x} ${rect.y} ${rect.w} ${rect.h}`}>
+          <image href={picture.url} width={frame.sheet.w} height={frame.sheet.h} />
+        </svg>
+      </g>
     </svg>
   );
 }
@@ -38,7 +57,7 @@ export function WeaponPicture({ name, size = 40 }: { name: string; size?: number
   const item = findItem(data, "weapon", name);
   const art = item?.kind === "weapon" ? item.entry.weaponArt : undefined;
   const frame = data && art ? weaponRestingFrame(data.animations, art) : undefined;
-  return <FramePicture frame={frame} size={size} />;
+  return <FramePicture frame={frame} size={size} turned />;
 }
 
 export function RacePicture({ race, size = 32 }: { race: string; size?: number }) {
