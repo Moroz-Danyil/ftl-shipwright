@@ -1,5 +1,5 @@
 /**
- * The weapon and drone slots at the bottom of the canvas (Loadout), like the
+ * The weapon and drone slots at the bottom of the canvas (Ship), like the
  * game's own bar: filled slots show the item and its short name, numbered
  * like the mounts; empty ones are dashed. A click selects a slot; hovering a
  * weapon slot highlights its mount.

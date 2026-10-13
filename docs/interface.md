@@ -1,6 +1,6 @@
 # The interface
 
-How FTL Shipwright looks and behaves. The editor is built around **workspaces**: building a ship is split into four steps, in the order a ship is made, and each step shows only the tools and settings it needs.
+How FTL Shipwright looks and behaves. The editor is built around **workspaces**: the ship itself, its rooms and its hull each have their own, and each shows only the tools and settings it needs.
 
 ## Look
 
@@ -35,7 +35,7 @@ Shown when no ship is open.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ ship name · status   [1 Rooms][2 Hull][3 Loadout][4 Hangar]   undo redo  checks  settings  [Save mod] │
+│ ship name · status   [1 Ship][2 Rooms][3 Hull]   undo redo  checks  settings  [Save mod] │
 ├───────────────┬─────────────────────────────────────────────────┬────┤
 │               │                                                 │tool│
 │   inspector   │                    canvas                       │rail│
@@ -45,7 +45,7 @@ Shown when no ship is open.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Top bar**: the ship's name with an "unsaved changes" mark, the four workspace tabs (keys `1`–`4`), undo and redo, the **checks** button with the number of things to look at, settings, and **Save mod**.
+- **Top bar**: the ship's name with an "unsaved changes" mark, the three workspace tabs (keys `1`–`3`), undo and redo, the **checks** button with the number of things to look at, settings, and **Save mod**.
 - **Inspector** (left): settings of the current workspace and the selection.
 - **Tool rail** (right): the tools of the current workspace, each with a small line icon, its name and its key underneath. Hovering or focusing a tool shows what it does in a panel left of the rail.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** shows the ship as the game's hangar does.
@@ -53,7 +53,20 @@ Shown when no ship is open.
 
 ## Workspaces
 
-### 1 · Rooms
+A ship opens in Ship.
+
+### 1 · Ship
+
+Everything about the ship itself. A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull. **Preview in hangar** on the canvas shows the ship as the hangar does.
+
+- **Info**: name, class and description as the hangar shows them; under **Save name**, the blueprint name and the file name of the ship.
+- **Stats**: hull points (30 for a new ship), the reactor's power, weapon slots (at most 8), drone slots, starting missiles and drone parts. The game has no starting fuel per ship.
+- **Crew**: a row for each race with its amount, and "Add race…" (at most 8 crew in total).
+- A selected slot, with buttons to move it earlier or later and Remove.
+- **Augments** (at most 3).
+- **Add items**: the game's weapons, drones and augments with search and cards (picture, description, stats).
+
+### 2 · Rooms
 
 Rooms, doors, the systems in the rooms and the crew stations.
 
@@ -70,7 +83,7 @@ Rooms, doors, the systems in the rooms and the crew stations.
 - A room can hold several systems; only one of them can be installed at the start, the others are bought later and drawn amber.
 - A selected door shows its two sides; a selected station the direction the crew member faces. Loose doors are drawn red; an airlock on a room bigger than 2×2 shows a warning, because the game only partly vents such rooms.
 
-### 2 · Hull
+### 3 · Hull
 
 | Tool         | Key | What it does                                                                                |
 | ------------ | --- | ------------------------------------------------------------------------------------------- |
@@ -83,21 +96,6 @@ Rooms, doors, the systems in the rooms and the crew stations.
 - **Weapon mounts** lists the mounts (at most 8) with the weapon drawn on each; a click selects a mount on the ship, the cross removes it. The Mount tool adds mounts.
 - A selected mount shows its number (the weapon slot drawn on it), buttons to move it earlier or later, **Rotate** and **Mirror** (also `[` and `]`), the direction the weapon slides out, the explosion piece it flies off with, and whether it moves together with the hull picture.
 - The explosion pieces are listed with their pictures; the explosion can be played on the canvas.
-
-### 3 · Loadout
-
-Everything the ship starts with.
-
-- A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull. A selected slot comes first in the inspector, with buttons to move it earlier or later and Remove.
-- **Hull and reactor**: hull points (30 for a new ship) and the reactor's power.
-- **Slots and ammunition**: weapon slots (at most 8), drone slots, starting missiles and drone parts.
-- **Crew**: a row for each race with its amount, and "Add race…" (at most 8 crew in total).
-- **Augments** (at most 3).
-- **Add items**: the game's weapons, drones and augments with search and cards (picture, description, stats).
-
-### 4 · Hangar
-
-What the hangar shows and how the ship is saved: name, class and description as the hangar shows them, and the save name (the file names of the ship). **Preview in hangar** on the canvas shows the ship as the hangar does.
 
 ## Checks
 
@@ -115,7 +113,7 @@ Interface scale (the whole window zooms, so the canvas stays exact), dark or lig
 
 | Key                                | Action                          |
 | ---------------------------------- | ------------------------------- |
-| `1`–`4`                            | workspaces                      |
+| `1`–`3`                            | workspaces                      |
 | `V`, `R`, `D`, `T`, `H`, `M`, `G`  | tools                           |
 | arrows, Shift + arrows             | move the selection              |
 | `Delete`, `Backspace`              | delete the selection            |

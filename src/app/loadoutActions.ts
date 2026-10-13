@@ -1,5 +1,6 @@
 /**
- * Loadout and Hangar edits on the open ship, each one undo step.
+ * Edits of the ship in the Ship workspace (info, save name, stats, crew and
+ * equipment), each one undo step.
  */
 import type { Platform } from "../platform/types";
 import type { Texts } from "../text";

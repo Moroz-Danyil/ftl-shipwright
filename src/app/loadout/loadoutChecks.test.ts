@@ -38,11 +38,11 @@ describe("Loadout checks", () => {
       },
     };
     expect(loadoutChecks(ship, catalogs)).toEqual([
-      { code: "too-many-weapons", workspace: "loadout" },
-      { code: "too-many-drones", workspace: "loadout" },
-      { code: "unknown-weapon", weapon: 1, item: "B", workspace: "loadout" },
-      { code: "no-crew", workspace: "loadout" },
-      { code: "no-hull-points", workspace: "loadout", severity: "problem" },
+      { code: "too-many-weapons", workspace: "ship" },
+      { code: "too-many-drones", workspace: "ship" },
+      { code: "unknown-weapon", weapon: 1, item: "B", workspace: "ship" },
+      { code: "no-crew", workspace: "ship" },
+      { code: "no-hull-points", workspace: "ship", severity: "problem" },
     ]);
     expect(loadoutChecks(armed(), undefined)).toEqual([]);
   });

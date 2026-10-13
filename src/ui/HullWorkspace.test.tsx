@@ -55,7 +55,7 @@ beforeEach(async () => {
   await waitFor(() =>
     expect(screen.getByTestId("ship-svg").querySelector(".cv-grid")).not.toBeNull()
   );
-  press("Digit2");
+  press("Digit3");
 });
 
 afterEach(() => vi.restoreAllMocks());
@@ -204,7 +204,7 @@ describe("Hull checks", () => {
     act(() =>
       state().edit((s) => addMount(s, { x: 40, y: 40, rotate: false, mirror: false, gib: 9 }))
     );
-    press("Digit1");
+    press("Digit2");
     fireEvent.click(screen.getByRole("button", { name: /to check$/ }));
     fireEvent.click(
       screen.getByRole("button", { name: en.checks.messages["mount-gib-missing"]({ mount: 0 }) })

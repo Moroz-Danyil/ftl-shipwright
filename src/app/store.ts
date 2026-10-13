@@ -171,7 +171,7 @@ export interface EditorState {
   systemDrag: SystemDrag | null;
   artTool: ArtToolOptions;
   pictureTarget: PictureTarget | null;
-  /** The weapon slot (and so the mount) under the pointer in Loadout, to highlight both. */
+  /** The weapon slot (and so the mount) under the pointer in Ship, to highlight both. */
   hoverWeapon: number | null;
   workspace: WorkspaceId;
   /** The chosen tool of each workspace. */
@@ -223,10 +223,9 @@ export interface EditorState {
 let nextDocumentId = 1;
 
 const initialTools = (): Record<WorkspaceId, ToolId> => ({
+  ship: "select",
   rooms: "select",
   hull: "select",
-  loadout: "select",
-  hangar: "select",
 });
 
 /** The state on start: remembered paths and recent ships, nothing open. */
@@ -246,7 +245,7 @@ export function initialEditorState() {
     artTool: { picture: "auto", keepMounts: false, active: null } as ArtToolOptions,
     pictureTarget: null as PictureTarget | null,
     hoverWeapon: null as number | null,
-    workspace: "rooms" as WorkspaceId,
+    workspace: "ship" as WorkspaceId,
     tools: initialTools(),
     view: {
       layers: { ...DEFAULT_LAYERS },
@@ -301,7 +300,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         artTool: { picture: "auto", keepMounts: false, active: null },
         pictureTarget: null,
         hoverWeapon: null,
-        workspace: "rooms",
+        workspace: "ship",
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
         dialog: null,

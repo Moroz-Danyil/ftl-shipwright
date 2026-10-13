@@ -1,29 +1,22 @@
 /**
- * The Loadout inspector, everything the ship starts with: the selected slot,
- * hull and reactor, the counts (slots, missiles, drone parts), the crew, the
- * ship's augments, and the game's items to add.
+ * The Ship inspector, everything about the ship itself: its info and save
+ * name, the numbers (hull, reactor, slots, missiles, drone parts), the crew,
+ * the selected slot, the ship's augments, and the game's items to add.
  */
 import { useState } from "react";
 import type { Ship } from "../../../core";
-import {
-  moveSlot,
-  removeSelectedSlots,
-  removeShipAugment,
-  setSlotCount,
-  setStartingDroneParts,
-  setStartingMissiles,
-} from "../../../app/loadoutActions";
+import { moveSlot, removeSelectedSlots, removeShipAugment } from "../../../app/loadoutActions";
 import { findItem, itemTitle, type ItemKind } from "../../../app/loadout/catalog";
-import { LIMITS, items, slots, type LoadoutKind } from "../../../app/loadout/rules";
+import { items, type LoadoutKind } from "../../../app/loadout/rules";
 import { singleTarget } from "../../../app/selection";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
-import { NumberField } from "../../common/NumberField";
 import { Section } from "../../common/Section";
-import { Stepper } from "../../common/Stepper";
+import { Crew } from "./Crew";
+import { Info } from "./Info";
 import { ItemCards } from "./ItemCards";
-import { Crew, HullReactor } from "./ShipStats";
+import { Stats } from "./Stats";
 
 const TABS: ItemKind[] = ["weapon", "drone", "augment"];
 
@@ -70,56 +63,13 @@ function SelectedSlot({ ship, kind, index }: { ship: Ship; kind: LoadoutKind; in
   );
 }
 
-function Counts({ ship }: { ship: Ship }) {
-  const texts = useTexts();
-  const bp = ship.blueprint;
-  return (
-    <Section id="loadout-slots" title={texts.sections.slots}>
-      <Help topic="weaponSlots">
-        <Stepper
-          label={texts.loadout.weaponSlots}
-          value={slots(ship, "weapon")}
-          min={items(ship, "weapon").length}
-          max={LIMITS.weaponSlots}
-          onChange={(n) => setSlotCount("weapon", n)}
-        />
-      </Help>
-      <Help topic="droneSlots">
-        <Stepper
-          label={texts.loadout.droneSlots}
-          value={slots(ship, "drone")}
-          min={items(ship, "drone").length}
-          max={LIMITS.droneSlots}
-          onChange={(n) => setSlotCount("drone", n)}
-        />
-      </Help>
-      <div className="ed-grid2">
-        <Help topic="missiles">
-          <NumberField
-            label={texts.loadout.missiles}
-            value={bp.weaponList?.missiles ?? 0}
-            onCommit={setStartingMissiles}
-          />
-        </Help>
-        <Help topic="droneParts">
-          <NumberField
-            label={texts.loadout.droneParts}
-            value={bp.droneList?.drones ?? 0}
-            onCommit={setStartingDroneParts}
-          />
-        </Help>
-      </div>
-    </Section>
-  );
-}
-
 function Augments({ ship }: { ship: Ship }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const augments = ship.blueprint.augments;
   return (
     <Section
-      id="loadout-augments"
+      id="ship-augments"
       title={texts.sections.augments}
       count={texts.sections.count(augments.length, 3)}
     >
@@ -149,7 +99,7 @@ function Augments({ ship }: { ship: Ship }) {
   );
 }
 
-export function LoadoutInspector() {
+export function ShipInspector() {
   const texts = useTexts();
   const ship = useEditor((s) => s.doc?.history.present.ship);
   const selection = useEditor((s) => s.selection);
@@ -159,17 +109,17 @@ export function LoadoutInspector() {
   return (
     <>
       <div className="ed-heading">
-        <span className="eyebrow">{texts.inspector.loadout.eyebrow}</span>
-        <span className="ed-heading-title">{texts.inspector.loadout.title}</span>
+        <span className="eyebrow">{texts.inspector.ship.eyebrow}</span>
+        <span className="ed-heading-title">{texts.inspector.ship.title}</span>
       </div>
+      <Info ship={ship} />
+      <Stats ship={ship} />
+      <Crew ship={ship} />
       {(target?.kind === "weapon" || target?.kind === "drone") && (
         <SelectedSlot ship={ship} kind={target.kind} index={target.index} />
       )}
-      <HullReactor ship={ship} />
-      <Counts ship={ship} />
-      <Crew ship={ship} />
       <Augments ship={ship} />
-      <Section id="loadout-add" title={texts.sections.addItems}>
+      <Section id="ship-add" title={texts.sections.addItems}>
         <div className="lo-tabs" role="tablist" aria-label={texts.loadout.tabsLabel}>
           {TABS.map((kind) => (
             <button

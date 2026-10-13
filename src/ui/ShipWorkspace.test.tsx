@@ -48,10 +48,10 @@ async function setUp(origin?: { kind: "game" }) {
 
 afterEach(() => vi.restoreAllMocks());
 
-describe("Loadout workspace", () => {
+describe("Ship workspace: equipment", () => {
   beforeEach(async () => {
     await setUp();
-    press("Digit3");
+    expect(state().workspace).toBe("ship");
   });
 
   it("shows the slots and adds items from the cards", () => {
@@ -139,20 +139,21 @@ describe("Loadout workspace", () => {
   });
 });
 
-describe("Loadout: hull, reactor and crew", () => {
+describe("Ship workspace: info, stats and crew", () => {
   beforeEach(async () => {
     await setUp();
     press("Digit3");
+    press("Digit1");
   });
 
-  it("shows everything the ship starts with in order", () => {
+  it("shows everything about the ship in order", () => {
     const sections = within(inspector())
       .getAllByRole("region")
       .filter((r) => r.classList.contains("sec"))
       .map((r) => r.getAttribute("aria-label"));
     expect(sections).toEqual([
-      en.sections.hullReactor,
-      en.sections.slots,
+      en.sections.info,
+      en.sections.stats,
       en.sections.crew,
       en.sections.augments,
       en.sections.addItems,
@@ -225,18 +226,17 @@ describe("Loadout: hull, reactor and crew", () => {
 
   it("is opened by the crew check", () => {
     act(() => state().edit((s) => ({ ...s, blueprint: { ...s.blueprint, crew: [] } })));
-    press("Digit4");
+    press("Digit3");
     fireEvent.click(screen.getByRole("button", { name: /to check$/ }));
     fireEvent.click(screen.getByRole("button", { name: en.checks.messages["no-crew"]() }));
-    expect(state().workspace).toBe("loadout");
+    expect(state().workspace).toBe("ship");
     expect(within(inspector()).getByText(en.crew.noCrew)).toBeInTheDocument();
   });
 });
 
-describe("Hangar workspace", () => {
-  it("edits the hangar texts and explains them on hover; hull and crew are not here", async () => {
+describe("Ship workspace: info", () => {
+  it("edits the hangar texts and explains them on hover", async () => {
     await setUp();
-    press("Digit4");
     commit(within(inspector()).getByLabelText(en.hangar.name), "The T");
     expect(bp().texts.name).toEqual({ kind: "text", text: "The T" });
     expect(screen.getAllByText("The T").length).toBeGreaterThan(0);
@@ -244,20 +244,14 @@ describe("Hangar workspace", () => {
     expect(
       within(screen.getByRole("tooltip")).getByText(en.help.shipName.body)
     ).toBeInTheDocument();
-    expect(within(inspector()).queryByRole("group", { name: en.loadout.hull })).toBeNull();
-    expect(within(inspector()).queryByRole("region", { name: en.sections.crew })).toBeNull();
-    expect(
-      within(inspector())
-        .getAllByRole("region")
-        .filter((r) => r.classList.contains("sec"))
-        .map((r) => r.getAttribute("aria-label"))
-    ).toEqual([en.sections.hangar, en.hangar.saveName]);
+    const info = within(inspector()).getByRole("region", { name: en.sections.info });
+    const save = within(info).getByRole("group", { name: en.hangar.saveName });
+    expect(within(save).getByLabelText(en.hangar.blueprintName)).toHaveValue(bp().name);
     expect(screen.getByRole("button", { name: en.canvas.preview })).toBeInTheDocument();
   });
 
   it("asks before giving a game ship a new save name", async () => {
     await setUp({ kind: "game" });
-    press("Digit4");
     platform.answers.confirm.push(true);
     commit(within(inspector()).getByLabelText(en.hangar.blueprintName), "MY_T");
     await waitFor(() => expect(bp().name).toBe("MY_T"));

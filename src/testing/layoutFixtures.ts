@@ -29,7 +29,7 @@ export const pilot: ShipSystem = {
 export const medbay: ShipSystem = { system: "medbay", power: 1, room: 1, slot: { number: 2 } };
 export const shields: ShipSystem = { system: "shields", power: 2, room: 0 };
 
-/** A fresh store with the test ship open (as saved). */
+/** A fresh store with the test ship open (as saved), in the Rooms workspace. */
 export function openTestShip(systems: ShipSystem[] = []): Ship {
   resetEditorStore();
   const ship = testShip(systems);
@@ -38,6 +38,7 @@ export function openTestShip(systems: ShipSystem[] = []): Ship {
     art: { source: memorySource({}), gibs: [] },
     saved: true,
   });
+  useEditor.getState().setWorkspace("rooms");
   return ship;
 }
 

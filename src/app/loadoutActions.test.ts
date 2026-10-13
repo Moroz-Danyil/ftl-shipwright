@@ -47,7 +47,7 @@ describe("Loadout actions", () => {
     moveSlot("weapon", 1, -1);
     expect(bp().weaponList?.items).toEqual(["MISSILES_1", "LASER_BURST_1"]);
     expect(state().selection.weapons).toEqual([0]);
-    state().setWorkspace("loadout");
+    state().setWorkspace("ship");
     expect(runCommand("delete", { platform: createFakePlatform(), texts: en })).toBe(true);
     expect(bp().weaponList?.items).toEqual(["LASER_BURST_1"]);
     expect(removeSelectedSlots()).toBe(false);

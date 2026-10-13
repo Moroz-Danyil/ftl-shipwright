@@ -53,6 +53,9 @@ beforeEach(async () => {
   );
   // The canvas fits the ship once it knows its size, which can come a moment after the first render.
   await waitFor(() => expect(state().view.camera.x).not.toBe(0));
+  // A ship opens in Ship; most tests here work on the rooms.
+  expect(state().workspace).toBe("ship");
+  press("Digit2");
 });
 
 afterEach(() => vi.restoreAllMocks());
@@ -78,29 +81,29 @@ describe("editor window", () => {
     expect(screen.getByRole("tab", { name: /Hull/ })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("button", { name: en.tools.mount })).toBeInTheDocument();
     expect(screen.getByText(en.inspector.hull.eyebrow)).toBeInTheDocument();
-    press("Digit1");
+    press("Digit2");
     expect(state().workspace).toBe("rooms");
     expect(screen.getByRole("button", { name: en.tools.room })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: en.tools.mount })).not.toBeInTheDocument();
   });
 
-  it("opens the four workspaces in order with the keys 1 to 4", () => {
-    const tabs = screen.getAllByRole("tab");
+  it("opens the three workspaces in order with the keys 1 to 3", () => {
+    const tablist = screen.getByRole("tablist", { name: en.topBar.workspaces });
+    const tabs = within(tablist).getAllByRole("tab");
     expect(tabs.map((t) => t.textContent)).toEqual([
-      "1" + en.workspaces.rooms.label,
-      "2" + en.workspaces.hull.label,
-      "3" + en.workspaces.loadout.label,
-      "4" + en.workspaces.hangar.label,
+      "1" + en.workspaces.ship.label,
+      "2" + en.workspaces.rooms.label,
+      "3" + en.workspaces.hull.label,
     ]);
-    const order = ["rooms", "hull", "loadout", "hangar"] as const;
+    const order = ["ship", "rooms", "hull"] as const;
     for (const [i, id] of [...order.entries()].reverse()) {
       press(`Digit${i + 1}`);
       expect(state().workspace).toBe(id);
       expect(tabs[i]).toHaveAttribute("aria-selected", "true");
       expect(screen.getByText(en.workspaces[id].hint)).toBeInTheDocument();
     }
-    press("Digit5");
-    expect(state().workspace).toBe("rooms");
+    press("Digit4");
+    expect(state().workspace).toBe("ship");
   });
 
   it("picks tools with the rail and their keys", () => {
@@ -140,15 +143,15 @@ describe("editor window", () => {
     fireEvent.pointerLeave(tools[2]);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
 
-    press("Digit2");
+    press("Digit3");
     const mount = within(rail).getByRole("button", { name: en.tools.mount });
     expect(mount).toHaveTextContent(en.tools.mount + "M");
     fireEvent.focus(mount);
     expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.hull.mount.body);
     fireEvent.blur(mount);
-    press("Digit3");
+    press("Digit1");
     fireEvent.pointerEnter(within(rail).getByRole("button", { name: en.tools.select }));
-    expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.loadout.select.body);
+    expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.ship.select.body);
   });
 
   it("selects a room or a door with a click and shows its values; Esc clears", () => {

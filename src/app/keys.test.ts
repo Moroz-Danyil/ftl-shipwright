@@ -34,9 +34,10 @@ describe("key names", () => {
     expect(commandForEvent(key("KeyZ", { ctrlKey: true, shiftKey: true }))).toBe("redo");
     expect(commandForEvent(key("KeyY", { ctrlKey: true }))).toBe("redo");
     expect(commandForEvent(key("KeyS", { ctrlKey: true }))).toBe("save");
-    expect(commandForEvent(key("Digit1"))).toBe("workspace.rooms");
-    expect(commandForEvent(key("Digit4"))).toBe("workspace.hangar");
-    expect(commandForEvent(key("Digit5"))).toBeUndefined();
+    expect(commandForEvent(key("Digit1"))).toBe("workspace.ship");
+    expect(commandForEvent(key("Digit2"))).toBe("workspace.rooms");
+    expect(commandForEvent(key("Digit3"))).toBe("workspace.hull");
+    expect(commandForEvent(key("Digit4"))).toBeUndefined();
     expect(commandForEvent(key("KeyV"))).toBe("tool.select");
     expect(commandForEvent(key("KeyH"))).toBe("tool.movePicture");
     expect(commandForEvent(key("Escape"))).toBe("cancel");
@@ -66,7 +67,7 @@ describe("commands", () => {
 
   it("do nothing while no ship is open", () => {
     expect(runCommand("workspace.hull", context)).toBe(false);
-    expect(useEditor.getState().workspace).toBe("rooms");
+    expect(useEditor.getState().workspace).toBe("ship");
   });
 
   it("switch workspaces and tools, clear the selection and save", () => {

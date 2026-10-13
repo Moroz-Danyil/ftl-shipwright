@@ -66,3 +66,14 @@
   max-height: none;
   overflow: visible;
 }
+.sec-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+}
+.sec-sub-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}

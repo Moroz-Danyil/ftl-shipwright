@@ -116,16 +116,15 @@ export const en = {
   },
 
   workspaces: {
+    ship: {
+      label: "Ship",
+      hint: "Ship — info, stats, crew and equipment; weapons and drones fill the slots in order",
+    },
     rooms: {
       label: "Rooms",
       hint: "Rooms — draw rooms and doors, drag systems onto them, place crew stations",
     },
     hull: { label: "Hull", hint: "Hull — pictures, weapon mounts and explosion pieces" },
-    loadout: {
-      label: "Loadout",
-      hint: "Loadout — what the ship starts with; weapons and drones fill the slots in order",
-    },
-    hangar: { label: "Hangar", hint: "Hangar — what the hangar shows and how the ship is saved" },
   },
 
   tools: {
@@ -153,6 +152,12 @@ export const en = {
 
   /** What each tool of each workspace does, shown beside the tool rail and in the inspector. */
   toolHelp: {
+    ship: {
+      select: {
+        title: "Select tool (V)",
+        body: "Click a slot in the bar under the ship to select it; Delete removes its weapon or drone. Hover a slot to see its mount on the hull. Preview in hangar shows the ship as the game's hangar does.",
+      },
+    },
     rooms: {
       select: {
         title: "Select tool (V)",
@@ -187,18 +192,6 @@ export const en = {
       gib: {
         title: "Gib tool (G)",
         body: "Click an explosion piece to select it, drag it to move it.",
-      },
-    },
-    loadout: {
-      select: {
-        title: "Select tool (V)",
-        body: "Click a slot in the bar under the ship to select it; Delete removes its weapon or drone. Hover a slot to see its mount on the hull.",
-      },
-    },
-    hangar: {
-      select: {
-        title: "Select tool (V)",
-        body: "The hangar's texts and the save name are edited in the inspector. Preview in hangar shows the ship as the game's hangar does.",
       },
     },
   } satisfies Record<WorkspaceId, Partial<Record<ToolId, { title: string; body: string }>>>,
@@ -464,12 +457,11 @@ export const en = {
     pictures: "Pictures",
     mounts: "Weapon mounts",
     gibs: "Explosion pieces",
-    slots: "Slots and ammunition",
+    info: "Info",
+    stats: "Stats",
+    crew: "Crew",
     augments: "Augments",
     addItems: "Add items",
-    hangar: "Hangar texts",
-    hullReactor: "Hull and reactor",
-    crew: "Crew",
     count: (n: number, max: number) => `${n} / ${max}`,
     mountsHint:
       "The Mount tool (M) adds mounts on the hull. Weapons take the mounts in the order of their numbers.",
@@ -658,20 +650,16 @@ export const en = {
     stationChoice: (system: string, room: number) => `${system} · room ${room}`,
     noStationSystems:
       "No system on this ship has a crew station yet. Put piloting, doors, sensors, weapons, shields, engines or hacking in a room first.",
+    ship: {
+      eyebrow: "Info, stats, crew and equipment",
+      title: "Ship",
+    },
     rooms: {
       title: "Rooms",
     },
     hull: {
       eyebrow: "Pictures, weapon mounts and explosion pieces",
       title: "Hull",
-    },
-    loadout: {
-      eyebrow: "Everything the ship starts with",
-      title: "Loadout",
-    },
-    hangar: {
-      eyebrow: "What the hangar shows",
-      title: "Hangar",
     },
   },
 

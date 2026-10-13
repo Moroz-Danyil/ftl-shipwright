@@ -44,7 +44,7 @@ export function runCommand(command: CommandId, context: CommandContext): boolean
     if (!cancelGesture()) state.select(EMPTY_SELECTION);
   } else if (command === "delete") {
     if (state.workspace === "hull") return deleteSelectedArt();
-    if (state.workspace === "loadout") return removeSelectedSlots();
+    if (state.workspace === "ship") return removeSelectedSlots();
     if (state.workspace !== "rooms") return false;
     void deleteSelected(context);
   } else if (command.startsWith("move.") || command.startsWith("moveFar.")) {

@@ -110,7 +110,7 @@ describe("start screen", () => {
     const item = screen.getByRole("button", { name: /The Mini/ });
     expect(item).toHaveTextContent(en.start.recentGame);
     fireEvent.click(item);
-    expect(await screen.findByRole("tablist")).toBeInTheDocument();
+    expect(await screen.findByRole("tablist", { name: en.topBar.workspaces })).toBeInTheDocument();
   });
 
   it("offers English and the tour link", () => {

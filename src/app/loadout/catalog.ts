@@ -1,5 +1,5 @@
 /**
- * The game's weapons, drones and augments as the Loadout offers them, with
+ * The game's weapons, drones and augments as the Ship workspace offers them, with
  * their names resolved through the game's texts.
  */
 import {

@@ -2,15 +2,13 @@
 import { useEditor } from "../../app/store";
 import { useTexts } from "../../text";
 import { ArtInspector } from "./art/ArtInspector";
-import { HangarInspector } from "./hangar/HangarInspector";
-import { LoadoutInspector } from "./loadout/LoadoutInspector";
 import { RoomsInspector } from "./RoomsInspector";
+import { ShipInspector } from "./ship/ShipInspector";
 
 const PANELS = {
+  ship: ShipInspector,
   rooms: RoomsInspector,
   hull: ArtInspector,
-  loadout: LoadoutInspector,
-  hangar: HangarInspector,
 };
 
 export function Inspector() {

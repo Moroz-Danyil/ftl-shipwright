@@ -47,9 +47,9 @@ interface Props {
   layoutXml: ShipLayoutXml;
   selected: number[];
   weapons: Array<WeaponFrame | undefined>;
-  /** The mount highlighted with its weapon slot (Loadout). */
+  /** The mount highlighted with its weapon slot (Ship). */
   hovered?: number | null;
-  /** Reports the mount under the pointer (Loadout). */
+  /** Reports the mount under the pointer (Ship). */
   onHover?: (index: number | null) => void;
   /** Only the weapons, without numbers or markers (hangar preview). */
   plain?: boolean;

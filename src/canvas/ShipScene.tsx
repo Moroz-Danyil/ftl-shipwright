@@ -37,7 +37,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
   const tool = useEditor(currentTool);
   const data = useEditor((s) => s.game.data);
   const art = workspace === "hull";
-  const loadout = workspace === "loadout";
+  const equipment = workspace === "ship";
   const hoverWeapon = useEditor((s) => s.hoverWeapon);
   const setHoverWeapon = useEditor((s) => s.setHoverWeapon);
   const { layers, hangarPreview } = view;
@@ -107,13 +107,13 @@ export function ShipScene({ area, overlay, explosion }: Props) {
               />
             );
           })}
-          {(layers.mounts || art || loadout) && (
+          {(layers.mounts || art || equipment) && (
             <MountsLayer
               layout={ship.layout}
               layoutXml={ship.layoutXml}
               selected={selection.mounts}
-              hovered={loadout ? hoverWeapon : null}
-              onHover={loadout ? setHoverWeapon : undefined}
+              hovered={equipment ? hoverWeapon : null}
+              onHover={equipment ? setHoverWeapon : undefined}
               weapons={weapons}
               plain={hangarPreview}
             />

@@ -90,29 +90,29 @@ export function artChecks(ship: Ship, art: ShipArt | undefined): CheckIssue[] {
   return issues;
 }
 
-/** The Loadout checks: items beyond their slots, items the game does not know, crew and hull. */
+/** The Ship checks: items beyond their slots, items the game does not know, crew and hull. */
 export function loadoutChecks(ship: Ship, catalogs: Catalogs | undefined): CheckIssue[] {
   const issues: CheckIssue[] = [];
   const bp = ship.blueprint;
   const weapons = bp.weaponList?.items ?? [];
   const drones = bp.droneList?.items ?? [];
   if (bp.weaponSlots !== undefined && weapons.length > bp.weaponSlots)
-    issues.push({ code: "too-many-weapons", workspace: "loadout" });
+    issues.push({ code: "too-many-weapons", workspace: "ship" });
   if (bp.droneSlots !== undefined && drones.length > bp.droneSlots)
-    issues.push({ code: "too-many-drones", workspace: "loadout" });
+    issues.push({ code: "too-many-drones", workspace: "ship" });
   if (catalogs) {
     weapons.forEach((item, weapon) => {
       if (!catalogs.weapons.some((w) => w.name === item))
-        issues.push({ code: "unknown-weapon", weapon, item, workspace: "loadout" });
+        issues.push({ code: "unknown-weapon", weapon, item, workspace: "ship" });
     });
     drones.forEach((item, drone) => {
       if (!catalogs.drones.some((d) => d.name === item))
-        issues.push({ code: "unknown-drone", drone, item, workspace: "loadout" });
+        issues.push({ code: "unknown-drone", drone, item, workspace: "ship" });
     });
   }
-  if (crewTotal(ship) === 0) issues.push({ code: "no-crew", workspace: "loadout" });
+  if (crewTotal(ship) === 0) issues.push({ code: "no-crew", workspace: "ship" });
   if (bp.health === 0)
-    issues.push({ code: "no-hull-points", workspace: "loadout", severity: "problem" });
+    issues.push({ code: "no-hull-points", workspace: "ship", severity: "problem" });
   return issues;
 }
 

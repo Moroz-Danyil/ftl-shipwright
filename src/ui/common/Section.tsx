@@ -49,3 +49,13 @@ export function Section({
     </section>
   );
 }
+
+/** A titled group inside a section, such as the save name under the ship's info. */
+export function SubHeading({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="sec-sub" role="group" aria-label={title}>
+      <span className="sec-sub-title">{title}</span>
+      {children}
+    </div>
+  );
+}
