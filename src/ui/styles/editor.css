@@ -735,6 +735,32 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.ar-gib {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ar-gib-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ar-gib-main:hover,
+.ar-gib-main:focus-visible {
+  border-color: var(--line-strong);
+  background: var(--raised);
+  outline: none;
+}
 .ar-range {
   margin: 0;
   padding: 0;

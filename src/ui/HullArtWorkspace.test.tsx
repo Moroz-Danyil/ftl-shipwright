@@ -163,3 +163,20 @@ describe("Hull & art mounts and gibs", () => {
     expect(await screen.findByTestId("gib-1")).toBeInTheDocument();
   });
 });
+
+describe("Hull & art explosion pieces", () => {
+  it("lists the gibs, selects one with a click and removes another in one step", () => {
+    const gibs = within(inspector()).getByRole("region", { name: en.sections.gibs });
+    expect(within(gibs).getByRole("button", { name: /Explosion pieces/ })).toHaveTextContent("2");
+    fireEvent.click(within(gibs).getByRole("button", { name: en.art.selectGib(2) }));
+    expect(state().selection.gibs).toEqual([1]);
+    press("Escape");
+    const list = within(inspector()).getByRole("region", { name: en.sections.gibs });
+    fireEvent.click(
+      within(list).getByRole("button", { name: en.art.removeNamed(en.art.gibName(1)) })
+    );
+    expect(snap().ship.layoutXml.gibs).toHaveLength(1);
+    expect(steps()).toBe(1);
+    expect(within(inspector()).getByRole("button", { name: en.art.addGib })).toBeInTheDocument();
+  });
+});

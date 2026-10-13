@@ -152,6 +152,11 @@ export function deleteSelectedArt(): boolean {
   return true;
 }
 
+/** Deletes one gib (from the list of explosion pieces). */
+export function removeGib(index: number): void {
+  state().editSnapshot((s) => removeGibs(s, [index]), EMPTY_SELECTION);
+}
+
 /**
  * Arrow keys in Hull & art: with the Move picture tool they move the picture
  * moved last (or the chosen one); otherwise the selected mounts and gibs.

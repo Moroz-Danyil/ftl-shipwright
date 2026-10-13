@@ -291,7 +291,8 @@ export const en = {
     angular: "Turning",
     min: "Min",
     max: "Max",
-    addGib: "Add gib",
+    addGib: "Add gib…",
+    selectGib: (n: number) => `Select gib ${n} on the ship`,
     playExplosion: "Play explosion",
     explosionApprox:
       "The explosion preview is approximate; the game's units for speed and turning are not confirmed yet.",

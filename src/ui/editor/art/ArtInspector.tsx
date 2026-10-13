@@ -10,6 +10,7 @@ import { currentTool, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Section } from "../../common/Section";
 import { ToolHelp } from "../layout/ToolHelp";
+import { GibList } from "./GibList";
 import { GibPanel } from "./GibPanel";
 import { MountPanel } from "./MountPanel";
 import { PicturesPanel } from "./PicturesPanel";
@@ -43,22 +44,6 @@ function MoveOptions() {
           {texts.art.keepMounts}
         </label>
       </fieldset>
-    </Section>
-  );
-}
-
-function Gibs() {
-  const texts = useTexts();
-  const count = useEditor((s) => s.doc?.history.present.ship.layoutXml.gibs.length ?? 0);
-  return (
-    <Section id="art-gibs" title={texts.sections.gibs} count={String(count)}>
-      <button
-        type="button"
-        className="btn"
-        onClick={() => useEditor.getState().openPicturePicker({ newGib: true })}
-      >
-        {texts.art.addGib}
-      </button>
     </Section>
   );
 }
@@ -102,7 +87,7 @@ export function ArtInspector() {
       >
         <span className="ed-help">{texts.sections.mountsHint}</span>
       </Section>
-      <Gibs />
+      <GibList />
       <ToolHelp />
     </>
   );
