@@ -77,13 +77,18 @@ describe("Loadout workspace", () => {
     expect(steps()).toBe(2);
   });
 
-  it("shows an item's details with units on hover", () => {
+  it("shows an item's details beside the list on hover and hides them on leave", () => {
     const card = within(inspector()).getByRole("button", { name: /Burst Laser I/ });
     fireEvent.pointerEnter(card);
-    const details = within(inspector()).getByRole("region", { name: "Burst Laser I" });
+    const popover = screen.getByRole("tooltip");
+    expect(inspector()).not.toContainElement(popover);
+    const details = within(popover).getByRole("region", { name: "Burst Laser I" });
     expect(details).toHaveTextContent(en.loadout.details.fireChance);
     expect(details).toHaveTextContent(en.loadout.units.percent(1));
     expect(details).toHaveTextContent(en.loadout.units.seconds(11));
+    expect(within(inspector()).getByText(en.loadout.hint)).toBeInTheDocument();
+    fireEvent.pointerLeave(card.parentElement!);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 
   it("selects, reorders and deletes slots", () => {

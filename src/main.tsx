@@ -9,6 +9,7 @@ import "./ui/styles/theme.css";
 import "./ui/styles/dialog.css";
 import "./ui/styles/start.css";
 import "./ui/styles/editor.css";
+import "./ui/styles/popover.css";
 import { createTauriPlatform } from "./platform/tauri";
 import { App } from "./ui/App";
 

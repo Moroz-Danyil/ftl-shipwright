@@ -1,7 +1,7 @@
 /**
  * The game's weapons, drones or augments as searchable cards. A click puts
  * the item in the next free slot (or adds the augment); hovering or focusing
- * a card shows its details below the grid.
+ * a card shows its details in a panel beside the inspector.
  */
 import { useMemo, useState } from "react";
 import { addShipAugment, addLoadoutItem } from "../../../app/loadoutActions";
@@ -15,6 +15,8 @@ import {
 } from "../../../app/loadout/catalog";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { HoverPanel } from "../../common/HoverPanel";
+import { useHoverPanel } from "../../common/useHoverPanel";
 import { AugmentIcon, DronePicture, WeaponPicture } from "../../common/ItemPictures";
 import { detailRows, statsLine } from "./itemText";
 
@@ -51,7 +53,7 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const [query, setQuery] = useState("");
-  const [shown, setShown] = useState<CatalogItem>();
+  const panel = useHoverPanel<CatalogItem>();
   const all = useMemo(() => offeredItems(data, kind), [data, kind]);
   const matching = useMemo(
     () => all.filter((item) => matchesItem(data, item, query)),
@@ -73,7 +75,7 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
           onChange={(e) => setQuery(e.target.value)}
         />
       </label>
-      <div className="lo-cards">
+      <div className="lo-cards" onPointerLeave={panel.hide}>
         {matching.map((item) => (
           <button
             key={item.entry.name}
@@ -81,8 +83,9 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
             className="lo-card"
             data-item={item.entry.name}
             onClick={() => add(item)}
-            onPointerEnter={() => setShown(item)}
-            onFocus={() => setShown(item)}
+            onPointerEnter={(e) => panel.show(item, e.currentTarget)}
+            onFocus={(e) => panel.show(item, e.currentTarget)}
+            onBlur={panel.hide}
           >
             <span className="lo-card-pic">
               <ItemPicture item={item} />
@@ -93,7 +96,15 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
         ))}
         {matching.length === 0 && <span className="muted">{texts.loadout.noMatches}</span>}
       </div>
-      {shown ? <Details item={shown} /> : <span className="ed-help">{texts.loadout.hint}</span>}
+      <span className="ed-help">{texts.loadout.hint}</span>
+      {panel.shown && (
+        <HoverPanel
+          anchor={panel.shown.anchor}
+          picture={<ItemPicture item={panel.shown.value} size={112} />}
+        >
+          <Details item={panel.shown.value} />
+        </HoverPanel>
+      )}
     </>
   );
 }
