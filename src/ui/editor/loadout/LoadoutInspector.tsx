@@ -1,6 +1,7 @@
 /**
- * The Loadout inspector: the selected slot, the counts (slots, missiles,
- * drone parts), the ship's augments, and the game's items to add.
+ * The Loadout inspector, everything the ship starts with: the selected slot,
+ * hull and reactor, the counts (slots, missiles, drone parts), the crew, the
+ * ship's augments, and the game's items to add.
  */
 import { useState } from "react";
 import type { Ship } from "../../../core";
@@ -22,6 +23,7 @@ import { NumberField } from "../../common/NumberField";
 import { Section } from "../../common/Section";
 import { Stepper } from "../../common/Stepper";
 import { ItemCards } from "./ItemCards";
+import { Crew, HullReactor } from "./ShipStats";
 
 const TABS: ItemKind[] = ["weapon", "drone", "augment"];
 
@@ -163,7 +165,9 @@ export function LoadoutInspector() {
       {(target?.kind === "weapon" || target?.kind === "drone") && (
         <SelectedSlot ship={ship} kind={target.kind} index={target.index} />
       )}
+      <HullReactor ship={ship} />
       <Counts ship={ship} />
+      <Crew ship={ship} />
       <Augments ship={ship} />
       <Section id="loadout-add" title={texts.sections.addItems}>
         <div className="lo-tabs" role="tablist" aria-label={texts.loadout.tabsLabel}>

@@ -139,17 +139,31 @@ describe("Loadout workspace", () => {
   });
 });
 
-describe("Hangar workspace", () => {
-  it("edits the hangar texts, hull and crew", async () => {
+describe("Loadout: hull, reactor and crew", () => {
+  beforeEach(async () => {
     await setUp();
-    press("Digit4");
-    commit(within(inspector()).getByLabelText(en.details.name), "The T");
-    expect(bp().texts.name).toEqual({ kind: "text", text: "The T" });
-    expect(screen.getAllByText("The T").length).toBeGreaterThan(0);
-    const hull = within(inspector()).getByRole("group", { name: en.details.hull });
-    fireEvent.click(within(hull).getByRole("button", { name: en.systems.higher(en.details.hull) }));
+    press("Digit3");
+  });
+
+  it("shows everything the ship starts with in order", () => {
+    const sections = within(inspector())
+      .getAllByRole("region")
+      .filter((r) => r.classList.contains("sec"))
+      .map((r) => r.getAttribute("aria-label"));
+    expect(sections).toEqual([
+      en.sections.hullReactor,
+      en.sections.slots,
+      en.sections.crew,
+      en.sections.augments,
+      en.sections.addItems,
+    ]);
+  });
+
+  it("edits the hull and the crew", () => {
+    const hull = within(inspector()).getByRole("group", { name: en.loadout.hull });
+    fireEvent.click(within(hull).getByRole("button", { name: en.systems.higher(en.loadout.hull) }));
     expect(bp().health).toBe(31);
-    const add = within(inspector()).getByRole("button", { name: en.details.addRace });
+    const add = within(inspector()).getByRole("button", { name: en.crew.addRace });
     fireEvent.click(add);
     expect(add).toHaveAttribute("aria-expanded", "true");
     fireEvent.click(within(inspector()).getByRole("button", { name: /Engi/ }));
@@ -158,40 +172,34 @@ describe("Hangar workspace", () => {
       { amount: 1, race: "engi" },
     ]);
     // Every race of the game is in the crew now, so there is nothing left to add.
-    expect(within(inspector()).queryByRole("button", { name: en.details.addRace })).toBeNull();
-    commit(within(inspector()).getByLabelText(en.details.amountOf("Engi")), "3");
+    expect(within(inspector()).queryByRole("button", { name: en.crew.addRace })).toBeNull();
+    commit(within(inspector()).getByLabelText(en.crew.amountOf("Engi")), "3");
     expect(bp().crew).toEqual([
       { amount: 2, race: "human" },
       { amount: 3, race: "engi" },
     ]);
-    fireEvent.click(
-      within(inspector()).getByRole("button", { name: en.details.removeRace("Human") })
-    );
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.crew.removeRace("Human") }));
     expect(bp().crew).toEqual([{ amount: 3, race: "engi" }]);
-    expect(steps()).toBe(5);
+    expect(steps()).toBe(4);
   });
 
-  it("shows a race's description and abilities beside the list on hover", async () => {
-    await setUp();
-    press("Digit4");
-    fireEvent.click(within(inspector()).getByRole("button", { name: en.details.addRace }));
-    const list = within(inspector()).getByRole("list", { name: en.details.races });
+  it("shows a race's description and abilities beside the list on hover", () => {
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.crew.addRace }));
+    const list = within(inspector()).getByRole("list", { name: en.crew.races });
     const card = within(list).getByRole("button", { name: /Engi/ });
     fireEvent.pointerEnter(card);
     const details = within(screen.getByRole("tooltip")).getByRole("region", { name: "Engi" });
     expect(details).toHaveTextContent("Repair speed is doubled");
-    expect(details).toHaveTextContent(en.details.abilities);
+    expect(details).toHaveTextContent(en.crew.abilities);
     expect(details).toHaveTextContent(en.loadout.units.scrap(45));
     fireEvent.pointerLeave(list);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
     fireEvent.keyDown(card, { key: "Escape" });
-    expect(within(inspector()).queryByRole("list", { name: en.details.races })).toBeNull();
+    expect(within(inspector()).queryByRole("list", { name: en.crew.races })).toBeNull();
   });
 
-  it("shows the details of a race already in the crew when its name is hovered", async () => {
-    await setUp();
-    press("Digit4");
-    fireEvent.click(within(inspector()).getByRole("button", { name: en.details.addRace }));
+  it("shows the details of a race already in the crew when its name is hovered", () => {
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.crew.addRace }));
     fireEvent.click(within(inspector()).getByRole("button", { name: /Engi/ }));
     const row = within(inspector()).getByRole("group", { name: "Engi" });
     const name = within(row).getByText("Engi");
@@ -203,10 +211,8 @@ describe("Hangar workspace", () => {
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 
-  it("explains a field on hover, with the game's hull bar", async () => {
-    await setUp();
-    press("Digit4");
-    const hull = within(inspector()).getByRole("group", { name: en.details.hull });
+  it("explains the hull on hover, with the game's hull bar", () => {
+    const hull = within(inspector()).getByRole("group", { name: en.loadout.hull });
     fireEvent.pointerEnter(hull.parentElement!);
     const help = screen.getByRole("tooltip");
     expect(within(help).getByRole("region", { name: en.help.hull.title })).toHaveTextContent(
@@ -215,18 +221,46 @@ describe("Hangar workspace", () => {
     expect(help.querySelectorAll(".hv-hull span")).toHaveLength(bp().health ?? 30);
     fireEvent.pointerLeave(hull.parentElement!);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
-    fireEvent.focus(within(inspector()).getByLabelText(en.details.name));
+  });
+
+  it("is opened by the crew check", () => {
+    act(() => state().edit((s) => ({ ...s, blueprint: { ...s.blueprint, crew: [] } })));
+    press("Digit4");
+    fireEvent.click(screen.getByRole("button", { name: /to check$/ }));
+    fireEvent.click(screen.getByRole("button", { name: en.checks.messages["no-crew"]() }));
+    expect(state().workspace).toBe("loadout");
+    expect(within(inspector()).getByText(en.crew.noCrew)).toBeInTheDocument();
+  });
+});
+
+describe("Hangar workspace", () => {
+  it("edits the hangar texts and explains them on hover; hull and crew are not here", async () => {
+    await setUp();
+    press("Digit4");
+    commit(within(inspector()).getByLabelText(en.hangar.name), "The T");
+    expect(bp().texts.name).toEqual({ kind: "text", text: "The T" });
+    expect(screen.getAllByText("The T").length).toBeGreaterThan(0);
+    fireEvent.focus(within(inspector()).getByLabelText(en.hangar.name));
     expect(
       within(screen.getByRole("tooltip")).getByText(en.help.shipName.body)
     ).toBeInTheDocument();
+    expect(within(inspector()).queryByRole("group", { name: en.loadout.hull })).toBeNull();
+    expect(within(inspector()).queryByRole("region", { name: en.sections.crew })).toBeNull();
+    expect(
+      within(inspector())
+        .getAllByRole("region")
+        .filter((r) => r.classList.contains("sec"))
+        .map((r) => r.getAttribute("aria-label"))
+    ).toEqual([en.sections.hangar, en.hangar.saveName]);
+    expect(screen.getByRole("button", { name: en.canvas.preview })).toBeInTheDocument();
   });
 
   it("asks before giving a game ship a new save name", async () => {
     await setUp({ kind: "game" });
     press("Digit4");
     platform.answers.confirm.push(true);
-    commit(within(inspector()).getByLabelText(en.details.blueprintName), "MY_T");
+    commit(within(inspector()).getByLabelText(en.hangar.blueprintName), "MY_T");
     await waitFor(() => expect(bp().name).toBe("MY_T"));
-    expect(platform.asked).toEqual([{ kind: "confirm", message: en.details.confirmRename }]);
+    expect(platform.asked).toEqual([{ kind: "confirm", message: en.hangar.confirmRename }]);
   });
 });

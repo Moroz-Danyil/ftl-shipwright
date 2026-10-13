@@ -981,8 +981,8 @@
   stroke: var(--accent);
 }
 
-/* Hangar and crew */
-.dt-crew {
+/* Crew in Loadout */
+.cr-crew {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -991,23 +991,23 @@
   border: 1px solid var(--line);
   background: var(--raised);
 }
-.dt-crew-name {
+.cr-crew-name {
   flex: 1;
   display: flex;
   align-items: center;
   gap: 12px;
   font-weight: 500;
 }
-.dt-crew .field {
+.cr-crew .field {
   width: 72px;
 }
-.dt-add {
+.cr-add {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
 }
-.dt-race-list {
+.cr-race-list {
   align-self: stretch;
   margin: 0;
   padding: 6px;
@@ -1018,7 +1018,7 @@
   border: 1px solid var(--line-strong);
   background: var(--raised);
 }
-.dt-race-item {
+.cr-race-item {
   width: 100%;
   display: flex;
   align-items: center;
@@ -1032,8 +1032,8 @@
   text-align: left;
   cursor: pointer;
 }
-.dt-race-item:hover,
-.dt-race-item:focus-visible {
+.cr-race-item:hover,
+.cr-race-item:focus-visible {
   background: var(--tile);
   outline: none;
 }

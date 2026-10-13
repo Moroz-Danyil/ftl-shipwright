@@ -85,13 +85,18 @@ Rooms, doors, the systems in the rooms and the crew stations.
 
 ### 3 · Loadout
 
-- A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull.
-- The inspector lists the game's weapons, drones and augments with search and cards (picture, description, stats).
-- Weapon slots (at most 8), drone slots, augments (at most 3), starting missiles and drone parts.
+Everything the ship starts with.
+
+- A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull. A selected slot comes first in the inspector, with buttons to move it earlier or later and Remove.
+- **Hull and reactor**: hull points (30 for a new ship) and the reactor's power.
+- **Slots and ammunition**: weapon slots (at most 8), drone slots, starting missiles and drone parts.
+- **Crew**: a row for each race with its amount, and "Add race…" (at most 8 crew in total).
+- **Augments** (at most 3).
+- **Add items**: the game's weapons, drones and augments with search and cards (picture, description, stats).
 
 ### 4 · Hangar
 
-Name, class and description as the hangar shows them, the save name (the file names of the ship), hull (30 for a new ship), reactor, and the starting crew (at most 8 in total). **Preview in hangar** on the canvas shows the ship as the hangar does.
+What the hangar shows and how the ship is saved: name, class and description as the hangar shows them, and the save name (the file names of the ship). **Preview in hangar** on the canvas shows the ship as the hangar does.
 
 ## Checks
 

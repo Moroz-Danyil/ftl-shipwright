@@ -90,7 +90,7 @@ export function artChecks(ship: Ship, art: ShipArt | undefined): CheckIssue[] {
   return issues;
 }
 
-/** The Loadout and Hangar checks: items beyond their slots, items the game does not know, crew and hull. */
+/** The Loadout checks: items beyond their slots, items the game does not know, crew and hull. */
 export function loadoutChecks(ship: Ship, catalogs: Catalogs | undefined): CheckIssue[] {
   const issues: CheckIssue[] = [];
   const bp = ship.blueprint;
@@ -110,9 +110,9 @@ export function loadoutChecks(ship: Ship, catalogs: Catalogs | undefined): Check
         issues.push({ code: "unknown-drone", drone, item, workspace: "loadout" });
     });
   }
-  if (crewTotal(ship) === 0) issues.push({ code: "no-crew", workspace: "hangar" });
+  if (crewTotal(ship) === 0) issues.push({ code: "no-crew", workspace: "loadout" });
   if (bp.health === 0)
-    issues.push({ code: "no-hull-points", workspace: "hangar", severity: "problem" });
+    issues.push({ code: "no-hull-points", workspace: "loadout", severity: "problem" });
   return issues;
 }
 

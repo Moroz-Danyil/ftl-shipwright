@@ -100,11 +100,11 @@ export async function renameShip(
   if (!current) return false;
   const next = rename(current, ids);
   if (!next) {
-    state().setNotice({ kind: "info", text: texts.details.invalidId });
+    state().setNotice({ kind: "info", text: texts.hangar.invalidId });
     return false;
   }
   if (next === current) return true;
-  if (isGameShipInPlace() && !(await platform.confirm(texts.details.confirmRename))) return false;
+  if (isGameShipInPlace() && !(await platform.confirm(texts.hangar.confirmRename))) return false;
   state().edit((s) => rename(s, ids) ?? s);
   return true;
 }

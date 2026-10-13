@@ -188,7 +188,7 @@ describe("unusual mixes and system checks", () => {
     const ship = testShip([{ ...shields, room: 7 }]);
     expect(allChecks(ship).map((c) => [c.code, c.workspace])).toEqual([
       ["system-unknown-room", "rooms"],
-      ["no-crew", "hangar"],
+      ["no-crew", "loadout"],
     ]);
   });
 });

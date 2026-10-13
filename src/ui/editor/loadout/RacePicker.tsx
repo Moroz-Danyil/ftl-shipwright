@@ -27,7 +27,7 @@ function RaceDetails({ race }: { race: RaceCatalogEntry }) {
       {desc && <p className="lo-details-text">{desc}</p>}
       {powers.length > 0 && (
         <>
-          <span className="eyebrow">{texts.details.abilities}</span>
+          <span className="eyebrow">{texts.crew.abilities}</span>
           <ul className="lo-details-text">
             {powers.map((p) => (
               <li key={p}>{p}</li>
@@ -53,7 +53,7 @@ export function RaceName({ race, title }: { race: string; title: string }) {
   const panel = useHoverPanel<RaceCatalogEntry>();
   return (
     <span
-      className="dt-crew-name"
+      className="cr-crew-name"
       onPointerEnter={(e) => entry && panel.show(entry, e.currentTarget)}
       onPointerLeave={panel.hide}
     >
@@ -89,7 +89,7 @@ export function RacePicker({ races }: { races: RaceCatalogEntry[] }) {
   return (
     <div
       ref={box}
-      className="dt-add"
+      className="cr-add"
       onKeyDown={(e) => {
         if (e.key === "Escape" && open) {
           e.stopPropagation();
@@ -103,15 +103,15 @@ export function RacePicker({ races }: { races: RaceCatalogEntry[] }) {
         aria-expanded={open}
         onClick={() => (open ? close() : setOpen(true))}
       >
-        {texts.details.addRace}
+        {texts.crew.addRace}
       </button>
       {open && (
-        <ul className="dt-race-list" aria-label={texts.details.races} onPointerLeave={panel.hide}>
+        <ul className="cr-race-list" aria-label={texts.crew.races} onPointerLeave={panel.hide}>
           {races.map((race) => (
             <li key={race.name}>
               <button
                 type="button"
-                className="dt-race-item"
+                className="cr-race-item"
                 onClick={() => {
                   close();
                   setCrewAmount(race.name, 1);

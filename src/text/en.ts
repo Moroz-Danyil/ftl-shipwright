@@ -120,11 +120,11 @@ export const en = {
       hint: "Rooms — draw rooms and doors, drag systems onto them, place crew stations",
     },
     hull: { label: "Hull", hint: "Hull — pictures, weapon mounts and explosion pieces" },
-    loadout: { label: "Loadout", hint: "Loadout — weapons and drones fill the slots in order" },
-    hangar: {
-      label: "Hangar",
-      hint: "Hangar — name, class, description, hull, reactor and crew",
+    loadout: {
+      label: "Loadout",
+      hint: "Loadout — what the ship starts with; weapons and drones fill the slots in order",
     },
+    hangar: { label: "Hangar", hint: "Hangar — what the hangar shows and how the ship is saved" },
   },
 
   tools: {
@@ -395,9 +395,11 @@ export const en = {
       scrap: (n: number) => `${n} scrap`,
     },
     hint: "Click a card to put it in the next free slot. Hover a card for its details.",
+    hull: "Hull",
+    reactor: "Reactor",
   },
 
-  details: {
+  hangar: {
     name: "Name",
     class: "Class",
     description: "Description",
@@ -407,9 +409,9 @@ export const en = {
     invalidId: "Use only letters, digits and underscores.",
     confirmRename:
       "This ship comes from the game. With a new save name it is saved as a separate ship and the original stays as it is. Change it?",
-    hull: "Hull",
-    reactor: "Reactor",
-    crew: (n: number) => `Crew ${n} / 8`,
+  },
+
+  crew: {
     noCrew: "No crew yet.",
     addRace: "Add race…",
     races: "Races",
@@ -646,7 +648,7 @@ export const en = {
       title: "Hull",
     },
     loadout: {
-      eyebrow: "Pick from the game's weapons, drones and augments",
+      eyebrow: "Everything the ship starts with",
       title: "Loadout",
     },
     hangar: {

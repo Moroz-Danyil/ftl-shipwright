@@ -95,8 +95,8 @@ describe("Hangar and crew actions", () => {
     expect(await renameShip(platform, en, { name: "MY_T", base: "my_t" })).toBe(true);
     expect(bp()).toMatchObject({ name: "MY_T", layout: "my_t", img: "my_t" });
     expect(platform.asked.map((a) => a.message)).toEqual([
-      en.details.confirmRename,
-      en.details.confirmRename,
+      en.hangar.confirmRename,
+      en.hangar.confirmRename,
     ]);
     expect(isGameShipInPlace()).toBe(false);
     expect(await renameShip(platform, en, { base: "my_t2" })).toBe(true);
@@ -107,7 +107,7 @@ describe("Hangar and crew actions", () => {
     openLoadoutShip();
     const platform = createFakePlatform();
     expect(await renameShip(platform, en, { name: "bad name" })).toBe(false);
-    expect(state().notice?.text).toBe(en.details.invalidId);
+    expect(state().notice?.text).toBe(en.hangar.invalidId);
     expect(await renameShip(platform, en, { name: "GOOD" })).toBe(true);
     expect(platform.asked).toEqual([]);
     state().select(selectionOf({ kind: "weapon", index: 0 }));

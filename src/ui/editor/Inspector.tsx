@@ -2,7 +2,7 @@
 import { useEditor } from "../../app/store";
 import { useTexts } from "../../text";
 import { ArtInspector } from "./art/ArtInspector";
-import { DetailsInspector } from "./details/DetailsInspector";
+import { HangarInspector } from "./hangar/HangarInspector";
 import { LoadoutInspector } from "./loadout/LoadoutInspector";
 import { RoomsInspector } from "./RoomsInspector";
 
@@ -10,7 +10,7 @@ const PANELS = {
   rooms: RoomsInspector,
   hull: ArtInspector,
   loadout: LoadoutInspector,
-  hangar: DetailsInspector,
+  hangar: HangarInspector,
 };
 
 export function Inspector() {

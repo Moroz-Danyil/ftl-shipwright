@@ -17,7 +17,7 @@ function armed(): Ship {
   };
 }
 
-describe("Loadout and Hangar checks", () => {
+describe("Loadout checks", () => {
   const origin = { file: "data/blueprints.xml", fromMod: false };
   const catalogs = {
     weapons: [{ name: "A", ...origin }],
@@ -41,8 +41,8 @@ describe("Loadout and Hangar checks", () => {
       { code: "too-many-weapons", workspace: "loadout" },
       { code: "too-many-drones", workspace: "loadout" },
       { code: "unknown-weapon", weapon: 1, item: "B", workspace: "loadout" },
-      { code: "no-crew", workspace: "hangar" },
-      { code: "no-hull-points", workspace: "hangar", severity: "problem" },
+      { code: "no-crew", workspace: "loadout" },
+      { code: "no-hull-points", workspace: "loadout", severity: "problem" },
     ]);
     expect(loadoutChecks(armed(), undefined)).toEqual([]);
   });
