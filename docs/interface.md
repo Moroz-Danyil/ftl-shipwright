@@ -63,9 +63,9 @@ Everything about the ship itself. A bar at the bottom of the canvas shows the we
 - **Info**: name, class and description as the hangar shows them; under **Save name**, the blueprint name and the file name of the ship.
 - **Stats**: hull points (30 for a new ship), the reactor's power, weapon slots (at most 8), drone slots, starting missiles and drone parts. The game has no starting fuel per ship.
 - **Crew**: a row for each race with its amount, and "Add race…" (at most 8 crew in total).
-- **Weapons**: the ship's weapons in slot order, with the number of weapons and slots. A click on one selects its slot (as a click in the bar does), the arrows move it to an earlier or later slot, the cross removes it; hovering it shows its details and marks its mount on the ship. Below, the game's weapons as cards (picture, name, stats) with search: a click puts one in the next free slot, hovering shows its description and stats.
+- **Weapons**: the ship's weapons in slot order, with the number of weapons and slots. A click on one selects its slot (as a click in the bar does), the arrows move it to an earlier or later slot, the cross removes it; hovering it shows its details and marks its mount on the ship. Below, the game's weapons as a list (picture, name, stats) with search: a click puts one in the next free slot, hovering shows its description and stats.
 - **Drones**: the same for drones.
-- **Augments** (at most 3): the ship's augments with their details on hover and remove, then the game's augments as cards to add one.
+- **Augments** (at most 3): the ship's augments with their details on hover and remove, then the game's augments as a list to add one.
 
 ### 2 · Rooms
 

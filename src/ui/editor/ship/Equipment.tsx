@@ -17,7 +17,7 @@ import { HoverPanel } from "../../common/HoverPanel";
 import { ArrowIcon, CrossIcon } from "../../common/icons";
 import { Section } from "../../common/Section";
 import { useHoverPanel } from "../../common/useHoverPanel";
-import { Details, ItemCards, ItemPicture } from "./ItemCards";
+import { Details, ItemList, ItemPicture } from "./ItemList";
 import { statsLine } from "./itemText";
 
 type ItemPanel = ReturnType<typeof useHoverPanel<CatalogItem>>;
@@ -144,7 +144,7 @@ export function SlotList({ ship, kind }: { ship: Ship; kind: LoadoutKind }) {
         </ul>
       )}
       <ItemPanelView panel={panel} />
-      <ItemCards kind={kind} />
+      <ItemList kind={kind} />
     </Section>
   );
 }
@@ -201,7 +201,7 @@ export function Augments({ ship }: { ship: Ship }) {
         </ul>
       )}
       <ItemPanelView panel={panel} />
-      <ItemCards kind="augment" />
+      <ItemList kind="augment" />
     </Section>
   );
 }

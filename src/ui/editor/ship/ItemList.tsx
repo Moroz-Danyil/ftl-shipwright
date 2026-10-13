@@ -1,7 +1,8 @@
 /**
- * The game's weapons, drones or augments as searchable cards. A click puts
- * the item in the next free slot (or adds the augment); hovering or focusing
- * a card shows its details in a panel beside the inspector.
+ * The game's weapons, drones or augments as a searchable list, one row each
+ * with its picture, name and short stats. A click puts the item in the next
+ * free slot (or adds the augment); hovering or focusing a row shows its
+ * details in a panel beside the inspector.
  */
 import { useMemo, useState } from "react";
 import { addShipAugment, addLoadoutItem } from "../../../app/loadoutActions";
@@ -49,7 +50,7 @@ export function Details({ item }: { item: CatalogItem }) {
   );
 }
 
-export function ItemCards({ kind }: { kind: ItemKind }) {
+export function ItemList({ kind }: { kind: ItemKind }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const [query, setQuery] = useState("");
@@ -76,7 +77,7 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
         />
       </label>
       <div
-        className="lo-cards"
+        className="lo-list"
         role="group"
         aria-label={texts.loadout.catalog[kind]}
         onPointerLeave={panel.hide}
@@ -85,18 +86,20 @@ export function ItemCards({ kind }: { kind: ItemKind }) {
           <button
             key={item.entry.name}
             type="button"
-            className="lo-card"
+            className="lo-row"
             data-item={item.entry.name}
             onClick={() => add(item)}
             onPointerEnter={(e) => panel.show(item, e.currentTarget)}
             onFocus={(e) => panel.show(item, e.currentTarget)}
             onBlur={panel.hide}
           >
-            <span className="lo-card-pic">
+            <span className="lo-row-pic">
               <ItemPicture item={item} />
             </span>
-            <span className="lo-card-title">{itemTitle(data, item)}</span>
-            <span className="lo-card-stats">{statsLine(texts, item)}</span>
+            <span className="lo-row-text">
+              <span className="lo-row-title">{itemTitle(data, item)}</span>
+              <span className="lo-row-stats">{statsLine(texts, item)}</span>
+            </span>
           </button>
         ))}
         {matching.length === 0 && <span className="muted">{texts.loadout.noMatches}</span>}

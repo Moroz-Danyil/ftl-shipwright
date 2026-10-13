@@ -56,11 +56,6 @@
 .ed-inspector:has(> .sec) {
   gap: 6px;
 }
-/* Inside a section the inspector itself scrolls, so lists do not need their own scroll */
-.sec-body .lo-cards {
-  max-height: none;
-  overflow: visible;
-}
 .sec-sub {
   display: flex;
   flex-direction: column;

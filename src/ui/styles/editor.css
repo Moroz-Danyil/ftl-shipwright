@@ -932,42 +932,55 @@
 .eq-augment:focus-visible {
   outline: 2px solid var(--accent);
 }
-.lo-cards {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  max-height: 420px;
-  overflow-y: auto;
-}
-.lo-card {
+.lo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: var(--raised);
-  color: var(--text);
-  padding: 10px;
-  text-align: left;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.lo-row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
   cursor: pointer;
 }
-.lo-card:hover,
-.lo-card:focus-visible {
-  border-color: var(--accent-line);
-}
-.lo-card-pic {
-  height: 40px;
-  border-radius: 6px;
+.lo-row:hover,
+.lo-row:focus-visible {
   background: var(--tile);
+  outline: none;
+}
+.lo-row-pic {
+  width: 48px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--icon-bg);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.lo-card-title {
+.lo-row-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.lo-row-title {
   font-size: 13px;
   font-weight: 500;
 }
-.lo-card-stats {
+.lo-row-stats {
   font-size: 11px;
   color: var(--muted);
 }

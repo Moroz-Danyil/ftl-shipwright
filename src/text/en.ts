@@ -428,9 +428,9 @@ export const en = {
       scrap: (n: number) => `${n} scrap`,
     },
     hints: {
-      weapon: "Click a card to put the weapon in the next free slot. Hover a card for its details.",
-      drone: "Click a card to put the drone in the next free slot. Hover a card for its details.",
-      augment: "Click a card to add the augment. Hover a card for its details.",
+      weapon: "Click a weapon to put it in the next free slot. Hover it for its details.",
+      drone: "Click a drone to put it in the next free slot. Hover it for its details.",
+      augment: "Click an augment to add it. Hover it for its details.",
     },
     hull: "Hull",
     reactor: "Reactor",
