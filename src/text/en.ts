@@ -193,8 +193,9 @@ export const en = {
     groups: { core: "Core", subsystems: "Subsystems", special: "Special" },
     palette: "Systems",
     roomTag: (id: number) => `#${id}`,
-    tileTitle: (name: string, state: string, room?: number) =>
-      room === undefined ? `${name} · ${state}` : `${name} · room ${room} · ${state}`,
+    nameInRoom: (name: string, room: number) => `${name} (room ${room})`,
+    startingPower: "Starting power",
+    maxPower: "Max power",
     states: {
       start: "Installed at the start",
       later: "On the ship, bought later",

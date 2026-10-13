@@ -571,6 +571,19 @@
   font-size: 11px;
   color: var(--muted);
 }
+.sy-state-line {
+  font-size: 12px;
+  font-weight: 500;
+}
+.sy-state-line--start {
+  color: var(--ok);
+}
+.sy-state-line--later {
+  color: var(--accent-soft);
+}
+.sy-state-line--missing {
+  color: var(--problem);
+}
 .sy-tile-state {
   font-size: 11px;
   color: var(--accent-soft);

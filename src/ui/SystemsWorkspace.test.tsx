@@ -103,6 +103,21 @@ describe("Systems palette and canvas", () => {
     expect(chip("Shields")).toHaveTextContent(en.systems.notAtStart);
   });
 
+  it("shows a system's state and power beside the palette on hover", () => {
+    fireEvent.pointerEnter(chip("Shields"));
+    const details = within(screen.getByRole("tooltip")).getByRole("region", {
+      name: en.systems.nameInRoom("Shields", 0),
+    });
+    expect(details).toHaveTextContent(en.systems.states.start);
+    expect(details).toHaveTextContent(en.systems.startingPower + "2");
+    expect(details).toHaveTextContent(en.systems.maxPower + "8");
+    fireEvent.pointerLeave(chip("Shields"));
+    fireEvent.pointerEnter(chip("Oxygen"));
+    expect(
+      within(screen.getByRole("tooltip")).getByRole("region", { name: "Oxygen" })
+    ).toHaveTextContent(en.systems.states.missing);
+  });
+
   it("places a system in the selected room with a click, one step", () => {
     clickChip("Oxygen");
     expect(state().notice?.text).toBe(en.systems.selectRoomFirst);

@@ -2,15 +2,19 @@
  * The palette of the game's systems in three groups, under a legend of the
  * colours. A tile is green when the system is installed at the start, amber
  * when it is on the ship but bought later, red when the ship lacks it, and
- * shows the room it is in. Drag a tile onto a room, or click it to put the
+ * shows the room it is in; hovering it shows the system's description and
+ * power beside the inspector. Drag a tile onto a room, or click it to put the
  * system in the selected room.
  */
 import { PALETTE_ATTRIBUTE, clickSystem, pressSystemChip } from "../../../app/systemDrag";
 import { SYSTEM_GROUPS, isInstalled, type SystemGroup } from "../../../app/systems/rules";
+import { gameText } from "../../../app/loadout/catalog";
 import { useSystemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { HoverPanel } from "../../common/HoverPanel";
 import { SystemIcon } from "../../common/SystemIcon";
+import { useHoverPanel } from "../../common/useHoverPanel";
 
 type TileState = "start" | "later" | "missing";
 
@@ -22,18 +26,28 @@ function Tile({ system }: { system: string }) {
   const placed = useEditor((s) =>
     s.doc?.history.present.ship.blueprint.systems.find((x) => x.system === system)
   );
+  const data = useEditor((s) => s.game.data);
+  const panel = useHoverPanel<true>();
   const state: TileState = !placed ? "missing" : isInstalled(placed) ? "start" : "later";
   const name = nameOf(system);
+  const entry = data?.catalogs.systems.find((s) => s.name === system);
+  const desc = gameText(data, entry?.desc);
+  const start = placed?.power ?? entry?.startPower;
+  const title = placed ? texts.systems.nameInRoom(name, placed.room) : name;
   return (
     <button
       type="button"
       className={`sy-tile sy-tile--${state}`}
       data-system={system}
       data-state={state}
-      title={texts.systems.tileTitle(name, texts.systems.states[state], placed?.room)}
+      onPointerEnter={(e) => panel.show(true, e.currentTarget)}
+      onPointerLeave={panel.hide}
+      onFocus={(e) => panel.show(true, e.currentTarget)}
+      onBlur={panel.hide}
       onPointerDown={(e) => {
         if (e.button !== 0) return;
         e.preventDefault();
+        panel.hide();
         pressSystemChip(system, { clientX: e.clientX, clientY: e.clientY }, texts);
       }}
       onClick={(e) => {
@@ -45,6 +59,31 @@ function Tile({ system }: { system: string }) {
       <span className="sy-tile-name">{name}</span>
       {placed && <span className="sy-tile-room">{texts.systems.roomTag(placed.room)}</span>}
       {state === "later" && <span className="sy-tile-state">{texts.systems.notAtStart}</span>}
+      {panel.shown && (
+        <HoverPanel anchor={panel.shown.anchor} picture={<SystemIcon system={system} size={64} />}>
+          <section className="lo-details" aria-label={title}>
+            <span className="lo-details-title">{title}</span>
+            <span className={`sy-state-line sy-state-line--${state}`}>
+              {texts.systems.states[state]}
+            </span>
+            {desc && <p className="lo-details-text muted">{desc}</p>}
+            <dl className="lo-stats">
+              {start !== undefined && (
+                <div className="ed-row">
+                  <dt>{texts.systems.startingPower}</dt>
+                  <dd className="mono">{start}</dd>
+                </div>
+              )}
+              {entry?.maxPower !== undefined && (
+                <div className="ed-row">
+                  <dt>{texts.systems.maxPower}</dt>
+                  <dd className="mono">{entry.maxPower}</dd>
+                </div>
+              )}
+            </dl>
+          </section>
+        </HoverPanel>
+      )}
     </button>
   );
 }
