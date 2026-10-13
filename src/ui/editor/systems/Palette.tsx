@@ -8,6 +8,7 @@ import { SYSTEM_GROUPS, isInstalled, type SystemGroup } from "../../../app/syste
 import { useSystemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { SystemIcon } from "../../common/SystemIcon";
 
 function Chip({ system }: { system: string }) {
   const texts = useTexts();
@@ -35,6 +36,7 @@ function Chip({ system }: { system: string }) {
         if (e.detail === 0) clickSystem(system, texts);
       }}
     >
+      <SystemIcon system={system} />
       <span className="sy-chip-name">{nameOf(system)}</span>
       {placed && <span className="sy-chip-tag">{texts.systems.inRoom(placed.room)}</span>}
     </button>

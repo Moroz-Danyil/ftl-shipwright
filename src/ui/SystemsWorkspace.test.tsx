@@ -74,12 +74,19 @@ afterEach(() => vi.restoreAllMocks());
 describe("Systems palette and canvas", () => {
   beforeEach(() => setUp([pilot, shields]));
 
-  it("shows where each system is and labels the rooms", () => {
+  it("shows where each system is and its icon in the rooms", async () => {
     expect(chip("Shields")).toHaveTextContent(en.systems.inRoom(0));
     expect(chip("Piloting")).toHaveTextContent(en.systems.inRoom(1));
     expect(chip("Oxygen")).not.toHaveTextContent("room");
-    expect(screen.getByTestId("system-labels-0")).toHaveTextContent("Shields");
-    expect(screen.getByTestId("system-labels-1")).toHaveTextContent("Piloting");
+    const room0 = screen.getByTestId("system-icons-0");
+    expect(await within(room0).findByTestId("system-icon-shields")).toBeInTheDocument();
+    expect(
+      await within(screen.getByTestId("system-icons-1")).findByTestId("system-icon-pilot")
+    ).toBeInTheDocument();
+    expect(await within(chip("Shields")).findByTestId("ui-icon-shields")).toHaveAttribute(
+      "data-loaded",
+      "true"
+    );
     expect(within(inspector()).getByText(en.systems.help)).toBeInTheDocument();
   });
 
@@ -150,10 +157,8 @@ describe("Systems inspector", () => {
 
     fireEvent.click(within(clone).getByRole("checkbox", { name: en.systems.installed }));
     expect(systems().map((s) => s.start)).toEqual([false, true]);
-    expect(screen.getByTestId("system-labels-1").querySelector("[data-later]")).toHaveAttribute(
-      "data-system",
-      "medbay"
-    );
+    expect(await screen.findByTestId("system-icon-medbay")).toHaveAttribute("data-later", "true");
+    expect(screen.getByTestId("system-icon-clonebay")).not.toHaveAttribute("data-later");
 
     fireEvent.click(
       within(clone).getByRole("button", { name: en.systems.removeNamed("Clone Bay") })

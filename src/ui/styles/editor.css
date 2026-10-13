@@ -352,31 +352,46 @@
 .cv-cloak {
   opacity: 0.6;
 }
+/* Rooms as the game draws them */
 .cv-room {
-  fill: var(--room);
-  fill-opacity: 0.92;
-  stroke: var(--room-line);
+  fill: var(--room-floor);
+}
+.cv-room-tiles {
+  fill: none;
+  stroke: var(--room-tile-line);
   stroke-width: 1;
 }
-.cv-room--selected {
-  fill: var(--room-selected);
+.cv-room-wall {
+  fill: none;
+  stroke: var(--room-wall);
+  stroke-width: 3;
+}
+.cv-room-selected {
+  fill: var(--room-selected-tint);
   stroke: var(--accent);
   stroke-width: 3;
 }
 .cv-room-id {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 7px;
   fill: var(--room-ink);
   pointer-events: none;
 }
-.cv-door {
-  fill: var(--door);
+.cv-door-mark {
+  fill: none;
+  stroke-width: 2;
 }
-.cv-door--airlock {
-  fill: var(--airlock);
+.cv-door-mark--airlock {
+  stroke: var(--airlock);
 }
-.cv-door--loose {
-  fill: var(--problem);
+.cv-door-mark--loose {
+  stroke: var(--problem);
+}
+.cv-door-sprite,
+.cv-interior,
+.cv-system-icon,
+.cv-station {
+  pointer-events: none;
 }
 .cv-selection-ring {
   fill: none;
@@ -433,23 +448,9 @@
   stroke: var(--muted);
 }
 
-/* Crew stations */
-.cv-station-ring {
-  fill: var(--station-ring);
-  stroke: var(--edge);
-  stroke-width: 1;
-}
-.cv-station-facing {
-  stroke: var(--airlock);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-.cv-station-figure {
+/* Crew at stations, when the game's crew pictures are missing */
+.cv-station-marker {
   fill: var(--station);
-}
-.cv-station--selected .cv-station-ring {
-  stroke: var(--accent);
-  stroke-width: 2.5;
 }
 
 /* Layout inspector */
@@ -503,17 +504,19 @@
   gap: 6px;
 }
 .sy-chip {
-  height: 38px;
+  min-height: 38px;
   border-radius: 8px;
   border: 1px solid var(--line-strong);
   background: var(--bg);
   color: var(--text);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 0 10px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  padding: 5px 8px;
   font-size: 13px;
+  text-align: left;
   cursor: grab;
   touch-action: none;
 }
@@ -525,12 +528,12 @@
   border-color: var(--line);
 }
 .sy-chip-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  flex: 1 1 auto;
+  line-height: 1.25;
 }
 .sy-chip-tag {
   flex-shrink: 0;
+  margin-left: auto;
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--info);
@@ -654,22 +657,6 @@
   color: var(--accent-soft);
 }
 
-/* System labels on the canvas */
-.cv-system-label rect {
-  fill: var(--label-bg);
-}
-.cv-system-label text {
-  font-size: 8px;
-  font-weight: 600;
-  fill: var(--label-ink);
-  pointer-events: none;
-}
-.cv-system-label--later rect {
-  fill: var(--accent-line);
-}
-.cv-system-label--later text {
-  fill: var(--accent-soft);
-}
 .ed-check--problem {
   border-color: var(--problem);
   color: var(--problem);
@@ -938,4 +925,30 @@ textarea.input {
   padding: 8px 10px;
   resize: vertical;
   line-height: 1.5;
+}
+
+/* Game system icons in the interface */
+.sys-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: var(--icon-bg);
+  overflow: hidden;
+}
+.sys-icon img {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.sys-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ed-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

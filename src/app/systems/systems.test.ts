@@ -173,7 +173,13 @@ describe("unusual mixes and system checks", () => {
     expect(systemChecks(ship, sizes)).toEqual([
       { code: "several-installed", rooms: [1], workspace: "systems" },
       { code: "unusual-mix", rooms: [1], workspace: "systems" },
-      { code: "cloak-interior-size", rooms: [0], system: 2, workspace: "systems" },
+      {
+        code: "cloak-interior-size",
+        rooms: [0],
+        system: 2,
+        systemId: "cloaking",
+        workspace: "systems",
+      },
     ]);
     expect(systemChecks(ship, { room_cloaking_3: { width: 70, height: 35 } })).toHaveLength(2);
   });

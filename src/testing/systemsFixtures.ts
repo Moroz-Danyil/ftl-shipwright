@@ -39,6 +39,14 @@ export function systemsGame(): GameData {
     "img/ship/interior/room_cloaking_2.png": pngHeader(70, 70),
     "img/ship/interior/room_cloaking_glow.png": pngHeader(70, 35),
     "img/ship/interior/room_pilot.png": pngHeader(70, 70),
+    "img/effects/door_sheet.png": pngHeader(175, 175),
+    "img/people/human_base.png": pngHeader(140, 70),
+    ...Object.fromEntries(
+      ["shields", "pilot", "oxygen", "cloaking", "medbay", "clonebay"].map((s) => [
+        `img/icons/s_${s}_overlay.png`,
+        pngHeader(32, 32),
+      ])
+    ),
   });
   const view = createGameView(files);
   return {
@@ -64,7 +72,15 @@ export function systemsGame(): GameData {
         system("clonebay", "Clone Bay", 3),
       ],
     },
-    animations: { sheets: {}, anims: {}, weaponAnims: {} },
+    animations: {
+      sheets: {
+        human: { name: "human", path: "img/people/human_base.png", w: 140, h: 70, fw: 35, fh: 35 },
+      },
+      anims: {
+        human_type_right: { name: "human_type_right", sheet: "human", length: 4, x: 0, y: 1 },
+      },
+      weaponAnims: {},
+    },
   };
 }
 

@@ -51,6 +51,8 @@ interface Props {
   hovered?: number | null;
   /** Reports the mount under the pointer (Loadout). */
   onHover?: (index: number | null) => void;
+  /** Only the weapons, without numbers or markers (hangar preview). */
+  plain?: boolean;
 }
 
 export const MountsLayer = memo(function MountsLayer({
@@ -60,6 +62,7 @@ export const MountsLayer = memo(function MountsLayer({
   weapons,
   hovered = null,
   onHover,
+  plain = false,
 }: Props) {
   const source = useEditor((s) => s.game.data?.view);
   return (
@@ -67,7 +70,7 @@ export const MountsLayer = memo(function MountsLayer({
       {layoutXml.mounts.map((mount, i) => {
         const p = mountPositionPx(layout, layoutXml, mount);
         const frame = weapons[i];
-        const isSelected = selected.includes(i) || hovered === i;
+        const isSelected = !plain && (selected.includes(i) || hovered === i);
         const r = frame ? BADGE_RADIUS : MARKER_RADIUS;
         return (
           <g
@@ -91,10 +94,14 @@ export const MountsLayer = memo(function MountsLayer({
                 vectorEffect="non-scaling-stroke"
               />
             )}
-            <circle cx={p.x} cy={p.y} r={r} />
-            <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle">
-              {i + 1}
-            </text>
+            {!plain && (
+              <>
+                <circle cx={p.x} cy={p.y} r={r} />
+                <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle">
+                  {i + 1}
+                </text>
+              </>
+            )}
           </g>
         );
       })}

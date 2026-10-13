@@ -1,6 +1,7 @@
 /** The system chip following the pointer while it is dragged from the palette. */
 import { useSystemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
+import { SystemName } from "../../common/SystemIcon";
 
 export function DragChip() {
   const drag = useEditor((s) => s.systemDrag);
@@ -13,7 +14,7 @@ export function DragChip() {
       data-testid="drag-chip"
       style={{ left: drag.clientX + 12, top: drag.clientY + 12 }}
     >
-      {nameOf(drag.system)}
+      <SystemName system={drag.system} name={nameOf(drag.system)} />
     </div>
   );
 }

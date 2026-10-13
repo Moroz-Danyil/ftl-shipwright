@@ -143,7 +143,13 @@ describe("editor window", () => {
     expect(screen.queryByTestId("door-0")).not.toBeInTheDocument();
     fireEvent.click(grid);
 
-    expect(svg.querySelector(".cv-room-id")).not.toBeNull();
+    expect(svg.querySelector(".cv-room-id")).toBeNull();
+    const numbers = screen.getByRole("checkbox", { name: en.canvas.layerNames.roomNumbers });
+    expect(numbers).not.toBeChecked();
+    expect(screen.getByRole("checkbox", { name: en.canvas.layerNames.interiors })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: en.canvas.layerNames.systemIcons })).toBeChecked();
+    fireEvent.click(numbers);
+    expect(svg.querySelectorAll(".cv-room-id")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: en.canvas.preview }));
     expect(svg.querySelector(".cv-grid")).toBeNull();
     expect(svg.querySelector(".cv-room-id")).toBeNull();

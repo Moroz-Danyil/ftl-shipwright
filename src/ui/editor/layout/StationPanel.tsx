@@ -5,6 +5,7 @@ import { DIRECTIONS, stationOf } from "../../../app/layout/stations";
 import { systemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { SystemName } from "../../common/SystemIcon";
 
 export function StationPanel({ ship, system }: { ship: Ship; system: number }) {
   const texts = useTexts();
@@ -16,7 +17,12 @@ export function StationPanel({ ship, system }: { ship: Ship; system: number }) {
     <>
       <div className="ed-heading">
         <span className="eyebrow">{texts.inspector.selectedStation}</span>
-        <span className="ed-heading-title">{texts.inspector.station(name)}</span>
+        <span className="ed-heading-title">
+          <SystemName
+            system={ship.blueprint.systems[system].system}
+            name={texts.inspector.station(name)}
+          />
+        </span>
       </div>
       <div className="ed-row">
         <span className="muted">{texts.inspector.room(station.room.id)}</span>

@@ -23,6 +23,7 @@ import {
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Stepper } from "../../common/Stepper";
+import { SystemName } from "../../common/SystemIcon";
 import { InteriorPicker } from "./InteriorPicker";
 
 function ArtilleryWeapon({ index, weapon }: { index: number; weapon: string | undefined }) {
@@ -62,7 +63,9 @@ function SystemCard({ ship, index, room }: { ship: Ship; index: number; room: Ro
       data-system={system.system}
     >
       <div className="ed-row">
-        <span className="sy-card-title">{name}</span>
+        <span className="sy-card-title">
+          <SystemName system={system.system} name={name} />
+        </span>
         <button
           type="button"
           className="btn btn--small btn--danger"

@@ -1,13 +1,14 @@
 /**
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
- * doors, stations, system labels, mounts and the current tool's overlay.
+ * interiors, doors, system icons, crew, mounts and the current tool's
+ * overlay. The hangar preview leaves out the editor's marks.
  * In Hull & art the hull, floor and shield are always shown (the cloak
  * follows its layer), and the gibs with the Gib tool; during the explosion
  * preview only the gibs are drawn.
  */
 import { useMemo } from "react";
 import type { Rect } from "../core";
-import { useSystemName } from "../app/names";
+import { EMPTY_SELECTION } from "../app/selection";
 import { currentTool, useEditor } from "../app/store";
 import { gibRectPx } from "./artHitTest";
 import { CellZeroEdge, GridLines, ViewLimitFrame } from "./GridLayer";
@@ -15,7 +16,7 @@ import { MountsLayer } from "./MountsLayer";
 import { ShipPictures } from "./ShipPictures";
 import { Doors, Rooms } from "./ShipShapes";
 import { Stations } from "./Stations";
-import { SystemDropTarget, SystemLabels } from "./SystemLabels";
+import { Interiors, LaterTint, SystemDropTarget, SystemIcons } from "./RoomContents";
 import { ToolOverlay } from "./ToolOverlay";
 import type { Overlay } from "./tools/types";
 import { equippedWeaponFrames } from "./weaponDraw";
@@ -31,11 +32,10 @@ interface Props {
 export function ShipScene({ area, overlay, explosion }: Props) {
   const snapshot = useEditor((s) => s.doc?.history.present);
   const view = useEditor((s) => s.view);
-  const selection = useEditor((s) => s.selection);
+  const editSelection = useEditor((s) => s.selection);
   const workspace = useEditor((s) => s.workspace);
   const tool = useEditor(currentTool);
   const data = useEditor((s) => s.game.data);
-  const nameOf = useSystemName();
   const art = workspace === "art";
   const loadout = workspace === "loadout";
   const hoverWeapon = useEditor((s) => s.hoverWeapon);
@@ -50,9 +50,19 @@ export function ShipScene({ area, overlay, explosion }: Props) {
   if (!snapshot) return null;
   const { ship } = snapshot;
   const playing = explosion !== undefined;
+  // The hangar preview shows the ship as the game does, without the selection.
+  const selection = hangarPreview ? EMPTY_SELECTION : editSelection;
+  const ids = hangarPreview
+    ? "none"
+    : layers.roomNumbers && workspace === "layout"
+      ? "all"
+      : "selected";
 
   return (
     <>
+      <defs>
+        <LaterTint />
+      </defs>
       <ShipPictures
         ship={ship}
         art={snapshot.art}
@@ -68,13 +78,19 @@ export function ShipScene({ area, overlay, explosion }: Props) {
               <CellZeroEdge ship={ship} area={area} />
             </>
           )}
-          {layers.rooms && (
-            <Rooms layout={ship.layout} selected={selection.rooms} showIds={!hangarPreview} />
+          {layers.rooms && <Rooms layout={ship.layout} selected={selection.rooms} ids={ids} />}
+          {layers.interiors && <Interiors ship={ship} source={snapshot.art.source} />}
+          {layers.doors && (
+            <Doors layout={ship.layout} selected={selection.doors} plain={hangarPreview} />
           )}
-          {layers.doors && <Doors layout={ship.layout} selected={selection.doors} />}
-          {layers.stations && <Stations ship={ship} selected={selection.stations} />}
-          {workspace === "systems" && (
-            <SystemLabels layout={ship.layout} systems={ship.blueprint.systems} nameOf={nameOf} />
+          {layers.systemIcons && <SystemIcons ship={ship} />}
+          {layers.stations && (
+            <Stations
+              ship={ship}
+              animations={data?.animations}
+              selected={selection.stations}
+              plain={hangarPreview}
+            />
           )}
           {selection.gibs.map((i) => {
             const r = gibRectPx(ship, snapshot.art, i);
@@ -99,6 +115,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
               hovered={loadout ? hoverWeapon : null}
               onHover={loadout ? setHoverWeapon : undefined}
               weapons={weapons}
+              plain={hangarPreview}
             />
           )}
           {!hangarPreview && <ViewLimitFrame ship={ship} />}

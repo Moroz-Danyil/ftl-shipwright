@@ -51,15 +51,22 @@ function Hover({ ship, art, target }: { ship: Ship; art: ShipArt; target: Target
   }
   if (!shape) return null;
   return (
-    <rect
-      className="cv-hover"
-      data-testid="hover"
-      x={shape.x}
-      y={shape.y}
-      width={shape.w}
-      height={shape.h}
-      vectorEffect="non-scaling-stroke"
-    />
+    <g>
+      <rect
+        className="cv-hover"
+        data-testid="hover"
+        x={shape.x}
+        y={shape.y}
+        width={shape.w}
+        height={shape.h}
+        vectorEffect="non-scaling-stroke"
+      />
+      {target.kind === "room" && (
+        <text className="cv-room-id" data-testid="hover-room-id" x={shape.x + 3} y={shape.y + 9}>
+          {target.id}
+        </text>
+      )}
+    </g>
   );
 }
 

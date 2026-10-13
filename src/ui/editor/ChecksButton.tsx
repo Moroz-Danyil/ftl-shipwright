@@ -4,6 +4,7 @@ import { useEditor } from "../../app/store";
 import { useTexts } from "../../text";
 import { Dialog } from "../common/Dialog";
 import { WarningIcon } from "../common/icons";
+import { SystemIcon } from "../common/SystemIcon";
 
 export function ChecksButton() {
   const texts = useTexts();
@@ -59,7 +60,8 @@ export function ChecksDialog() {
               className={issue.severity === "problem" ? "ed-check ed-check--problem" : "ed-check"}
               onClick={() => show(issue)}
             >
-              {texts.checks.messages[issue.code](issue)}
+              {issue.systemId && <SystemIcon system={issue.systemId} />}
+              <span>{texts.checks.messages[issue.code](issue)}</span>
             </button>
           ))}
         </div>

@@ -41,6 +41,8 @@ export interface CheckIssue {
   drone?: number;
   /** The blueprint name of the weapon or drone involved. */
   item?: string;
+  /** The system involved (its element name), shown with its icon. */
+  systemId?: string;
   /** The workspace that shows what the check is about. */
   workspace: WorkspaceId;
   /** Problems keep the ship from working; the rest are things to look at. */
@@ -65,6 +67,7 @@ export function systemChecks(ship: Ship, sizes: Record<string, PictureSize>): Ch
         code: "cloak-interior-size",
         rooms: [room.id],
         system: index,
+        systemId: "cloaking",
         workspace: "systems",
       });
   });
@@ -129,7 +132,10 @@ export function allChecks(
     };
     if (issue.rooms) out.rooms = issue.rooms;
     if (issue.door !== undefined) out.door = issue.door;
-    if (issue.system !== undefined) out.system = issue.system;
+    if (issue.system !== undefined) {
+      out.system = issue.system;
+      out.systemId = ship.blueprint.systems[issue.system]?.system;
+    }
     return out;
   });
   return [

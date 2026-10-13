@@ -8,16 +8,20 @@ import { systemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { NumberField } from "../../common/NumberField";
+import { SystemName } from "../../common/SystemIcon";
 import { DeleteButton } from "./DeleteButton";
 
-function useSystemNames(ship: Ship, room: Room): string[] {
+function useSystemNames(ship: Ship, room: Room): Array<{ system: string; name: string }> {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   return ship.blueprint.systems
     .filter((s) => s.room === room.id)
     .map((s) => {
       const name = systemName(data, s.system);
-      return s.start === false ? texts.inspector.boughtLater(name) : name;
+      return {
+        system: s.system,
+        name: s.start === false ? texts.inspector.boughtLater(name) : name,
+      };
     });
 }
 
@@ -48,7 +52,7 @@ export function RoomPanel({ ship, room }: { ship: Ship; room: Room }) {
         <span className="eyebrow">{texts.inspector.selectedRoom}</span>
         <span className="ed-heading-title">
           {names.length > 0
-            ? texts.inspector.roomWith(room.id, names.join(", "))
+            ? texts.inspector.roomWith(room.id, names.map((n) => n.name).join(", "))
             : texts.inspector.room(room.id)}
         </span>
       </div>
@@ -72,7 +76,7 @@ export function RoomPanel({ ship, room }: { ship: Ship; room: Room }) {
       <div className="ed-group">
         <span className="eyebrow">{texts.inspector.inThisRoom}</span>
         {names.length > 0 ? (
-          names.map((name, i) => <span key={i}>{name}</span>)
+          names.map((n) => <SystemName key={n.system} system={n.system} name={n.name} />)
         ) : (
           <span>{texts.inspector.noSystem}</span>
         )}

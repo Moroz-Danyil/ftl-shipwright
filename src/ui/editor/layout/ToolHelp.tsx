@@ -7,6 +7,7 @@ import { systemName } from "../../../app/names";
 import { currentTool, useEditor } from "../../../app/store";
 import type { Ship } from "../../../core";
 import { useTexts } from "../../../text";
+import { SystemName } from "../../common/SystemIcon";
 
 export function ToolHelp() {
   const texts = useTexts();
@@ -43,7 +44,10 @@ export function StationChooser({ ship }: { ship: Ship }) {
               checked={i === current}
               onChange={() => setChosen(i)}
             />
-            {texts.inspector.stationChoice(systemName(data, s.system), s.room)}
+            <SystemName
+              system={s.system}
+              name={texts.inspector.stationChoice(systemName(data, s.system), s.room)}
+            />
           </label>
         );
       })}
