@@ -7,6 +7,7 @@ import { cancelGesture } from "./gesture";
 import type { CommandId, MoveDirection } from "./keys";
 import { deleteSelectedArt, nudgeArt, turnSelectedMounts } from "./artActions";
 import { deleteSelected, nudgeSelection } from "./layoutActions";
+import { removeSelectedSlots } from "./loadoutActions";
 import { saveShipMod } from "./saveMod";
 import { EMPTY_SELECTION } from "./selection";
 import { useEditor } from "./store";
@@ -43,6 +44,7 @@ export function runCommand(command: CommandId, context: CommandContext): boolean
     if (!cancelGesture()) state.select(EMPTY_SELECTION);
   } else if (command === "delete") {
     if (state.workspace === "art") return deleteSelectedArt();
+    if (state.workspace === "loadout") return removeSelectedSlots();
     if (state.workspace !== "layout") return false;
     void deleteSelected(context);
   } else if (command.startsWith("move.") || command.startsWith("moveFar.")) {

@@ -8,6 +8,7 @@ import { CanvasControls } from "./CanvasControls";
 import { setCanvasElement } from "./canvasElement";
 import { shipBounds } from "./fit";
 import { ShipScene } from "./ShipScene";
+import { SlotBar } from "./SlotBar";
 import { useCanvasTool } from "./tools/useCanvasTool";
 import { useCanvasInput } from "./useCanvasInput";
 import { useElementSize } from "./useElementSize";
@@ -68,6 +69,7 @@ export function ShipCanvas() {
         </g>
       </svg>
       <div className="cv-hint">{texts.workspaces[workspace].hint}</div>
+      {workspace === "loadout" && <SlotBar />}
       <CanvasControls onPlayExplosion={workspace === "art" ? explosion.play : undefined} />
     </main>
   );

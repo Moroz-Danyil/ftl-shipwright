@@ -13,6 +13,7 @@ interface IssueRefs {
   door?: number;
   mount?: number;
   gib?: number;
+  item?: string;
 }
 
 export const en = {
@@ -312,6 +313,96 @@ export const en = {
     },
   },
 
+  loadout: {
+    tabs: { weapon: "Weapons", drone: "Drones", augment: "Augments" },
+    tabsLabel: "Equipment",
+    searchPlaceholder: {
+      weapon: "Laser, ion, missile…",
+      drone: "Combat, defense…",
+      augment: "Scrap, reloader…",
+    },
+    bar: "Weapon and drone slots",
+    weaponsCount: (n: number, slots: number) => `Weapons ${n} / ${slots}`,
+    dronesCount: (n: number, slots: number) => `Drones ${n} / ${slots}`,
+    emptySlot: { weapon: "+ weapon", drone: "+ drone" },
+    slotLabel: (n: number, name: string) => `Slot ${n}: ${name}`,
+    emptySlotLabel: (n: number) => `Slot ${n}: empty`,
+    full: {
+      weapon: "Every weapon slot is taken. Add a slot or remove a weapon first.",
+      drone: "Every drone slot is taken. Add a slot or remove a drone first.",
+    },
+    augmentProblems: {
+      full: "A ship has at most 3 augments.",
+      duplicate: "This augment does not stack; the ship has it already.",
+    },
+    weaponSlots: "Weapon slots",
+    droneSlots: "Drone slots",
+    missiles: "Starting missiles",
+    droneParts: "Starting drone parts",
+    augments: (n: number) => `Augments ${n} / 3`,
+    noAugments: "No augments.",
+    remove: "Remove",
+    removeNamed: (name: string) => `Remove ${name}`,
+    earlier: "Earlier",
+    later: "Later",
+    selectedWeapon: (n: number) => `Weapon slot ${n}`,
+    selectedDrone: (n: number) => `Drone slot ${n}`,
+    drawnOnMount: (n: number) => `Drawn on mount ${n}.`,
+    noMatches: "Nothing matches.",
+    unknownItem: (name: string) => `${name} (not in the game)`,
+    stats: {
+      damage: (n: number) => `${n} damage`,
+      shots: (n: number) => `${n} ${n === 1 ? "shot" : "shots"}`,
+      power: (n: number) => `${n} power`,
+      cost: (n: number) => `${n} scrap`,
+      missiles: (n: number) => `uses ${n} ${n === 1 ? "missile" : "missiles"}`,
+      stackable: "stacks",
+    },
+    details: {
+      damage: "Damage",
+      shots: "Shots",
+      sp: "Shield piercing",
+      fireChance: "Fire chance",
+      breachChance: "Breach chance",
+      stunChance: "Stun chance",
+      ion: "Ion damage",
+      persDamage: "Crew damage",
+      sysDamage: "System damage",
+      cooldown: "Charge time",
+      power: "Power",
+      missiles: "Missiles per shot",
+      cost: "Cost",
+      type: "Type",
+      value: "Value",
+    },
+    units: {
+      percent: (tens: number) => `${tens * 10} %`,
+      seconds: (n: number) => `${n} s`,
+      scrap: (n: number) => `${n} scrap`,
+    },
+    hint: "Click a card to put it in the next free slot. Hover a card for its details.",
+  },
+
+  details: {
+    eyebrow: "What the hangar shows",
+    name: "Name",
+    class: "Class",
+    description: "Description",
+    saveName: "Save name",
+    blueprintName: "Blueprint name",
+    baseName: "File name (layout and pictures)",
+    invalidId: "Use only letters, digits and underscores.",
+    confirmRename:
+      "This ship comes from the game. With a new save name it is saved as a separate ship and the original stays as it is. Change it?",
+    hull: "Hull",
+    reactor: "Reactor",
+    crew: (n: number) => `Crew ${n} / 8`,
+    noCrew: "No crew yet.",
+    addRace: "Add race",
+    racePlaceholder: "Choose a race…",
+    amount: (race: string) => `${race} crew`,
+  },
+
   inspector: {
     label: "Inspector",
     selectedRoom: "Selected room",
@@ -392,14 +483,11 @@ export const en = {
     loadout: {
       eyebrow: "Pick from the game's weapons, drones and augments",
       title: "Loadout",
-      body: "Fill the weapon and drone slots, choose augments and set the starting missiles and drone parts.",
     },
     details: {
       eyebrow: "What the hangar shows",
       title: "Details",
-      body: "Name, class and description, the save name, hull, reactor and the starting crew.",
     },
-    comingSoon: "The tools of this workspace are not available yet.",
   },
 
   status: {
@@ -438,6 +526,12 @@ export const en = {
       "gib-no-picture": (i: IssueRefs) => `Gib ${(i.gib ?? 0) + 1} has no picture.`,
       "mount-gib-missing": (i: IssueRefs) =>
         `Mount ${(i.mount ?? 0) + 1} flies off with a gib that does not exist.`,
+      "too-many-weapons": () => "The ship has more weapons than weapon slots.",
+      "too-many-drones": () => "The ship has more drones than drone slots.",
+      "unknown-weapon": (i: IssueRefs) => `The game has no weapon named ${i.item ?? "?"}.`,
+      "unknown-drone": (i: IssueRefs) => `The game has no drone named ${i.item ?? "?"}.`,
+      "no-crew": () => "The ship starts without crew.",
+      "no-hull-points": () => "The ship starts with 0 hull points.",
     } satisfies Record<CheckCode, (issue: IssueRefs) => string>,
   },
 

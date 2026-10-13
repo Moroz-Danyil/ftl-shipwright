@@ -47,6 +47,10 @@ interface Props {
   layoutXml: ShipLayoutXml;
   selected: number[];
   weapons: Array<WeaponFrame | undefined>;
+  /** The mount highlighted with its weapon slot (Loadout). */
+  hovered?: number | null;
+  /** Reports the mount under the pointer (Loadout). */
+  onHover?: (index: number | null) => void;
 }
 
 export const MountsLayer = memo(function MountsLayer({
@@ -54,6 +58,8 @@ export const MountsLayer = memo(function MountsLayer({
   layoutXml,
   selected,
   weapons,
+  hovered = null,
+  onHover,
 }: Props) {
   const source = useEditor((s) => s.game.data?.view);
   return (
@@ -61,14 +67,17 @@ export const MountsLayer = memo(function MountsLayer({
       {layoutXml.mounts.map((mount, i) => {
         const p = mountPositionPx(layout, layoutXml, mount);
         const frame = weapons[i];
-        const isSelected = selected.includes(i);
+        const isSelected = selected.includes(i) || hovered === i;
         const r = frame ? BADGE_RADIUS : MARKER_RADIUS;
         return (
           <g
             key={i}
             className={frame ? "cv-mount cv-mount--armed" : "cv-mount"}
             data-testid={`mount-${i + 1}`}
-            data-selected={isSelected || undefined}
+            data-selected={selected.includes(i) || undefined}
+            data-hovered={hovered === i || undefined}
+            onPointerEnter={onHover && (() => onHover(i))}
+            onPointerLeave={onHover && (() => onHover(null))}
           >
             {frame && source && (
               <WeaponOnMount source={source} frame={frame} at={p} mount={mount} />

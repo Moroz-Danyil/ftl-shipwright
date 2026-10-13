@@ -147,6 +147,8 @@ export interface EditorState {
   systemDrag: SystemDrag | null;
   artTool: ArtToolOptions;
   pictureTarget: PictureTarget | null;
+  /** The weapon slot (and so the mount) under the pointer in Loadout, to highlight both. */
+  hoverWeapon: number | null;
   workspace: WorkspaceId;
   /** The chosen tool of each workspace. */
   tools: Record<WorkspaceId, ToolId>;
@@ -180,6 +182,7 @@ export interface EditorState {
   setSystemDrag(drag: SystemDrag | null): void;
   setArtTool(options: Partial<ArtToolOptions>): void;
   openPicturePicker(target: PictureTarget): void;
+  setHoverWeapon(index: number | null): void;
   setWorkspace(workspace: WorkspaceId): void;
   setTool(tool: ToolId): void;
   setLayer(layer: LayerId, visible: boolean): void;
@@ -213,6 +216,7 @@ export function initialEditorState() {
     systemDrag: null as SystemDrag | null,
     artTool: { picture: "auto", keepMounts: false, active: null } as ArtToolOptions,
     pictureTarget: null as PictureTarget | null,
+    hoverWeapon: null as number | null,
     workspace: "layout" as WorkspaceId,
     tools: initialTools(),
     view: {
@@ -267,6 +271,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         systemDrag: null,
         artTool: { picture: "auto", keepMounts: false, active: null },
         pictureTarget: null,
+        hoverWeapon: null,
         workspace: "layout",
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
@@ -299,6 +304,9 @@ export const useEditor = create<EditorState>()((set, get) => {
     setSystemDrag: (systemDrag) => set({ systemDrag }),
     setArtTool: (options) => set({ artTool: { ...get().artTool, ...options } }),
     openPicturePicker: (pictureTarget) => set({ pictureTarget, dialog: "picture" }),
+    setHoverWeapon: (hoverWeapon) => {
+      if (get().hoverWeapon !== hoverWeapon) set({ hoverWeapon });
+    },
 
     setWorkspace: (workspace) => set({ workspace }),
 

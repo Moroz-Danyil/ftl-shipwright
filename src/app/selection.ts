@@ -1,8 +1,8 @@
 /**
  * What is selected on the canvas: rooms (by id), doors (by index into the
  * layout's doors), crew stations (by index of their system in the
- * blueprint), weapon mounts and gibs (by index). Selections are plain
- * immutable data.
+ * blueprint), weapon mounts, gibs, and weapon and drone slots (by index).
+ * Selections are plain immutable data.
  */
 import type { Ship } from "../core";
 import { isStationSystem, stationOf } from "./layout/stations";
@@ -13,6 +13,8 @@ export interface Selection {
   stations: number[];
   mounts: number[];
   gibs: number[];
+  weapons: number[];
+  drones: number[];
 }
 
 /** One thing on the canvas. */
@@ -21,7 +23,9 @@ export type Target =
   | { kind: "door"; index: number }
   | { kind: "station"; system: number }
   | { kind: "mount"; index: number }
-  | { kind: "gib"; index: number };
+  | { kind: "gib"; index: number }
+  | { kind: "weapon"; index: number }
+  | { kind: "drone"; index: number };
 
 export const EMPTY_SELECTION: Selection = {
   rooms: [],
@@ -29,15 +33,19 @@ export const EMPTY_SELECTION: Selection = {
   stations: [],
   mounts: [],
   gibs: [],
+  weapons: [],
+  drones: [],
 };
 
-const LISTS = ["rooms", "doors", "stations", "mounts", "gibs"] as const;
+const LISTS = ["rooms", "doors", "stations", "mounts", "gibs", "weapons", "drones"] as const;
 const KEYS = {
   room: "rooms",
   door: "doors",
   station: "stations",
   mount: "mounts",
   gib: "gibs",
+  weapon: "weapons",
+  drone: "drones",
 } as const;
 
 function targetKey(target: Target): { list: keyof Selection; value: number } {
@@ -92,7 +100,9 @@ export function singleTarget(selection: Selection): Target | undefined {
   if (selection.doors.length === 1) return { kind: "door", index: selection.doors[0] };
   if (selection.stations.length === 1) return { kind: "station", system: selection.stations[0] };
   if (selection.mounts.length === 1) return { kind: "mount", index: selection.mounts[0] };
-  return { kind: "gib", index: selection.gibs[0] };
+  if (selection.gibs.length === 1) return { kind: "gib", index: selection.gibs[0] };
+  if (selection.weapons.length === 1) return { kind: "weapon", index: selection.weapons[0] };
+  return { kind: "drone", index: selection.drones[0] };
 }
 
 /** True when the system is one with a crew station and its station lies in its room. */
@@ -109,6 +119,8 @@ export function validSelection(ship: Ship, selection: Selection): Selection {
     stations: selection.stations.filter((i) => hasStation(ship, i)),
     mounts: selection.mounts.filter((i) => i < ship.layoutXml.mounts.length),
     gibs: selection.gibs.filter((i) => i < ship.layoutXml.gibs.length),
+    weapons: selection.weapons.filter((i) => i < (ship.blueprint.weaponList?.items.length ?? 0)),
+    drones: selection.drones.filter((i) => i < (ship.blueprint.droneList?.items.length ?? 0)),
   };
   return LISTS.every((list) => valid[list].length === selection[list].length) ? selection : valid;
 }

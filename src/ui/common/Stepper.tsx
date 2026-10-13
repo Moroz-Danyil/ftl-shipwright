@@ -1,4 +1,4 @@
-/** A whole number between limits with − and + buttons, shown as "value / max". */
+/** A whole number between limits with − and + buttons, shown as "value / max" or just the value. */
 import { useTexts } from "../../text";
 
 interface Props {
@@ -7,9 +7,11 @@ interface Props {
   min: number;
   max: number;
   onChange: (value: number) => void;
+  /** Show "value / max" (default) or just the value. */
+  showMax?: boolean;
 }
 
-export function Stepper({ label, value, min, max, onChange }: Props) {
+export function Stepper({ label, value, min, max, onChange, showMax = true }: Props) {
   const texts = useTexts();
   return (
     <div className="stepper" role="group" aria-label={label}>
@@ -24,7 +26,7 @@ export function Stepper({ label, value, min, max, onChange }: Props) {
         {texts.systems.minus}
       </button>
       <span className="stepper-value mono" aria-live="polite">
-        {texts.systems.levelOf(value, max)}
+        {showMax ? texts.systems.levelOf(value, max) : value}
       </span>
       <button
         type="button"

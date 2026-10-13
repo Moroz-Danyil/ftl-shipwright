@@ -1,46 +1,27 @@
 /** The inspector: settings of the current workspace and the selection. */
 import { useEditor } from "../../app/store";
-import type { WorkspaceId } from "../../app/workspaces";
 import { useTexts } from "../../text";
-import { LayoutInspector } from "./LayoutInspector";
 import { ArtInspector } from "./art/ArtInspector";
+import { DetailsInspector } from "./details/DetailsInspector";
+import { LayoutInspector } from "./LayoutInspector";
+import { LoadoutInspector } from "./loadout/LoadoutInspector";
 import { SystemsInspector } from "./systems/SystemsInspector";
 
-function WorkspaceSummary({
-  workspace,
-}: {
-  workspace: Exclude<WorkspaceId, "layout" | "systems" | "art">;
-}) {
-  const texts = useTexts();
-  const info = texts.inspector[workspace];
-  return (
-    <>
-      <div className="ed-heading">
-        <span className="eyebrow">{info.eyebrow}</span>
-        <span className="ed-heading-title">{info.title}</span>
-      </div>
-      <span className="ed-help">{info.body}</span>
-      <div className="ed-group">
-        <span className="muted">{texts.inspector.comingSoon}</span>
-      </div>
-    </>
-  );
-}
+const PANELS = {
+  layout: LayoutInspector,
+  systems: SystemsInspector,
+  art: ArtInspector,
+  loadout: LoadoutInspector,
+  details: DetailsInspector,
+};
 
 export function Inspector() {
   const texts = useTexts();
   const workspace = useEditor((s) => s.workspace);
+  const Panel = PANELS[workspace];
   return (
     <aside className="ed-inspector" aria-label={texts.inspector.label}>
-      {workspace === "layout" ? (
-        <LayoutInspector />
-      ) : workspace === "systems" ? (
-        <SystemsInspector />
-      ) : workspace === "art" ? (
-        <ArtInspector />
-      ) : (
-        <WorkspaceSummary workspace={workspace} />
-      )}
+      <Panel />
     </aside>
   );
 }
