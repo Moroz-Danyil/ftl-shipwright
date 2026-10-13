@@ -2,7 +2,6 @@
  * The Details inspector: name, class and description as the hangar shows
  * them, the save name, hull, reactor and the starting crew.
  */
-import { useState } from "react";
 import type { Ship } from "../../../core";
 import {
   renameShip,
@@ -24,6 +23,7 @@ import { useTexts } from "../../../text";
 import { RacePicture } from "../../common/ItemPictures";
 import { Stepper } from "../../common/Stepper";
 import { TextField } from "../../common/TextField";
+import { RaceCards } from "./RaceCards";
 
 function HangarTexts({ ship }: { ship: Ship }) {
   const texts = useTexts();
@@ -76,7 +76,6 @@ function SaveName({ ship }: { ship: Ship }) {
 function Crew({ ship }: { ship: Ship }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
-  const [adding, setAdding] = useState("");
   const total = crewTotal(ship);
   const crew = ship.blueprint.crew;
   const races = data?.catalogs.races ?? [];
@@ -99,26 +98,7 @@ function Crew({ ship }: { ship: Ship }) {
           />
         </div>
       ))}
-      {total < LIMITS.crew && missing.length > 0 && (
-        <label className="field">
-          {texts.details.addRace}
-          <select
-            className="input"
-            value={adding}
-            onChange={(e) => {
-              if (e.target.value) setCrewAmount(e.target.value, 1);
-              setAdding("");
-            }}
-          >
-            <option value="">{texts.details.racePlaceholder}</option>
-            {missing.map((r) => (
-              <option key={r.name} value={r.name}>
-                {title(r.name)}
-              </option>
-            ))}
-          </select>
-        </label>
-      )}
+      {total < LIMITS.crew && missing.length > 0 && <RaceCards races={missing} />}
     </section>
   );
 }

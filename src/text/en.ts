@@ -402,7 +402,9 @@ export const en = {
     crew: (n: number) => `Crew ${n} / 8`,
     noCrew: "No crew yet.",
     addRace: "Add race",
-    racePlaceholder: "Choose a race…",
+    raceHint:
+      "Click a race to add one crew member. Hover a race for its description and abilities.",
+    abilities: "Abilities",
     amount: (race: string) => `${race} crew`,
   },
 

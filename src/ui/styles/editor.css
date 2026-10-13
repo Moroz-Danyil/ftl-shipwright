@@ -920,6 +920,10 @@
 .dt-crew .stepper {
   flex: 1;
 }
+.dt-races {
+  max-height: none;
+  overflow: visible;
+}
 textarea.input {
   height: auto;
   padding: 8px 10px;

@@ -65,7 +65,14 @@ export function loadoutGame(): GameData {
       ],
       races: [
         { name: "human", title: text("Human"), powers: [], ...origin },
-        { name: "engi", title: text("Engi"), powers: [], ...origin },
+        {
+          name: "engi",
+          title: text("Engi"),
+          desc: text("Exceptional engineers."),
+          cost: 45,
+          powers: [text("Repair speed is doubled"), text("Combat damage inflicted is halved")],
+          ...origin,
+        },
       ],
     },
   };

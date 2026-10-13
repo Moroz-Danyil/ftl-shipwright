@@ -149,9 +149,7 @@ describe("Details workspace", () => {
     const hull = within(inspector()).getByRole("group", { name: en.details.hull });
     fireEvent.click(within(hull).getByRole("button", { name: en.systems.higher(en.details.hull) }));
     expect(bp().health).toBe(31);
-    fireEvent.change(within(inspector()).getByLabelText(en.details.addRace), {
-      target: { value: "engi" },
-    });
+    fireEvent.click(within(inspector()).getByRole("button", { name: /Engi/ }));
     expect(bp().crew).toEqual([
       { amount: 2, race: "human" },
       { amount: 1, race: "engi" },
@@ -162,6 +160,19 @@ describe("Details workspace", () => {
     fireEvent.click(lower);
     expect(bp().crew).toEqual([{ amount: 1, race: "engi" }]);
     expect(steps()).toBe(5);
+  });
+
+  it("shows a race's description and abilities beside the list on hover", async () => {
+    await setUp();
+    press("Digit5");
+    const card = within(inspector()).getByRole("button", { name: /Engi/ });
+    fireEvent.pointerEnter(card);
+    const details = within(screen.getByRole("tooltip")).getByRole("region", { name: "Engi" });
+    expect(details).toHaveTextContent("Repair speed is doubled");
+    expect(details).toHaveTextContent(en.details.abilities);
+    expect(details).toHaveTextContent(en.loadout.units.scrap(45));
+    fireEvent.pointerLeave(card.parentElement!);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 
   it("asks before giving a game ship a new save name", async () => {
