@@ -551,6 +551,17 @@ export const en = {
     ftlFilter: "FTL mod",
   },
 
+  settings: {
+    title: "Settings",
+    scale: "Interface scale",
+    scaleHint: "Makes every button, icon and text bigger or smaller.",
+    scaleValue: (percent: number) => `${percent}%`,
+    theme: "Theme",
+    dark: "Dark",
+    light: "Light",
+    language: "Language",
+  },
+
   errors: {
     unknown: "unknown error",
     shipNotFound: "the ship's blueprint or layout files are missing",

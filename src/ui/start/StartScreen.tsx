@@ -53,7 +53,7 @@ function LanguageCard() {
     <section className="st-card">
       <label className="st-language">
         {texts.start.language}
-        <select value={language} onChange={(e) => useEditor.setState({ language: e.target.value })}>
+        <select value={language} onChange={(e) => useEditor.getState().setLanguage(e.target.value)}>
           {Object.entries(LANGUAGES).map(([code, dictionary]) => (
             <option key={code} value={code}>
               {dictionary.languageName}
@@ -65,7 +65,11 @@ function LanguageCard() {
         <button type="button" className="link">
           {texts.start.tour}
         </button>
-        <button type="button" className="link">
+        <button
+          type="button"
+          className="link"
+          onClick={() => useEditor.getState().openDialog("settings")}
+        >
           {texts.start.settings}
         </button>
       </div>

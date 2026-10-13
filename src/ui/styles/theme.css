@@ -27,9 +27,65 @@
   --room-ink: #4a525e;
   --room-selected: #f4e3c2;
   --door: #e9a23b;
+  --info: #8fc1f2;
+  --grid: #1c222b;
+  --edge: #55606f;
+  --view-limit: #e5484d;
+  --shield-fill: rgba(108, 180, 245, 0.08);
+  --shield-line: rgba(108, 180, 245, 0.5);
+  --station: #8fc1f2;
+  --station-ring: rgba(16, 19, 24, 0.75);
+  --label-bg: #2c3a4e;
+  --label-ink: #cfe3fa;
+  --mount: #3a424f;
+  --backdrop: rgba(5, 7, 10, 0.6);
   --font-sans: "IBM Plex Sans", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   color-scheme: dark;
+}
+
+/* Light theme: soft greys rather than white, the same amber accent made darker for contrast. */
+:root[data-theme="light"] {
+  --bg: #dfe3e8;
+  --canvas: #c9ced6;
+  --canvas-dot: #b3bac4;
+  --start-dot: #c7cdd5;
+  --panel: #eceef2;
+  --raised: #f5f6f8;
+  --tile: #dde1e7;
+  --line: #c3c9d1;
+  --line-strong: #a6aeb9;
+  --text: #20252d;
+  --text-soft: #39404b;
+  --muted: #59626f;
+  --accent: #e8962a;
+  --accent-hover: #f2a93b;
+  --accent-soft: #8a520a;
+  --accent-bg: #f6e3c4;
+  --accent-line: #ddb072;
+  --accent-ink: #1a1307;
+  --airlock: #2d78bd;
+  --ok: #2e7d45;
+  --problem: #c23a3a;
+  --problem-bg: #f6dcdc;
+  --room: #f2f3f6;
+  --room-line: #7d8693;
+  --room-ink: #4a525e;
+  --room-selected: #fbe5c0;
+  --door: #d98a1c;
+  --info: #2d6aa3;
+  --grid: #b7bec8;
+  --edge: #6b7482;
+  --view-limit: #c8323a;
+  --shield-fill: rgba(45, 120, 189, 0.1);
+  --shield-line: rgba(45, 120, 189, 0.55);
+  --station: #2d6aa3;
+  --station-ring: rgba(242, 243, 246, 0.85);
+  --label-bg: #d6e3f1;
+  --label-ink: #1d3f63;
+  --mount: #59626f;
+  --backdrop: rgba(32, 37, 45, 0.35);
+  color-scheme: light;
 }
 
 * {

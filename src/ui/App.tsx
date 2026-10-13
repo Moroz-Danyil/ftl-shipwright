@@ -1,6 +1,6 @@
 /**
  * The root of the interface: the start screen or the editor, with the
- * platform, the texts and the keyboard set up.
+ * platform, the texts, the keyboard, the theme and the scale set up.
  */
 import { useEffect, useRef } from "react";
 import { loadGameIntoStore } from "../app/gameData";
@@ -13,6 +13,7 @@ import { TextsProvider } from "../text/TextsProvider";
 import { LogoMark } from "./common/icons";
 import { NoticeBar } from "./common/NoticeBar";
 import { EditorWindow } from "./editor/EditorWindow";
+import { SettingsDialog } from "./settings/SettingsDialog";
 import { StartScreen } from "./start/StartScreen";
 
 /** Loads the remembered game data once, when the app starts. */
@@ -27,6 +28,18 @@ function useRememberedGameData() {
     if (game.datPath && game.status === "none")
       void loadGameIntoStore(platform, texts, game.datPath, game.mod);
   }, [platform, texts]);
+}
+
+/** Applies the chosen theme to the page and the interface scale to the window's zoom. */
+function useAppearance(platform: Platform) {
+  const theme = useEditor((s) => s.theme);
+  const uiScale = useEditor((s) => s.uiScale);
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+  useEffect(() => {
+    if (platform.available) void platform.setZoom(uiScale / 100).catch(() => undefined);
+  }, [platform, uiScale]);
 }
 
 function NotInApp() {
@@ -50,15 +63,18 @@ function Shell() {
   useKeyboard();
   useRememberedGameData();
   const hasShip = useEditor((s) => s.doc !== undefined);
+  const settingsOpen = useEditor((s) => s.dialog === "settings");
   return (
     <>
       {hasShip ? <EditorWindow /> : <StartScreen />}
+      {settingsOpen && <SettingsDialog />}
       <NoticeBar />
     </>
   );
 }
 
 export function App({ platform }: { platform: Platform }) {
+  useAppearance(platform);
   const language = useEditor((s) => s.language);
   return (
     <PlatformContext.Provider value={platform}>

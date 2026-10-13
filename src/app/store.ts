@@ -1,6 +1,7 @@
 /**
  * The one store of the app: game data, the open ship with its undo history,
- * the selection, the workspace and tool, and the view settings.
+ * the selection, the workspace and tool, the view settings, and the look of
+ * the interface.
  */
 import { create } from "zustand";
 import type { Animations, Catalogs, FileSource, GameTexts, GameView, Ship } from "../core";
@@ -9,7 +10,21 @@ import type { MovablePicture } from "./art/pictures";
 import type { ModRef } from "../platform/types";
 import { canRedo, canUndo, createHistory, record, redo, undo, type History } from "./history";
 import { EMPTY_SELECTION, validSelection, type Selection } from "./selection";
-import { loadDatPath, loadMod, loadRecent, type RecentShip, type ShipOrigin } from "./settings";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "../text";
+import {
+  loadDatPath,
+  loadLanguage,
+  loadMod,
+  loadRecent,
+  loadTheme,
+  loadUiScale,
+  saveLanguage,
+  saveTheme,
+  saveUiScale,
+  type RecentShip,
+  type ShipOrigin,
+  type Theme,
+} from "./settings";
 import { WORKSPACE_TOOLS, hasTool, type ToolId, type WorkspaceId } from "./workspaces";
 
 // ---------------------------------------------------------------------------
@@ -102,7 +117,7 @@ export interface ViewState {
   panHeld: boolean;
 }
 
-export type DialogId = "newShip" | "openShip" | "save" | "checks" | "picture";
+export type DialogId = "newShip" | "openShip" | "save" | "checks" | "picture" | "settings";
 
 /** What the picture picker chooses a picture for. */
 export type PictureTarget = { slot: PictureSlot } | { gib: number } | { newGib: true };
@@ -138,6 +153,9 @@ export interface Notice {
 
 export interface EditorState {
   language: string;
+  theme: Theme;
+  /** The interface scale in percent. */
+  uiScale: number;
   game: GameState;
   recent: RecentShip[];
   doc?: ShipDocument;
@@ -191,6 +209,9 @@ export interface EditorState {
   setPanHeld(held: boolean): void;
   openDialog(dialog: DialogId | null): void;
   setNotice(notice: Notice | undefined): void;
+  setLanguage(language: string): void;
+  setTheme(theme: Theme): void;
+  setUiScale(scale: number): void;
 }
 
 let nextDocumentId = 1;
@@ -206,8 +227,11 @@ const initialTools = (): Record<WorkspaceId, ToolId> => ({
 /** The state on start: remembered paths and recent ships, nothing open. */
 export function initialEditorState() {
   const datPath = loadDatPath();
+  const language = loadLanguage();
   return {
-    language: "en",
+    language: language && LANGUAGES[language] ? language : DEFAULT_LANGUAGE,
+    theme: loadTheme(),
+    uiScale: loadUiScale(),
     game: { datPath, mod: datPath ? loadMod() : undefined, status: "none" } as GameState,
     recent: loadRecent(),
     doc: undefined,
@@ -325,6 +349,19 @@ export const useEditor = create<EditorState>()((set, get) => {
 
     openDialog: (dialog) => set({ dialog }),
     setNotice: (notice) => set({ notice }),
+
+    setLanguage: (language) => {
+      saveLanguage(language);
+      set({ language });
+    },
+    setTheme: (theme) => {
+      saveTheme(theme);
+      set({ theme });
+    },
+    setUiScale: (uiScale) => {
+      saveUiScale(uiScale);
+      set({ uiScale });
+    },
   };
 });
 

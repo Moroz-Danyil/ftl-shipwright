@@ -1,6 +1,6 @@
 /**
- * What the app remembers between runs: the game archive, the mod and the
- * recently used ships.
+ * What the app remembers between runs: the game archive, the mod, the
+ * recently used ships, and the look of the interface (theme, scale, language).
  */
 import type { ModRef } from "../platform/types";
 import { readStored, writeStored, type KeyValueStore } from "../platform/storage";
@@ -9,7 +9,44 @@ const KEYS = {
   datPath: "shipwright.datPath",
   mod: "shipwright.mod",
   recent: "shipwright.recent",
+  theme: "shipwright.theme",
+  scale: "shipwright.scale",
+  language: "shipwright.language",
 } as const;
+
+export type Theme = "dark" | "light";
+
+/** The interface scales offered, in percent. */
+export const UI_SCALES = [90, 100, 110, 125, 150, 175, 200] as const;
+
+export const DEFAULT_UI_SCALE = 100;
+
+export function loadTheme(store?: KeyValueStore): Theme {
+  return readStored<unknown>(KEYS.theme, store) === "light" ? "light" : "dark";
+}
+
+export function saveTheme(theme: Theme, store?: KeyValueStore): void {
+  writeStored(KEYS.theme, theme, store);
+}
+
+/** The remembered interface scale in percent, if it is one of the offered ones. */
+export function loadUiScale(store?: KeyValueStore): number {
+  const value = readStored<unknown>(KEYS.scale, store);
+  return UI_SCALES.some((s) => s === value) ? (value as number) : DEFAULT_UI_SCALE;
+}
+
+export function saveUiScale(scale: number, store?: KeyValueStore): void {
+  writeStored(KEYS.scale, scale, store);
+}
+
+export function loadLanguage(store?: KeyValueStore): string | undefined {
+  const value = readStored<unknown>(KEYS.language, store);
+  return typeof value === "string" ? value : undefined;
+}
+
+export function saveLanguage(language: string, store?: KeyValueStore): void {
+  writeStored(KEYS.language, language, store);
+}
 
 /** How many ships the Recent list keeps. */
 export const RECENT_LIMIT = 8;

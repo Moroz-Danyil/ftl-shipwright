@@ -325,17 +325,17 @@
 /* Canvas drawing */
 .cv-grid {
   fill: none;
-  stroke: #1c222b;
+  stroke: var(--grid);
   stroke-width: 1;
 }
 .cv-edge {
   fill: none;
-  stroke: #55606f;
+  stroke: var(--edge);
   stroke-width: 2;
 }
 .cv-view-limit {
   fill: none;
-  stroke: #e5484d;
+  stroke: var(--view-limit);
   stroke-width: 1.5;
   stroke-dasharray: 6 5;
   pointer-events: none;
@@ -344,8 +344,8 @@
   opacity: 0.55;
 }
 .cv-shield-ellipse {
-  fill: rgba(108, 180, 245, 0.08);
-  stroke: rgba(108, 180, 245, 0.5);
+  fill: var(--shield-fill);
+  stroke: var(--shield-line);
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
@@ -435,8 +435,8 @@
 
 /* Crew stations */
 .cv-station-ring {
-  fill: rgba(16, 19, 24, 0.75);
-  stroke: #55606f;
+  fill: var(--station-ring);
+  stroke: var(--edge);
   stroke-width: 1;
 }
 .cv-station-facing {
@@ -445,7 +445,7 @@
   stroke-linecap: round;
 }
 .cv-station-figure {
-  fill: #8fc1f2;
+  fill: var(--station);
 }
 .cv-station--selected .cv-station-ring {
   stroke: var(--accent);
@@ -533,7 +533,7 @@
   flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: #8fc1f2;
+  color: var(--info);
 }
 .sy-chip--later .sy-chip-tag {
   color: var(--accent-soft);
@@ -656,16 +656,16 @@
 
 /* System labels on the canvas */
 .cv-system-label rect {
-  fill: #2c3a4e;
+  fill: var(--label-bg);
 }
 .cv-system-label text {
   font-size: 8px;
   font-weight: 600;
-  fill: #cfe3fa;
+  fill: var(--label-ink);
   pointer-events: none;
 }
 .cv-system-label--later rect {
-  fill: #5a4520;
+  fill: var(--accent-line);
 }
 .cv-system-label--later text {
   fill: var(--accent-soft);
@@ -723,7 +723,7 @@
   margin-bottom: 4px;
 }
 .cv-mount circle:not(.cv-selection-ring) {
-  fill: #3a424f;
+  fill: var(--mount);
   stroke: var(--canvas);
   stroke-width: 2;
 }

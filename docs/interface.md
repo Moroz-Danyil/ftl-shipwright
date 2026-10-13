@@ -5,6 +5,7 @@ How FTL Shipwright looks and behaves. The editor is built around **workspaces**:
 ## Look
 
 - Dark theme: graphite background, one amber accent for selection and the main action; airlock doors blue, problems red, things bought later amber.
+- A light theme with the same layout: soft greys rather than white, the same amber accent darkened for contrast.
 - Typefaces: IBM Plex Sans for text, IBM Plex Mono for numbers, ids and keys.
 - Every piece of text comes from one English dictionary, so translations can be added later.
 
@@ -105,7 +106,7 @@ The checks button opens a list of everything about the ship that is unfinished o
 
 ## Settings
 
-Interface scale, language and keyboard shortcuts (every tool key can be changed).
+Interface scale (the whole window zooms, so the canvas stays exact), dark or light theme, language, and keyboard shortcuts (every tool key can be changed). The choices are remembered.
 
 ## Keys
 

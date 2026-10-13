@@ -108,6 +108,7 @@ export function TopBar() {
           className="btn btn--icon"
           aria-label={texts.topBar.settings}
           title={texts.topBar.settings}
+          onClick={() => useEditor.getState().openDialog("settings")}
         >
           <SettingsIcon />
         </button>

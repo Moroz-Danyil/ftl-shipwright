@@ -16,7 +16,7 @@ export function Dialog({ title, onClose, children, actions }: Props) {
 
   useEffect(() => {
     const first = panel.current?.querySelector<HTMLElement>(
-      "input, select, textarea, button:not(:disabled)"
+      'input, select, textarea, button:not(:disabled):not([tabindex="-1"])'
     );
     first?.focus();
   }, []);

@@ -1,8 +1,10 @@
 /**
  * The platform of the desktop app, through Tauri: the app's own commands for
- * the game archive, the file system plugin and the dialog plugin.
+ * the game archive, the file system plugin, the dialog plugin and the
+ * webview's zoom.
  */
 import { invoke, isTauri } from "@tauri-apps/api/core";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { ask, open, save } from "@tauri-apps/plugin-dialog";
 import { mkdir, readDir, readFile, writeFile } from "@tauri-apps/plugin-fs";
 import type { DatAccess, FolderAccess } from "../core";
@@ -71,5 +73,6 @@ export function createTauriPlatform(): Platform {
     },
     pickSavePath: ({ filters, defaultPath }) => save({ filters, defaultPath }),
     confirm: (message) => ask(message, { kind: "warning" }),
+    setZoom: (factor) => getCurrentWebview().setZoom(factor),
   };
 }

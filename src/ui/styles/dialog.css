@@ -1,7 +1,7 @@
 .dlg-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(5, 7, 10, 0.6);
+  background: var(--backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,4 +171,61 @@
 }
 .ship-icon-mark {
   color: var(--line-strong);
+}
+
+/* Settings */
+.set-group {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.set-group + .set-group {
+  margin-top: 20px;
+}
+.set-label {
+  padding: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.set-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.set-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.set-option {
+  min-width: 58px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+}
+.set-option--wide {
+  min-width: 96px;
+  font-family: var(--font-sans);
+}
+.set-option:hover {
+  border-color: var(--line-strong);
+}
+.set-option[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-soft);
+  font-weight: 600;
+}
+.set-field select {
+  max-width: 260px;
 }

@@ -19,6 +19,8 @@ export interface FakePlatform extends Platform {
   };
   /** The dialogs asked so far, with their options. */
   asked: Array<{ kind: string; filters?: FileFilter[]; defaultPath?: string; message?: string }>;
+  /** The last zoom the interface asked for. */
+  zoom: number;
 }
 
 const key = (path: string) => normalizePath(path).toLowerCase();
@@ -48,6 +50,7 @@ export function createFakePlatform(
     folders: [],
     answers: { pickFile: [], pickFolder: [], pickSavePath: [], confirm: [] },
     asked: [],
+    zoom: 1,
     dat: {
       async listEntries(datPath) {
         const files = await gameAt(datPath).list();
@@ -88,6 +91,9 @@ export function createFakePlatform(
     async confirm(message) {
       platform.asked.push({ kind: "confirm", message });
       return platform.answers.confirm.shift() ?? false;
+    },
+    async setZoom(factor) {
+      platform.zoom = factor;
     },
   };
   return platform;

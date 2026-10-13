@@ -1,14 +1,21 @@
 import { describe, expect, it } from "vitest";
 import type { KeyValueStore } from "../platform/storage";
 import {
+  DEFAULT_UI_SCALE,
   RECENT_LIMIT,
   addRecent,
   loadDatPath,
+  loadLanguage,
   loadMod,
   loadRecent,
+  loadTheme,
+  loadUiScale,
   saveDatPath,
+  saveLanguage,
   saveMod,
   saveRecent,
+  saveTheme,
+  saveUiScale,
   type RecentShip,
 } from "./settings";
 
@@ -76,5 +83,32 @@ describe("settings", () => {
     const store = memoryStore();
     saveRecent(list, store);
     expect(loadRecent(store)).toEqual(list);
+  });
+});
+
+describe("the look of the interface", () => {
+  it("remembers the theme; anything but light reads as dark", () => {
+    const store = memoryStore();
+    expect(loadTheme(store)).toBe("dark");
+    saveTheme("light", store);
+    expect(loadTheme(store)).toBe("light");
+    store.setItem("shipwright.theme", JSON.stringify("purple"));
+    expect(loadTheme(store)).toBe("dark");
+  });
+
+  it("remembers the interface scale; values not offered fall back to the default", () => {
+    const store = memoryStore();
+    expect(loadUiScale(store)).toBe(DEFAULT_UI_SCALE);
+    saveUiScale(150, store);
+    expect(loadUiScale(store)).toBe(150);
+    store.setItem("shipwright.scale", JSON.stringify(137));
+    expect(loadUiScale(store)).toBe(DEFAULT_UI_SCALE);
+  });
+
+  it("remembers the language", () => {
+    const store = memoryStore();
+    expect(loadLanguage(store)).toBeUndefined();
+    saveLanguage("en", store);
+    expect(loadLanguage(store)).toBe("en");
   });
 });

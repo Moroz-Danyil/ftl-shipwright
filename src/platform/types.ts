@@ -1,6 +1,6 @@
 /**
  * What the app needs from the computer it runs on: the game archive, files
- * and folders, and the system's dialogs. The desktop app provides these
+ * and folders, the system's dialogs and the window's zoom. The desktop app provides these
  * through Tauri; tests use fakes.
  */
 import type { DatAccess, FolderAccess } from "../core";
@@ -30,6 +30,8 @@ export interface Platform {
   pickSavePath(options: { filters: FileFilter[]; defaultPath?: string }): Promise<string | null>;
   /** Asks a yes/no question. */
   confirm(message: string): Promise<boolean>;
+  /** Zooms the whole interface (1 = 100 %), as the browser zoom does, so pointer positions stay right. */
+  setZoom(factor: number): Promise<void>;
 }
 
 /** A mod chosen in the game data card: a folder or a `.ftl` / `.zip` file. */
