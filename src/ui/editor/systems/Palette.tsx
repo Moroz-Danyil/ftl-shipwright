@@ -127,7 +127,7 @@ export function Palette() {
 export function AddSystem({ hint }: { hint: string }) {
   const texts = useTexts();
   return (
-    <Section id="rooms-palette" title={texts.sections.addSystem}>
+    <Section id="rooms-palette" title={texts.sections.addSystem} icon="addSystem">
       <Palette />
       <span className="ed-help">{hint}</span>
     </Section>

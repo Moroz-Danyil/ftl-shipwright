@@ -163,6 +163,26 @@ describe("Rooms inspector", () => {
     expect(within(panel).getByText(en.inspector.doorsOnWalls(3))).toBeInTheDocument();
   });
 
+  it("puts a pictogram before each section title, next to the title", () => {
+    click(2.5, 1.5);
+    const heads = [...inspector().querySelectorAll(".sec-head")];
+    expect(heads.map((h) => h.querySelector(".pict")?.getAttribute("data-pictogram"))).toEqual([
+      "roomSystems",
+      "addSystem",
+      "position",
+      "select",
+    ]);
+    for (const head of heads) {
+      expect(head.querySelector(".pict")).toHaveAttribute("aria-hidden", "true");
+      expect(head.querySelector(".sec-title")?.textContent).not.toBe("");
+    }
+    expect(
+      within(inspector()).getByRole("button", { name: en.sections.position })
+    ).toBeInTheDocument();
+    press("KeyT");
+    expect(inspector().querySelector('.sec-head [data-pictogram="station"]')).not.toBeNull();
+  });
+
   it("turns a crew station from its system's card", () => {
     click(2.5, 1.5);
     const card = within(inspector()).getByRole("region", { name: "pilot" });

@@ -249,6 +249,36 @@ describe("Ship workspace: info, stats and crew", () => {
     ]);
   });
 
+  it("puts pictograms before the section titles, the save name and the stats", async () => {
+    const heads = [...inspector().querySelectorAll(".sec-head")];
+    expect(heads.map((h) => h.querySelector(".pict")?.getAttribute("data-pictogram"))).toEqual([
+      "info",
+      "stats",
+      "crew",
+      "weapons",
+      "drones",
+      "augments",
+    ]);
+    expect(
+      heads.every((h) => h.querySelector(".pict")?.getAttribute("aria-hidden") === "true")
+    ).toBe(true);
+    const save = within(inspector()).getByRole("group", { name: en.hangar.saveName });
+    expect(save.querySelector('[data-pictogram="save"]')).not.toBeNull();
+    const stats = within(inspector()).getByRole("region", { name: en.sections.stats });
+    expect(
+      [...stats.querySelectorAll(".sec-body .pict")].map((p) => p.getAttribute("data-pictogram"))
+    ).toEqual(["hull", "reactor", "weaponSlots", "droneSlots", "missiles", "droneParts"]);
+    expect(within(stats).getByRole("group", { name: en.loadout.hull })).toBeInTheDocument();
+    expect(within(stats).getByLabelText(en.loadout.missiles)).toHaveValue(4);
+    // The game's own icons: the weapons system icon and the missile icon.
+    const weapons = heads[3].querySelector(".pict")!;
+    expect(weapons).toHaveClass("pict--game");
+    await waitFor(() => expect(weapons.querySelector("img")).not.toBeNull());
+    const missiles = stats.querySelector('[data-pictogram="missiles"]')!;
+    await waitFor(() => expect(missiles.querySelector("img")).not.toBeNull());
+    expect(stats.querySelector('[data-pictogram="hull"] svg')).not.toBeNull();
+  });
+
   it("edits the hull and the crew", () => {
     const hull = within(inspector()).getByRole("group", { name: en.loadout.hull });
     fireEvent.click(within(hull).getByRole("button", { name: en.systems.higher(en.loadout.hull) }));

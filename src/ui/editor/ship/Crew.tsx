@@ -26,6 +26,7 @@ export function Crew({ ship }: { ship: Ship }) {
     <Section
       id="ship-crew"
       title={texts.sections.crew}
+      icon="crew"
       count={texts.sections.count(total, LIMITS.crew)}
     >
       {crew.length === 0 && <span className="muted">{texts.crew.noCrew}</span>}

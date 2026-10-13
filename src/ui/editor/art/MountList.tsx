@@ -49,7 +49,12 @@ export function MountList() {
   const texts = useTexts();
   const count = useEditor((s) => s.doc?.history.present.ship.layoutXml.mounts.length ?? 0);
   return (
-    <Section id="art-mounts" title={texts.sections.mounts} count={texts.sections.count(count, 8)}>
+    <Section
+      id="art-mounts"
+      title={texts.sections.mounts}
+      icon="mounts"
+      count={texts.sections.count(count, 8)}
+    >
       {Array.from({ length: count }, (_, i) => (
         <MountRow key={i} index={i} />
       ))}

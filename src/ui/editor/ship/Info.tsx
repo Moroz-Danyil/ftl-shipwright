@@ -19,7 +19,7 @@ export function Info({ ship }: { ship: Ship }) {
   const data = useEditor((s) => s.game.data);
   const value = (field: Field) => gameText(data, ship.blueprint.texts[field]) ?? "";
   return (
-    <Section id="ship-info" title={texts.sections.info}>
+    <Section id="ship-info" title={texts.sections.info} icon="info">
       <Help topic="shipName">
         <TextField
           label={texts.hangar.name}
@@ -42,7 +42,7 @@ export function Info({ ship }: { ship: Ship }) {
           onCommit={(v) => setShipText("desc", v)}
         />
       </Help>
-      <SubHeading title={texts.hangar.saveName}>
+      <SubHeading title={texts.hangar.saveName} icon="save">
         <Help topic="blueprintName">
           <TextField
             label={texts.hangar.blueprintName}

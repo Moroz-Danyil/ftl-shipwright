@@ -24,7 +24,7 @@ function MoveOptions() {
   const options = useEditor((s) => s.artTool);
   const set = useEditor((s) => s.setArtTool);
   return (
-    <Section id="art-move" title={texts.art.moveWhich}>
+    <Section id="art-move" title={texts.art.moveWhich} icon="movePicture">
       <Help topic="moveWhich">
         <fieldset className="ed-fieldset" aria-label={texts.art.moveOptions}>
           {(["auto", ...MOVABLE] as const).map((picture) => (
@@ -83,7 +83,7 @@ export function ArtInspector() {
         </div>
       )}
       {tool === "movePicture" && <MoveOptions />}
-      <Section id="art-pictures" title={texts.sections.pictures}>
+      <Section id="art-pictures" title={texts.sections.pictures} icon="pictures">
         <PicturesPanel />
       </Section>
       <MountList />

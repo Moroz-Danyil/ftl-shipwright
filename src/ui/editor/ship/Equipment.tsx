@@ -124,6 +124,7 @@ export function SlotList({ ship, kind }: { ship: Ship; kind: LoadoutKind }) {
     <Section
       id={kind === "weapon" ? "ship-weapons" : "ship-drones"}
       title={kind === "weapon" ? texts.sections.weapons : texts.sections.drones}
+      icon={kind === "weapon" ? "weapons" : "drones"}
       count={texts.sections.count(list.length, slots(ship, kind))}
     >
       {list.length === 0 ? (
@@ -157,6 +158,7 @@ export function Augments({ ship }: { ship: Ship }) {
     <Section
       id="ship-augments"
       title={texts.sections.augments}
+      icon="augments"
       count={texts.sections.count(augments.length, LIMITS.augments)}
     >
       {augments.length === 0 ? (

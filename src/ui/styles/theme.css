@@ -28,6 +28,7 @@
   --room-selected-tint: rgba(242, 169, 59, 0.22);
   --room-ink: #4a525e;
   --icon-bg: #20252d;
+  --icon-ink: #dfe3e9;
   --info: #8fc1f2;
   --grid: #1c222b;
   --edge: #55606f;
@@ -72,6 +73,7 @@
   --room-selected-tint: rgba(242, 169, 59, 0.28);
   --room-ink: #4a525e;
   --icon-bg: #3a414c;
+  --icon-ink: #eef0f3;
   --info: #2d6aa3;
   --grid: #b7bec8;
   --edge: #6b7482;
@@ -216,6 +218,11 @@ input[type="checkbox"] {
   gap: 4px;
   font-size: 12px;
   color: var(--muted);
+}
+.field-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 .input {
   height: 34px;

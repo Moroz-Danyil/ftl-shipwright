@@ -34,7 +34,7 @@ function Position({ ship, room }: { ship: Ship; room: Room }) {
     setMessage(problem && problemText(texts, problem));
   };
   return (
-    <Section id="room-position" title={texts.sections.position}>
+    <Section id="room-position" title={texts.sections.position} icon="position">
       <div className="ed-grid2">
         <Help topic="roomPosition">
           <NumberField label={texts.inspector.x} value={room.x} onCommit={(x) => apply({ x })} />

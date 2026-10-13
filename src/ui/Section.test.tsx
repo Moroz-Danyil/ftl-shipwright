@@ -8,7 +8,7 @@ beforeEach(() => localStorage.clear());
 describe("section", () => {
   it("folds and opens with its title, showing the count", () => {
     render(
-      <Section id="crew" title="Crew" count="3 / 8">
+      <Section id="crew" title="Crew" icon="crew" count="3 / 8">
         <span>Human</span>
       </Section>
     );
@@ -23,7 +23,7 @@ describe("section", () => {
 
   it("starts folded when asked, and remembers the choice", () => {
     const { unmount } = render(
-      <Section id="help" title="Help" defaultOpen={false}>
+      <Section id="help" title="Help" icon="select" defaultOpen={false}>
         <span>Body</span>
       </Section>
     );
@@ -31,7 +31,7 @@ describe("section", () => {
     fireEvent.click(screen.getByRole("button", { name: "Help" }));
     unmount();
     render(
-      <Section id="help" title="Help" defaultOpen={false}>
+      <Section id="help" title="Help" icon="select" defaultOpen={false}>
         <span>Body</span>
       </Section>
     );

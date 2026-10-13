@@ -18,7 +18,7 @@ export function ToolHelp() {
   const help = toolHelpOf(texts, workspace, tool);
   if (!help) return null;
   return (
-    <Section id="tool-help" title={help.title} defaultOpen={false}>
+    <Section id="tool-help" title={help.title} icon={tool} defaultOpen={false}>
       <span className="ed-help">{help.body}</span>
     </Section>
   );

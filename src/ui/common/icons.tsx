@@ -150,3 +150,50 @@ export function ToolIcon({ tool }: { tool: ToolId }) {
     </svg>
   );
 }
+
+/** The pictograms drawn as line icons, where the game has no fitting picture. */
+export type LinePictogram =
+  | "info"
+  | "save"
+  | "stats"
+  | "hull"
+  | "reactor"
+  | "crew"
+  | "augments"
+  | "roomSystems"
+  | "addSystem"
+  | "position"
+  | "pictures";
+
+const PICTOGRAM_PATHS: Record<LinePictogram, string> = {
+  info: "M8 1.75 A6.25 6.25 0 1 1 7.99 1.75 Z M8 7 V11.5 M8 4.5 V4.6",
+  save: "M3.5 1.75 H9.5 L12.5 4.75 V14.25 H3.5 Z M9.5 1.75 V4.75 H12.5 M5.75 8 H10.25 M5.75 10.75 H10.25",
+  stats: "M1.75 14 H14.25 M4 11.5 V8 M8 11.5 V3 M12 11.5 V5.5",
+  hull: "M1.5 8 L4.5 4 H12 L14.5 8 L12 12 H4.5 Z M5 8 H11",
+  reactor: "M9.25 1.5 L3.75 9 H7.75 L6.75 14.5 L12.25 7 H8.25 Z",
+  crew: "M8 2.25 A2.5 2.5 0 1 1 7.99 2.25 Z M2.75 14.25 C2.75 9.25 13.25 9.25 13.25 14.25",
+  augments:
+    "M4.5 4.5 H11.5 V11.5 H4.5 Z M6.5 2 V4.5 M9.5 2 V4.5 M6.5 11.5 V14 M9.5 11.5 V14 M2 6.5 H4.5 M2 9.5 H4.5 M11.5 6.5 H14 M11.5 9.5 H14",
+  roomSystems: "M2 2.5 H14 V13.5 H2 Z M8 5.75 A2.25 2.25 0 1 1 7.99 5.75 Z",
+  addSystem: "M2 2.5 H14 V13.5 H2 Z M8 5 V11 M5 8 H11",
+  position:
+    "M2 14 H14.5 M2 14 V1.5 M5 14 V12.5 M8 14 V12.5 M11 14 V12.5 M2 11 H3.5 M2 8 H3.5 M2 5 H3.5 M6.5 3.5 H13 V10 H6.5 Z",
+  pictures:
+    "M1.75 2.75 H14.25 V13.25 H1.75 Z M1.75 11 L5.75 7 L9 10.25 L11 8.25 L14.25 11.5 M10.5 5.25 V5.35",
+};
+
+/** A pictogram drawn as a line icon. */
+export function PictogramIcon({ id }: { id: LinePictogram }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+      <path
+        d={PICTOGRAM_PATHS[id]}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}

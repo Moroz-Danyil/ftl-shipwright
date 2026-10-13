@@ -181,6 +181,27 @@ describe("Hull: explosion pieces", () => {
   });
 });
 
+describe("Hull: pictograms", () => {
+  it("puts a pictogram before each section title", () => {
+    press("KeyH");
+    const heads = [...inspector().querySelectorAll(".sec-head")];
+    expect(heads.map((h) => h.querySelector(".pict")?.getAttribute("data-pictogram"))).toEqual([
+      "movePicture",
+      "pictures",
+      "mounts",
+      "gibs",
+      "movePicture",
+    ]);
+    expect(heads.map((h) => h.querySelector(".sec-title")?.textContent)).toEqual([
+      en.art.moveWhich,
+      en.sections.pictures,
+      en.sections.mounts,
+      en.sections.gibs,
+      en.toolHelp.hull.movePicture.title,
+    ]);
+  });
+});
+
 describe("Hull: picture zoom", () => {
   it("shows a thumbnail large, with its name and size, while it is hovered", async () => {
     const hull = within(inspector()).getByRole("button", {

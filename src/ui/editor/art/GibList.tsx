@@ -60,7 +60,7 @@ export function GibList() {
   const texts = useTexts();
   const count = useEditor((s) => s.doc?.history.present.ship.layoutXml.gibs.length ?? 0);
   return (
-    <Section id="art-gibs" title={texts.sections.gibs} count={String(count)}>
+    <Section id="art-gibs" title={texts.sections.gibs} icon="gibs" count={String(count)}>
       {Array.from({ length: count }, (_, i) => (
         <GibRow key={i} index={i} />
       ))}

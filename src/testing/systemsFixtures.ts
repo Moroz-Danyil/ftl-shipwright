@@ -41,11 +41,12 @@ export function systemsGame(): GameData {
     "img/ship/interior/room_pilot.png": pngHeader(70, 70),
     "img/effects/door_sheet.png": pngHeader(175, 175),
     "img/people/human_base.png": pngHeader(140, 70),
+    "img/ui_icons/icon_missiles.png": pngHeader(32, 32),
+    "img/ui_icons/icon_drones.png": pngHeader(32, 32),
     ...Object.fromEntries(
-      ["shields", "pilot", "oxygen", "cloaking", "medbay", "clonebay"].map((s) => [
-        `img/icons/s_${s}_overlay.png`,
-        pngHeader(32, 32),
-      ])
+      ["shields", "pilot", "oxygen", "cloaking", "medbay", "clonebay", "weapons", "drones"].map(
+        (s) => [`img/icons/s_${s}_overlay.png`, pngHeader(32, 32)]
+      )
     ),
   });
   const view = createGameView(files);

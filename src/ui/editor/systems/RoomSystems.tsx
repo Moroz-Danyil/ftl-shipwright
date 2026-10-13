@@ -161,7 +161,12 @@ export function RoomSystems({ ship, room }: { ship: Ship; room: Room }) {
   const indices = systemsInRoom(ship, room.id);
   const unusual = isUnusualMix(indices.map((i) => ship.blueprint.systems[i].system));
   return (
-    <Section id="room-systems" title={texts.sections.roomSystems} count={String(indices.length)}>
+    <Section
+      id="room-systems"
+      title={texts.sections.roomSystems}
+      icon="roomSystems"
+      count={String(indices.length)}
+    >
       {unusual && <div className="ed-group ed-group--warn">{texts.systems.unusualMix}</div>}
       {indices.length === 0 && <span className="muted">{texts.systems.empty}</span>}
       {indices.map((i) => (

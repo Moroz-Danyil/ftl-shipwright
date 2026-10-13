@@ -4,9 +4,12 @@
  * back to the current one as well.
  */
 import { useState } from "react";
+import { Pictogram, type PictogramId } from "./Pictogram";
 
 interface Props {
   label: string;
+  /** A pictogram before the label. */
+  icon?: PictogramId;
   /** A fuller name for screen readers when the visible label is short. */
   ariaLabel?: string;
   value: number;
@@ -16,7 +19,7 @@ interface Props {
   onCommit: (value: number) => void;
 }
 
-export function NumberField({ label, ariaLabel, value, decimals = false, onCommit }: Props) {
+export function NumberField({ label, icon, ariaLabel, value, decimals = false, onCommit }: Props) {
   const [draft, setDraft] = useState<string | null>(null);
 
   const commit = () => {
@@ -29,7 +32,14 @@ export function NumberField({ label, ariaLabel, value, decimals = false, onCommi
 
   return (
     <label className="field">
-      {label}
+      {icon ? (
+        <span className="field-label">
+          <Pictogram id={icon} size={20} />
+          {label}
+        </span>
+      ) : (
+        label
+      )}
       <input
         className="input mono"
         type="number"
