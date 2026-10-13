@@ -1,7 +1,9 @@
 /**
- * The palette of the game's systems in three groups. A chip shows where the
- * system is placed (amber when bought later); drag it onto a room, or click
- * it to put it in the selected room.
+ * The palette of the game's systems in three groups, under a legend of the
+ * colours. A tile is green when the system is installed at the start, amber
+ * when it is on the ship but bought later, red when the ship lacks it, and
+ * shows the room it is in. Drag a tile onto a room, or click it to put the
+ * system in the selected room.
  */
 import { PALETTE_ATTRIBUTE, clickSystem, pressSystemChip } from "../../../app/systemDrag";
 import { SYSTEM_GROUPS, isInstalled, type SystemGroup } from "../../../app/systems/rules";
@@ -10,22 +12,25 @@ import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { SystemIcon } from "../../common/SystemIcon";
 
-function Chip({ system }: { system: string }) {
+type TileState = "start" | "later" | "missing";
+
+const STATES: TileState[] = ["start", "later", "missing"];
+
+function Tile({ system }: { system: string }) {
   const texts = useTexts();
   const nameOf = useSystemName();
   const placed = useEditor((s) =>
     s.doc?.history.present.ship.blueprint.systems.find((x) => x.system === system)
   );
-  const later = placed !== undefined && !isInstalled(placed);
-  const className = ["sy-chip", placed ? "sy-chip--placed" : "", later ? "sy-chip--later" : ""]
-    .filter((c) => c !== "")
-    .join(" ");
+  const state: TileState = !placed ? "missing" : isInstalled(placed) ? "start" : "later";
+  const name = nameOf(system);
   return (
     <button
       type="button"
-      className={className}
+      className={`sy-tile sy-tile--${state}`}
       data-system={system}
-      title={nameOf(system)}
+      data-state={state}
+      title={texts.systems.tileTitle(name, texts.systems.states[state], placed?.room)}
       onPointerDown={(e) => {
         if (e.button !== 0) return;
         e.preventDefault();
@@ -36,10 +41,25 @@ function Chip({ system }: { system: string }) {
         if (e.detail === 0) clickSystem(system, texts);
       }}
     >
-      <SystemIcon system={system} />
-      <span className="sy-chip-name">{nameOf(system)}</span>
-      {placed && <span className="sy-chip-tag">{texts.systems.inRoom(placed.room)}</span>}
+      <SystemIcon system={system} size={28} />
+      <span className="sy-tile-name">{name}</span>
+      {placed && <span className="sy-tile-room">{texts.systems.roomTag(placed.room)}</span>}
+      {state === "later" && <span className="sy-tile-state">{texts.systems.notAtStart}</span>}
     </button>
+  );
+}
+
+function Legend() {
+  const texts = useTexts();
+  return (
+    <ul className="sy-legend" aria-label={texts.systems.legend}>
+      {STATES.map((state) => (
+        <li key={state}>
+          <span className={`sy-swatch sy-tile--${state}`} aria-hidden="true" />
+          {texts.systems.states[state]}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -48,12 +68,13 @@ export function Palette() {
   const groups = Object.entries(SYSTEM_GROUPS) as Array<[SystemGroup, string[]]>;
   return (
     <div className="sy-palette" {...{ [PALETTE_ATTRIBUTE]: "" }} aria-label={texts.systems.palette}>
+      <Legend />
       {groups.map(([group, systems]) => (
         <div key={group} className="sy-group" role="group" aria-label={texts.systems.groups[group]}>
           <span className="section-label">{texts.systems.groups[group]}</span>
-          <div className="sy-chips">
+          <div className="sy-tiles">
             {systems.map((system) => (
-              <Chip key={system} system={system} />
+              <Tile key={system} system={system} />
             ))}
           </div>
         </div>

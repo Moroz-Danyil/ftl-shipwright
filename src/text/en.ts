@@ -117,7 +117,7 @@ export const en = {
 
   workspaces: {
     layout: { label: "Layout", hint: "Layout — rooms, doors and crew stations" },
-    systems: { label: "Systems", hint: "Systems — drag systems onto rooms; amber = bought later" },
+    systems: { label: "Systems", hint: "Systems — drag systems onto rooms" },
     art: { label: "Hull & art", hint: "Hull & art — pictures, weapon mounts and explosion pieces" },
     loadout: { label: "Loadout", hint: "Loadout — weapons and drones fill the slots in order" },
     details: {
@@ -192,7 +192,16 @@ export const en = {
     fallbackNames: { artillery: "Artillery" } as Record<string, string>,
     groups: { core: "Core", subsystems: "Subsystems", special: "Special" },
     palette: "Systems",
-    inRoom: (id: number) => `room ${id}`,
+    roomTag: (id: number) => `#${id}`,
+    tileTitle: (name: string, state: string, room?: number) =>
+      room === undefined ? `${name} · ${state}` : `${name} · room ${room} · ${state}`,
+    states: {
+      start: "Installed at the start",
+      later: "On the ship, bought later",
+      missing: "Not on the ship",
+    },
+    notAtStart: "not at start",
+    legend: "What the colours mean",
     help: "Drag a system onto a room, or select a room and click a system. Drop a system on empty space or back on this list to remove it.",
     selectRoomFirst: "Select a room first, then click a system to put it there.",
     problems: {

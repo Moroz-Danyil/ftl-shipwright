@@ -498,47 +498,81 @@
   flex-direction: column;
   gap: 8px;
 }
-.sy-chips {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.sy-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
+  font-size: 13px;
+  color: var(--text-soft);
 }
-.sy-chip {
-  min-height: 38px;
-  border-radius: 8px;
-  border: 1px solid var(--line-strong);
-  background: var(--bg);
-  color: var(--text);
+.sy-legend li {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 2px 6px;
-  padding: 5px 8px;
-  font-size: 13px;
-  text-align: left;
+  gap: 10px;
+}
+.sy-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+.sy-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.sy-tile {
+  position: relative;
+  min-height: 86px;
+  border-radius: 10px;
+  border: 1px solid;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
   cursor: grab;
   touch-action: none;
 }
-.sy-chip:hover {
-  border-color: var(--accent-line);
+.sy-tile--start {
+  border-color: color-mix(in srgb, var(--ok) 70%, transparent);
+  background: color-mix(in srgb, var(--ok) 16%, var(--panel));
 }
-.sy-chip--placed {
-  background: var(--raised);
-  border-color: var(--line);
+.sy-tile--later {
+  border-color: color-mix(in srgb, var(--accent) 65%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--panel));
 }
-.sy-chip-name {
-  flex: 1 1 auto;
-  line-height: 1.25;
+.sy-tile--missing {
+  border-color: color-mix(in srgb, var(--problem) 55%, transparent);
+  background: color-mix(in srgb, var(--problem) 10%, var(--panel));
+  color: var(--text-soft);
 }
-.sy-chip-tag {
-  flex-shrink: 0;
-  margin-left: auto;
+.sy-tile:hover,
+.sy-tile:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: 1px;
+}
+.sy-tile-name {
+  line-height: 1.2;
+}
+.sy-tile-room {
+  position: absolute;
+  top: 5px;
+  right: 7px;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--info);
+  color: var(--muted);
 }
-.sy-chip--later .sy-chip-tag {
+.sy-tile-state {
+  font-size: 11px;
   color: var(--accent-soft);
 }
 .sy-drag {

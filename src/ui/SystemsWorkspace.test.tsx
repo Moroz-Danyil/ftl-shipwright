@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor, within } from "@testing-librar
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ShipSystem } from "../core";
 import { selectionOf } from "../app/selection";
+import { setSystemInstalled } from "../app/systemActions";
 import { useEditor } from "../app/store";
 import { en } from "../text/en";
 import { createFakePlatform } from "../testing/fakePlatform";
@@ -75,9 +76,9 @@ describe("Systems palette and canvas", () => {
   beforeEach(() => setUp([pilot, shields]));
 
   it("shows where each system is and its icon in the rooms", async () => {
-    expect(chip("Shields")).toHaveTextContent(en.systems.inRoom(0));
-    expect(chip("Piloting")).toHaveTextContent(en.systems.inRoom(1));
-    expect(chip("Oxygen")).not.toHaveTextContent("room");
+    expect(chip("Shields")).toHaveTextContent(en.systems.roomTag(0));
+    expect(chip("Piloting")).toHaveTextContent(en.systems.roomTag(1));
+    expect(chip("Oxygen")).not.toHaveTextContent("#");
     const room0 = screen.getByTestId("system-icons-0");
     expect(await within(room0).findByTestId("system-icon-shields")).toBeInTheDocument();
     expect(
@@ -90,6 +91,18 @@ describe("Systems palette and canvas", () => {
     expect(within(inspector()).getByText(en.systems.help)).toBeInTheDocument();
   });
 
+  it("colours the tiles: installed at the start, bought later, not on the ship", () => {
+    expect(within(inspector()).getByRole("list", { name: en.systems.legend })).toHaveTextContent(
+      en.systems.states.missing
+    );
+    expect(chip("Shields")).toHaveAttribute("data-state", "start");
+    expect(chip("Oxygen")).toHaveAttribute("data-state", "missing");
+    expect(chip("Shields")).not.toHaveTextContent(en.systems.notAtStart);
+    act(() => setSystemInstalled(1, false));
+    expect(chip("Shields")).toHaveAttribute("data-state", "later");
+    expect(chip("Shields")).toHaveTextContent(en.systems.notAtStart);
+  });
+
   it("places a system in the selected room with a click, one step", () => {
     clickChip("Oxygen");
     expect(state().notice?.text).toBe(en.systems.selectRoomFirst);
@@ -97,7 +110,7 @@ describe("Systems palette and canvas", () => {
     clickChip("Oxygen");
     expect(systems()[2]).toEqual({ system: "oxygen", power: 1, room: 2, start: true });
     expect(steps()).toBe(1);
-    expect(chip("Oxygen")).toHaveTextContent(en.systems.inRoom(2));
+    expect(chip("Oxygen")).toHaveTextContent(en.systems.roomTag(2));
     act(() => state().undo());
     expect(systems()).toHaveLength(2);
   });
