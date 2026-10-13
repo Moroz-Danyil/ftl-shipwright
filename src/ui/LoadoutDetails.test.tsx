@@ -188,6 +188,21 @@ describe("Details workspace", () => {
     expect(within(inspector()).queryByRole("list", { name: en.details.races })).toBeNull();
   });
 
+  it("shows the details of a race already in the crew when its name is hovered", async () => {
+    await setUp();
+    press("Digit5");
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.details.addRace }));
+    fireEvent.click(within(inspector()).getByRole("button", { name: /Engi/ }));
+    const row = within(inspector()).getByRole("group", { name: "Engi" });
+    const name = within(row).getByText("Engi");
+    fireEvent.pointerEnter(name.parentElement!);
+    expect(
+      within(screen.getByRole("tooltip")).getByRole("region", { name: "Engi" })
+    ).toHaveTextContent("Repair speed is doubled");
+    fireEvent.pointerLeave(name.parentElement!);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+  });
+
   it("explains a field on hover, with the game's hull bar", async () => {
     await setUp();
     press("Digit5");

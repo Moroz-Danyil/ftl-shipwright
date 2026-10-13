@@ -2,6 +2,7 @@
  * "Add race…": a list of the races not yet in the crew. A click adds one crew
  * member of that race; hovering or focusing a race shows its description and
  * abilities beside the inspector. Esc or a click elsewhere closes the list.
+ * A race already in the crew shows the same details when its name is hovered.
  */
 import { useEffect, useRef, useState } from "react";
 import type { RaceCatalogEntry } from "../../../core";
@@ -43,6 +44,27 @@ function RaceDetails({ race }: { race: RaceCatalogEntry }) {
         </dl>
       )}
     </section>
+  );
+}
+
+/** A crew race's sprite and name; hovering them shows the race's details. */
+export function RaceName({ race, title }: { race: string; title: string }) {
+  const entry = useEditor((s) => s.game.data?.catalogs.races.find((r) => r.name === race));
+  const panel = useHoverPanel<RaceCatalogEntry>();
+  return (
+    <span
+      className="dt-crew-name"
+      onPointerEnter={(e) => entry && panel.show(entry, e.currentTarget)}
+      onPointerLeave={panel.hide}
+    >
+      <RacePicture race={race} size={36} />
+      <span>{title}</span>
+      {panel.shown && (
+        <HoverPanel anchor={panel.shown.anchor} picture={<RacePicture race={race} size={105} />}>
+          <RaceDetails race={panel.shown.value} />
+        </HoverPanel>
+      )}
+    </span>
   );
 }
 

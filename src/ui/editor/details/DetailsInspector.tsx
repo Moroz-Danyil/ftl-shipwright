@@ -21,13 +21,12 @@ import { useEditor } from "../../../app/store";
 import { usePlatform } from "../../../platform/PlatformContext";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
-import { RacePicture } from "../../common/ItemPictures";
 import { Section } from "../../common/Section";
 import { CrossIcon } from "../../common/icons";
 import { NumberField } from "../../common/NumberField";
 import { Stepper } from "../../common/Stepper";
 import { TextField } from "../../common/TextField";
-import { RacePicker } from "./RacePicker";
+import { RaceName, RacePicker } from "./RacePicker";
 
 function HangarTexts({ ship }: { ship: Ship }) {
   const texts = useTexts();
@@ -103,8 +102,7 @@ function Crew({ ship }: { ship: Ship }) {
       {crew.length === 0 && <span className="muted">{texts.details.noCrew}</span>}
       {crew.map((c) => (
         <div key={c.race} className="dt-crew" role="group" aria-label={title(c.race)}>
-          <RacePicture race={c.race} size={36} />
-          <span className="dt-crew-name">{title(c.race)}</span>
+          <RaceName race={c.race} title={title(c.race)} />
           <Help topic="crewAmount">
             <NumberField
               label={texts.details.amount}
