@@ -3,6 +3,7 @@
  * comes from here; other languages are objects of the same type.
  */
 import type { CheckCode } from "../app/checks";
+import type { ToolId, WorkspaceId } from "../app/workspaces";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 const list = (ids: number[] | undefined) => (ids && ids.length > 0 ? ids.join(" and ") : "?");
@@ -150,9 +151,60 @@ export const en = {
     saveMod: "Save mod",
   },
 
+  /** What each tool of each workspace does, shown beside the tool rail and in the inspector. */
+  toolHelp: {
+    rooms: {
+      select: {
+        title: "Select tool (V)",
+        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell; Delete removes the selection.",
+      },
+      room: {
+        title: "Room tool (R)",
+        body: "Drag on the grid to draw a room. Rooms snap to cells and never cross the solid edge at 0 or overlap. Right-click or Esc cancels.",
+      },
+      door: {
+        title: "Door tool (D)",
+        body: "Click a wall next to a room. Doors to space are blue (airlocks).",
+      },
+      station: {
+        title: "Station tool (T)",
+        body: "Click a cell of a room with a system to put that system's crew station there. Turn a station in its system's card, or select the station.",
+      },
+    },
+    hull: {
+      select: {
+        title: "Select tool (V)",
+        body: "Click a mount to select it, drag it to move it. Arrows move the selection by 1 px, Shift + arrows by 10 px.",
+      },
+      movePicture: {
+        title: "Move picture tool (H)",
+        body: "Drag the hull, floor, cloak or shield picture. Arrows move the picture by 1 px, Shift + arrows by 10 px.",
+      },
+      mount: {
+        title: "Mount tool (M)",
+        body: "Click the hull picture to add a weapon mount (at most 8); drag a mount to move it. [ rotates and ] mirrors the selected mount.",
+      },
+      gib: {
+        title: "Gib tool (G)",
+        body: "Click an explosion piece to select it, drag it to move it.",
+      },
+    },
+    loadout: {
+      select: {
+        title: "Select tool (V)",
+        body: "Click a slot in the bar under the ship to select it; Delete removes its weapon or drone. Hover a slot to see its mount on the hull.",
+      },
+    },
+    hangar: {
+      select: {
+        title: "Select tool (V)",
+        body: "The hangar's texts and the save name are edited in the inspector. Preview in hangar shows the ship as the game's hangar does.",
+      },
+    },
+  } satisfies Record<WorkspaceId, Partial<Record<ToolId, { title: string; body: string }>>>,
+
   toolRail: {
     label: "Tools",
-    tool: (name: string, key: string) => `${name} (${key})`,
   },
 
   canvas: {
@@ -309,24 +361,6 @@ export const en = {
       ]
         .filter((part) => part !== "")
         .join(", "),
-    toolHelp: {
-      select: {
-        title: "Select tool (V)",
-        body: "Click a mount to select it, drag it to move it. Arrows move the selection by 1 px, Shift + arrows by 10 px.",
-      },
-      movePicture: {
-        title: "Move picture tool (H)",
-        body: "Drag the hull, floor, cloak or shield picture. Arrows move the picture by 1 px, Shift + arrows by 10 px.",
-      },
-      mount: {
-        title: "Mount tool (M)",
-        body: "Click the hull picture to add a weapon mount (at most 8); drag a mount to move it. [ rotates and ] mirrors the selected mount.",
-      },
-      gib: {
-        title: "Gib tool (G)",
-        body: "Click an explosion piece to select it, drag it to move it.",
-      },
-    },
   },
 
   loadout: {
@@ -624,24 +658,6 @@ export const en = {
     stationChoice: (system: string, room: number) => `${system} · room ${room}`,
     noStationSystems:
       "No system on this ship has a crew station yet. Put piloting, doors, sensors, weapons, shields, engines or hacking in a room first.",
-    toolHelp: {
-      select: {
-        title: "Select tool (V)",
-        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell; Delete removes the selection.",
-      },
-      room: {
-        title: "Room tool (R)",
-        body: "Drag on the grid to draw a room. Rooms snap to cells and never cross the solid edge at 0 or overlap. Right-click or Esc cancels.",
-      },
-      door: {
-        title: "Door tool (D)",
-        body: "Click a wall next to a room. Doors to space are blue (airlocks).",
-      },
-      station: {
-        title: "Station tool (T)",
-        body: "Click a cell of a room with a system to put that system's crew station there. Turn a station in its system's card, or select the station.",
-      },
-    },
     rooms: {
       title: "Rooms",
     },

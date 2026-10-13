@@ -1,4 +1,5 @@
 /** Small line icons drawn with the current text color. */
+import type { ToolId } from "../../app/workspaces";
 
 export function LogoMark({ size = 28 }: { size?: number }) {
   return (
@@ -101,6 +102,33 @@ export function CrossIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
       <path d="M2 2 L10 10 M10 2 L2 10" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}
+
+const TOOL_PATHS: Record<ToolId, string> = {
+  select: "M6 3 V16 L9.2 12.8 L11.6 18 L13.6 17.1 L11.2 11.9 H15.5 Z",
+  room: "M3 4 H17 V16 H3 Z M10 4 V16 M3 10 H10",
+  door: "M2 10 H6.5 M13.5 10 H18 M6.5 7.5 H13.5 V12.5 H6.5 Z",
+  station: "M10 3.5 A2.5 2.5 0 1 1 9.99 3.5 Z M5 17 C5 11.5 15 11.5 15 17 M7 14.5 L4 12",
+  movePicture:
+    "M10 2 V18 M2 10 H18 M7.5 4.5 L10 2 L12.5 4.5 M7.5 15.5 L10 18 L12.5 15.5 M4.5 7.5 L2 10 L4.5 12.5 M15.5 7.5 L18 10 L15.5 12.5",
+  mount: "M10 4 A6 6 0 1 1 9.99 4 Z M10 1.5 V6 M10 14 V18.5 M1.5 10 H6 M14 10 H18.5",
+  gib: "M3 6 L8.5 3.5 L9.5 9 L4 10.5 Z M11.5 10.5 L17 9 L17.5 15.5 L12 16.5 Z M5 15 L7 13 M14 4 L15.5 6",
+};
+
+/** The line icon of a tool on the tool rail. */
+export function ToolIcon({ tool }: { tool: ToolId }) {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+      <path
+        d={TOOL_PATHS[tool]}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

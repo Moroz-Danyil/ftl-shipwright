@@ -9,14 +9,13 @@ import type { Ship } from "../../../core";
 import { useTexts } from "../../../text";
 import { Section } from "../../common/Section";
 import { SystemName } from "../../common/SystemIcon";
+import { toolHelpOf } from "../toolHelp";
 
 export function ToolHelp() {
   const texts = useTexts();
   const tool = useEditor(currentTool);
   const workspace = useEditor((s) => s.workspace);
-  const table: Partial<Record<string, { title: string; body: string }>> =
-    workspace === "hull" ? texts.art.toolHelp : texts.inspector.toolHelp;
-  const help = table[tool];
+  const help = toolHelpOf(texts, workspace, tool);
   if (!help) return null;
   return (
     <Section id="tool-help" title={help.title} defaultOpen={false}>

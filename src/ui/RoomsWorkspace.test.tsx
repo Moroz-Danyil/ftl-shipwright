@@ -139,7 +139,7 @@ describe("Rooms inspector", () => {
     const add = within(panel).getByRole("region", { name: en.sections.addSystem });
     expect(within(add).getByRole("group", { name: en.systems.groups.core })).toBeInTheDocument();
     expect(within(add).getByText(en.systems.help)).toBeInTheDocument();
-    const help = within(panel).getByRole("button", { name: en.inspector.toolHelp.select.title });
+    const help = within(panel).getByRole("button", { name: en.toolHelp.rooms.select.title });
     expect(help).toHaveAttribute("aria-expanded", "false");
   });
 
@@ -210,8 +210,8 @@ describe("Rooms inspector", () => {
   });
 
   it("shows help for the current tool", () => {
-    expect(within(inspector()).getByText(en.inspector.toolHelp.select.title)).toBeInTheDocument();
+    expect(within(inspector()).getByText(en.toolHelp.rooms.select.title)).toBeInTheDocument();
     press("KeyD");
-    expect(within(inspector()).getByText(en.inspector.toolHelp.door.title)).toBeInTheDocument();
+    expect(within(inspector()).getByText(en.toolHelp.rooms.door.title)).toBeInTheDocument();
   });
 });

@@ -115,7 +115,7 @@
 
 /* Tool rail */
 .ed-rail {
-  width: 64px;
+  width: 80px;
   flex-shrink: 0;
   background: var(--panel);
   border-left: 1px solid var(--line);
@@ -126,8 +126,9 @@
   padding: 12px 0;
 }
 .ed-tool {
-  width: 46px;
-  height: 46px;
+  width: 66px;
+  min-height: 62px;
+  padding: 7px 2px 5px;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: transparent;
@@ -137,7 +138,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 3px;
+  font: inherit;
 }
 .ed-tool:hover {
   background: var(--raised);
@@ -147,14 +149,16 @@
   background: var(--accent-bg);
   color: var(--accent-soft);
 }
-.ed-tool-glyph {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1;
+.ed-tool-name {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.15;
+  text-align: center;
 }
 .ed-tool-key {
   font-family: var(--font-mono);
   font-size: 10px;
+  line-height: 1;
   opacity: 0.7;
 }
 

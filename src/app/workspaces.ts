@@ -19,17 +19,6 @@ export const TOOL_KEYS: Record<ToolId, string> = {
   gib: "G",
 };
 
-/** The letter drawn on each tool's button. */
-export const TOOL_GLYPHS: Record<ToolId, string> = {
-  select: "S",
-  room: "R",
-  door: "D",
-  station: "P",
-  movePicture: "H",
-  mount: "M",
-  gib: "G",
-};
-
 export const WORKSPACE_TOOLS: Record<WorkspaceId, ToolId[]> = {
   rooms: ["select", "room", "door", "station"],
   hull: ["select", "movePicture", "mount", "gib"],

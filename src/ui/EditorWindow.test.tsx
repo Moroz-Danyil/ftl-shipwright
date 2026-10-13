@@ -119,6 +119,38 @@ describe("editor window", () => {
     );
   });
 
+  it("labels each tool with its icon, name and key, and explains it beside the rail", () => {
+    const rail = screen.getByRole("complementary", { name: en.toolRail.label });
+    const tools = within(rail).getAllByRole("button");
+    expect(tools.map((t) => t.textContent)).toEqual([
+      en.tools.select + "V",
+      en.tools.room + "R",
+      en.tools.door + "D",
+      en.tools.station + "T",
+    ]);
+    expect(tools.every((t) => t.querySelector("svg") !== null)).toBe(true);
+    expect(tools[0]).not.toHaveAttribute("title");
+
+    fireEvent.pointerEnter(tools[2]);
+    const help = within(screen.getByRole("tooltip")).getByRole("region", {
+      name: en.toolHelp.rooms.door.title,
+    });
+    expect(help).toHaveTextContent(en.toolHelp.rooms.door.body);
+    expect(rail).not.toContainElement(screen.getByRole("tooltip"));
+    fireEvent.pointerLeave(tools[2]);
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+
+    press("Digit2");
+    const mount = within(rail).getByRole("button", { name: en.tools.mount });
+    expect(mount).toHaveTextContent(en.tools.mount + "M");
+    fireEvent.focus(mount);
+    expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.hull.mount.body);
+    fireEvent.blur(mount);
+    press("Digit3");
+    fireEvent.pointerEnter(within(rail).getByRole("button", { name: en.tools.select }));
+    expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.loadout.select.body);
+  });
+
   it("selects a room or a door with a click and shows its values; Esc clears", () => {
     clickShip({ x: 50, y: 50 });
     expect(screen.getByTestId("room-0")).toHaveAttribute("data-selected", "true");
