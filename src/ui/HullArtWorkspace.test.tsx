@@ -62,7 +62,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe("Hull & art pictures", () => {
   it("lists the ship's pictures and changes the hull from the game's pictures", async () => {
-    const panel = within(inspector()).getByRole("region", { name: en.art.pictures });
+    const panel = within(inspector()).getByRole("region", { name: en.sections.pictures });
     expect(panel).toHaveTextContent("t_base.png");
     expect(panel).toHaveTextContent("t_floor.png");
     expect(await screen.findByTestId("hull-picture")).toBeInTheDocument();
@@ -84,7 +84,7 @@ describe("Hull & art pictures", () => {
   it("takes a picture from a PNG file and removes optional ones", async () => {
     await platform.writeFile("art/shield.png", pngHeader(500, 300));
     platform.answers.pickFile.push("art/shield.png");
-    const panel = within(inspector()).getByRole("region", { name: en.art.pictures });
+    const panel = within(inspector()).getByRole("region", { name: en.sections.pictures });
     fireEvent.click(
       within(panel).getByRole("button", { name: en.art.changeNamed(en.art.slots.shield) })
     );

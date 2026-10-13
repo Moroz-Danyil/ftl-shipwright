@@ -230,7 +230,6 @@ export const en = {
     pngFilter: "PNG picture",
     fileFailed: (reason: string) => `Could not read the picture: ${reason}`,
     notPng: "That file is not a PNG picture.",
-    pictures: "Pictures",
     slots: {
       hull: "Hull",
       floor: "Floor",
@@ -259,7 +258,6 @@ export const en = {
       full: "A ship has at most 8 weapon mounts.",
       outside: "Put mounts on the hull picture.",
     },
-    mountsCount: (n: number) => `Weapon mounts ${n} / 8`,
     selectedMount: "Selected weapon mount",
     mount: (n: number) => `Mount ${n}`,
     weaponHere: (name: string) => `Weapon ${name} is drawn here.`,
@@ -285,7 +283,6 @@ export const en = {
     min: "Min",
     max: "Max",
     addGib: "Add gib",
-    gibsCount: (n: number) => `Explosion pieces ${n}`,
     playExplosion: "Play explosion",
     explosionApprox:
       "The explosion preview is approximate; the game's units for speed and turning are not confirmed yet.",
@@ -408,6 +405,24 @@ export const en = {
     amount: (race: string) => `${race} crew`,
   },
 
+  sections: {
+    position: "Position and size",
+    roomSystems: "Systems",
+    addSystem: "Add a system",
+    pictures: "Pictures",
+    mounts: "Weapon mounts",
+    gibs: "Explosion pieces",
+    slots: "Slots and ammunition",
+    augments: "Augments",
+    addItems: "Add items",
+    hangar: "Hangar texts",
+    hullReactor: "Hull and reactor",
+    crew: "Crew",
+    count: (n: number, max: number) => `${n} / ${max}`,
+    mountsHint:
+      "Click a mount on the ship to edit it. Weapons take the mounts in the order of their numbers.",
+  },
+
   inspector: {
     label: "Inspector",
     selectedRoom: "Selected room",
@@ -417,7 +432,6 @@ export const en = {
     y: "Y",
     width: "Width",
     height: "Height",
-    inThisRoom: "In this room",
     noSystem: "No system yet",
     boughtLater: (name: string) => `${name} (bought later)`,
     selectedDoor: "Selected door",

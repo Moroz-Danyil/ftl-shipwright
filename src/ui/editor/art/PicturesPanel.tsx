@@ -45,14 +45,13 @@ function PictureRow({ slot, picture }: { slot: PictureSlot; picture: PictureRef 
 }
 
 export function PicturesPanel() {
-  const texts = useTexts();
   const art = useEditor((s) => s.doc?.history.present.art);
   if (!art) return null;
   return (
-    <section className="ar-pictures" aria-label={texts.art.pictures}>
+    <div className="ar-pictures">
       {SLOTS.map((slot) => (
         <PictureRow key={slot} slot={slot} picture={art[slot]} />
       ))}
-    </section>
+    </div>
   );
 }

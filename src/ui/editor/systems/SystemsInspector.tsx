@@ -2,6 +2,7 @@
 import { singleTarget } from "../../../app/selection";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { Section } from "../../common/Section";
 import { Palette } from "./Palette";
 import { RoomSystems } from "./RoomSystems";
 
@@ -19,12 +20,11 @@ export function SystemsInspector() {
         <span className="eyebrow">{texts.inspector.systems.eyebrow}</span>
         <span className="ed-heading-title">{texts.inspector.systems.title}</span>
       </div>
-      <Palette />
-      {room ? (
-        <RoomSystems ship={ship} room={room} />
-      ) : (
-        <span className="ed-help">{texts.systems.help}</span>
-      )}
+      <Section id="systems-palette" title={texts.sections.addSystem}>
+        <Palette />
+        {!room && <span className="ed-help">{texts.systems.help}</span>}
+      </Section>
+      {room && <RoomSystems ship={ship} room={room} />}
     </>
   );
 }

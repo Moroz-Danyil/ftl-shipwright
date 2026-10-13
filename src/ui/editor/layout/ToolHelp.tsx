@@ -1,24 +1,27 @@
 /**
- * Help for the current Layout tool, and for the Station tool the choice of
- * which system's station it places.
+ * Help for the current tool (Layout or Hull & art), folded by default, and
+ * for the Station tool the choice of which system's station it places.
  */
 import { stationSystemIndices } from "../../../app/layout/stations";
 import { systemName } from "../../../app/names";
 import { currentTool, useEditor } from "../../../app/store";
 import type { Ship } from "../../../core";
 import { useTexts } from "../../../text";
+import { Section } from "../../common/Section";
 import { SystemName } from "../../common/SystemIcon";
 
 export function ToolHelp() {
   const texts = useTexts();
   const tool = useEditor(currentTool);
-  const help = texts.inspector.toolHelp[tool as keyof typeof texts.inspector.toolHelp];
+  const workspace = useEditor((s) => s.workspace);
+  const table: Partial<Record<string, { title: string; body: string }>> =
+    workspace === "art" ? texts.art.toolHelp : texts.inspector.toolHelp;
+  const help = table[tool];
   if (!help) return null;
   return (
-    <div className="ed-help">
-      <span className="ed-help-title">{help.title}</span>
-      <span>{help.body}</span>
-    </div>
+    <Section id="tool-help" title={help.title} defaultOpen={false}>
+      <span className="ed-help">{help.body}</span>
+    </Section>
   );
 }
 

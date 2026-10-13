@@ -21,6 +21,7 @@ import { useEditor } from "../../../app/store";
 import { usePlatform } from "../../../platform/PlatformContext";
 import { useTexts } from "../../../text";
 import { RacePicture } from "../../common/ItemPictures";
+import { Section } from "../../common/Section";
 import { Stepper } from "../../common/Stepper";
 import { TextField } from "../../common/TextField";
 import { RaceCards } from "./RaceCards";
@@ -30,7 +31,7 @@ function HangarTexts({ ship }: { ship: Ship }) {
   const data = useEditor((s) => s.game.data);
   const value = (field: Field) => gameText(data, ship.blueprint.texts[field]) ?? "";
   return (
-    <>
+    <Section id="details-hangar" title={texts.sections.hangar}>
       <TextField
         label={texts.details.name}
         value={value("name")}
@@ -47,7 +48,7 @@ function HangarTexts({ ship }: { ship: Ship }) {
         multiline
         onCommit={(v) => setShipText("desc", v)}
       />
-    </>
+    </Section>
   );
 }
 
@@ -55,8 +56,7 @@ function SaveName({ ship }: { ship: Ship }) {
   const texts = useTexts();
   const platform = usePlatform();
   return (
-    <fieldset className="ed-group ed-fieldset">
-      <legend className="eyebrow">{texts.details.saveName}</legend>
+    <Section id="details-save" title={texts.details.saveName}>
       <TextField
         label={texts.details.blueprintName}
         className="input mono"
@@ -69,7 +69,7 @@ function SaveName({ ship }: { ship: Ship }) {
         value={ship.blueprint.layout}
         onCommit={(base) => renameShip(platform, texts, { base })}
       />
-    </fieldset>
+    </Section>
   );
 }
 
@@ -82,8 +82,11 @@ function Crew({ ship }: { ship: Ship }) {
   const title = (race: string) => gameText(data, races.find((r) => r.name === race)?.title) || race;
   const missing = races.filter((r) => !crew.some((c) => c.race === r.name));
   return (
-    <section className="ed-group" aria-label={texts.details.crew(total)}>
-      <span className="eyebrow">{texts.details.crew(total)}</span>
+    <Section
+      id="details-crew"
+      title={texts.sections.crew}
+      count={texts.sections.count(total, LIMITS.crew)}
+    >
       {crew.length === 0 && <span className="muted">{texts.details.noCrew}</span>}
       {crew.map((c) => (
         <div key={c.race} className="dt-crew">
@@ -99,7 +102,7 @@ function Crew({ ship }: { ship: Ship }) {
         </div>
       ))}
       {total < LIMITS.crew && missing.length > 0 && <RaceCards races={missing} />}
-    </section>
+    </Section>
   );
 }
 
@@ -115,7 +118,7 @@ export function DetailsInspector() {
       </div>
       <HangarTexts ship={ship} />
       <SaveName ship={ship} />
-      <div className="ed-group">
+      <Section id="details-hull" title={texts.sections.hullReactor}>
         <Stepper
           label={texts.details.hull}
           value={ship.blueprint.health ?? NEW_SHIP_HULL}
@@ -130,7 +133,7 @@ export function DetailsInspector() {
           max={LIMITS.reactor.max}
           onChange={setShipReactor}
         />
-      </div>
+      </Section>
       <Crew ship={ship} />
     </>
   );

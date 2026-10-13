@@ -8,6 +8,7 @@ import { systemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { NumberField } from "../../common/NumberField";
+import { Section } from "../../common/Section";
 import { SystemName } from "../../common/SystemIcon";
 import { DeleteButton } from "./DeleteButton";
 
@@ -56,25 +57,34 @@ export function RoomPanel({ ship, room }: { ship: Ship; room: Room }) {
             : texts.inspector.room(room.id)}
         </span>
       </div>
-      <div className="ed-grid2">
-        <NumberField label={texts.inspector.x} value={room.x} onCommit={(x) => apply({ x })} />
-        <NumberField label={texts.inspector.y} value={room.y} onCommit={(y) => apply({ y })} />
-        <NumberField label={texts.inspector.width} value={room.w} onCommit={(w) => apply({ w })} />
-        <NumberField label={texts.inspector.height} value={room.h} onCommit={(h) => apply({ h })} />
-      </div>
-      {message && (
-        <div className="ed-group ed-group--problem" role="alert">
-          {message}
+      <Section id="room-position" title={texts.sections.position}>
+        <div className="ed-grid2">
+          <NumberField label={texts.inspector.x} value={room.x} onCommit={(x) => apply({ x })} />
+          <NumberField label={texts.inspector.y} value={room.y} onCommit={(y) => apply({ y })} />
+          <NumberField
+            label={texts.inspector.width}
+            value={room.w}
+            onCommit={(w) => apply({ w })}
+          />
+          <NumberField
+            label={texts.inspector.height}
+            value={room.h}
+            onCommit={(h) => apply({ h })}
+          />
         </div>
-      )}
-      <div className="ed-row muted">
-        <span>
-          {texts.inspector.roomId} <span className="mono">{room.id}</span>
-        </span>
-        <span>{texts.inspector.doorsOnWalls(doors)}</span>
-      </div>
-      <div className="ed-group">
-        <span className="eyebrow">{texts.inspector.inThisRoom}</span>
+        {message && (
+          <div className="ed-group ed-group--problem" role="alert">
+            {message}
+          </div>
+        )}
+        <div className="ed-row muted">
+          <span>
+            {texts.inspector.roomId} <span className="mono">{room.id}</span>
+          </span>
+          <span>{texts.inspector.doorsOnWalls(doors)}</span>
+        </div>
+      </Section>
+      <Section id="room-systems" title={texts.sections.roomSystems}>
         {names.length > 0 ? (
           names.map((n) => <SystemName key={n.system} system={n.system} name={n.name} />)
         ) : (
@@ -92,7 +102,7 @@ export function RoomPanel({ ship, room }: { ship: Ship; room: Room }) {
         >
           {texts.inspector.changeInSystems}
         </button>
-      </div>
+      </Section>
       <DeleteButton />
     </>
   );

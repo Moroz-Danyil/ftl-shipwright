@@ -1,12 +1,15 @@
 /**
  * The Hull & art inspector: the selected mount or gib; otherwise the
- * pictures, the Move picture options, the explosion pieces and tool help.
+ * pictures, the Move picture options, the mounts, the explosion pieces and
+ * tool help, each in a section that folds away.
  */
 import { deleteSelectedArt } from "../../../app/artActions";
 import type { MovablePicture } from "../../../app/art/pictures";
 import { selectionSize, singleTarget } from "../../../app/selection";
 import { currentTool, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { Section } from "../../common/Section";
+import { ToolHelp } from "../layout/ToolHelp";
 import { GibPanel } from "./GibPanel";
 import { MountPanel } from "./MountPanel";
 import { PicturesPanel } from "./PicturesPanel";
@@ -18,28 +21,29 @@ function MoveOptions() {
   const options = useEditor((s) => s.artTool);
   const set = useEditor((s) => s.setArtTool);
   return (
-    <fieldset className="ed-group ed-fieldset" aria-label={texts.art.moveOptions}>
-      <legend className="eyebrow">{texts.art.moveWhich}</legend>
-      {(["auto", ...MOVABLE] as const).map((picture) => (
-        <label key={picture} className="ed-choice">
+    <Section id="art-move" title={texts.art.moveWhich}>
+      <fieldset className="ed-fieldset" aria-label={texts.art.moveOptions}>
+        {(["auto", ...MOVABLE] as const).map((picture) => (
+          <label key={picture} className="ed-choice">
+            <input
+              type="radio"
+              name="move-picture"
+              checked={options.picture === picture}
+              onChange={() => set({ picture })}
+            />
+            {picture === "auto" ? texts.art.moveAuto : texts.art.slots[picture]}
+          </label>
+        ))}
+        <label className="ed-choice">
           <input
-            type="radio"
-            name="move-picture"
-            checked={options.picture === picture}
-            onChange={() => set({ picture })}
+            type="checkbox"
+            checked={options.keepMounts}
+            onChange={(e) => set({ keepMounts: e.target.checked })}
           />
-          {picture === "auto" ? texts.art.moveAuto : texts.art.slots[picture]}
+          {texts.art.keepMounts}
         </label>
-      ))}
-      <label className="ed-choice">
-        <input
-          type="checkbox"
-          checked={options.keepMounts}
-          onChange={(e) => set({ keepMounts: e.target.checked })}
-        />
-        {texts.art.keepMounts}
-      </label>
-    </fieldset>
+      </fieldset>
+    </Section>
   );
 }
 
@@ -47,29 +51,15 @@ function Gibs() {
   const texts = useTexts();
   const count = useEditor((s) => s.doc?.history.present.ship.layoutXml.gibs.length ?? 0);
   return (
-    <div className="ed-row">
-      <span>{texts.art.gibsCount(count)}</span>
+    <Section id="art-gibs" title={texts.sections.gibs} count={String(count)}>
       <button
         type="button"
-        className="btn btn--small"
+        className="btn"
         onClick={() => useEditor.getState().openPicturePicker({ newGib: true })}
       >
         {texts.art.addGib}
       </button>
-    </div>
-  );
-}
-
-function ToolHelp() {
-  const texts = useTexts();
-  const tool = useEditor(currentTool);
-  const help = texts.art.toolHelp[tool as keyof typeof texts.art.toolHelp];
-  if (!help) return null;
-  return (
-    <div className="ed-help">
-      <span className="ed-help-title">{help.title}</span>
-      <span>{help.body}</span>
-    </div>
+    </Section>
   );
 }
 
@@ -102,8 +92,16 @@ export function ArtInspector() {
         </div>
       )}
       {tool === "movePicture" && <MoveOptions />}
-      <PicturesPanel />
-      <span className="muted">{texts.art.mountsCount(ship.layoutXml.mounts.length)}</span>
+      <Section id="art-pictures" title={texts.sections.pictures}>
+        <PicturesPanel />
+      </Section>
+      <Section
+        id="art-mounts"
+        title={texts.sections.mounts}
+        count={texts.sections.count(ship.layoutXml.mounts.length, 8)}
+      >
+        <span className="ed-help">{texts.sections.mountsHint}</span>
+      </Section>
       <Gibs />
       <ToolHelp />
     </>

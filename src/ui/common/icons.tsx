@@ -87,3 +87,12 @@ export function HullIcon() {
     </svg>
   );
 }
+
+/** Points right when folded; the open state turns it to point down. */
+export function ChevronIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M4 2 L8 6 L4 10" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  );
+}

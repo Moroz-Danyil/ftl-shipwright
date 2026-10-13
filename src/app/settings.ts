@@ -1,6 +1,7 @@
 /**
  * What the app remembers between runs: the game archive, the mod, the
- * recently used ships, and the look of the interface (theme, scale, language).
+ * recently used ships, the look of the interface (theme, scale, language) and
+ * which inspector sections are folded.
  */
 import type { ModRef } from "../platform/types";
 import { readStored, writeStored, type KeyValueStore } from "../platform/storage";
@@ -12,6 +13,7 @@ const KEYS = {
   theme: "shipwright.theme",
   scale: "shipwright.scale",
   language: "shipwright.language",
+  sections: "shipwright.sections",
 } as const;
 
 export type Theme = "dark" | "light";
@@ -46,6 +48,21 @@ export function loadLanguage(store?: KeyValueStore): string | undefined {
 
 export function saveLanguage(language: string, store?: KeyValueStore): void {
   writeStored(KEYS.language, language, store);
+}
+
+/** Which inspector sections were opened or folded, by section id. */
+export function loadOpenSections(store?: KeyValueStore): Record<string, boolean> {
+  const value = readStored<unknown>(KEYS.sections, store);
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      (entry): entry is [string, boolean] => typeof entry[1] === "boolean"
+    )
+  );
+}
+
+export function saveSectionOpen(id: string, open: boolean, store?: KeyValueStore): void {
+  writeStored(KEYS.sections, { ...loadOpenSections(store), [id]: open }, store);
 }
 
 /** How many ships the Recent list keeps. */

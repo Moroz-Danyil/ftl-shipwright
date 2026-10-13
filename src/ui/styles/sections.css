@@ -1,0 +1,68 @@
+/* Inspector sections that fold away */
+.sec {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--line);
+}
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.sec-head:hover .sec-title {
+  color: var(--accent-soft);
+}
+.sec-head:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.sec-chevron {
+  display: inline-flex;
+  color: var(--muted);
+  transition: transform 0.15s;
+}
+.sec-head[aria-expanded="true"] .sec-chevron {
+  transform: rotate(90deg);
+}
+.sec-title {
+  flex: 1;
+}
+.sec-count {
+  padding: 1px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  color: var(--text-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+.sec-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+.ed-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ed-inspector:has(> .sec) {
+  gap: 6px;
+}
+/* Inside a section the inspector itself scrolls, so lists do not need their own scroll */
+.sec-body .lo-cards {
+  max-height: none;
+  overflow: visible;
+}

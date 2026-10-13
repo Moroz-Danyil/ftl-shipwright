@@ -18,6 +18,7 @@ import { singleTarget } from "../../../app/selection";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { NumberField } from "../../common/NumberField";
+import { Section } from "../../common/Section";
 import { Stepper } from "../../common/Stepper";
 import { ItemCards } from "./ItemCards";
 
@@ -70,7 +71,7 @@ function Counts({ ship }: { ship: Ship }) {
   const texts = useTexts();
   const bp = ship.blueprint;
   return (
-    <div className="ed-group">
+    <Section id="loadout-slots" title={texts.sections.slots}>
       <Stepper
         label={texts.loadout.weaponSlots}
         value={slots(ship, "weapon")}
@@ -97,7 +98,7 @@ function Counts({ ship }: { ship: Ship }) {
           onCommit={setStartingDroneParts}
         />
       </div>
-    </div>
+    </Section>
   );
 }
 
@@ -106,27 +107,32 @@ function Augments({ ship }: { ship: Ship }) {
   const data = useEditor((s) => s.game.data);
   const augments = ship.blueprint.augments;
   return (
-    <div className="ed-group" role="group" aria-label={texts.loadout.augments(augments.length)}>
-      <span className="eyebrow">{texts.loadout.augments(augments.length)}</span>
-      {augments.length === 0 && <span className="muted">{texts.loadout.noAugments}</span>}
-      {augments.map((name, i) => {
-        const item = findItem(data, "augment", name);
-        const title = item ? itemTitle(data, item) : name;
-        return (
-          <div key={i} className="ed-row">
-            <span>{title}</span>
-            <button
-              type="button"
-              className="btn btn--small btn--danger"
-              aria-label={texts.loadout.removeNamed(title)}
-              onClick={() => removeShipAugment(i)}
-            >
-              {texts.loadout.remove}
-            </button>
-          </div>
-        );
-      })}
-    </div>
+    <Section
+      id="loadout-augments"
+      title={texts.sections.augments}
+      count={texts.sections.count(augments.length, 3)}
+    >
+      <div className="ed-stack" role="group" aria-label={texts.loadout.augments(augments.length)}>
+        {augments.length === 0 && <span className="muted">{texts.loadout.noAugments}</span>}
+        {augments.map((name, i) => {
+          const item = findItem(data, "augment", name);
+          const title = item ? itemTitle(data, item) : name;
+          return (
+            <div key={i} className="ed-row">
+              <span>{title}</span>
+              <button
+                type="button"
+                className="btn btn--small btn--danger"
+                aria-label={texts.loadout.removeNamed(title)}
+                onClick={() => removeShipAugment(i)}
+              >
+                {texts.loadout.remove}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </Section>
   );
 }
 
@@ -148,21 +154,23 @@ export function LoadoutInspector() {
       )}
       <Counts ship={ship} />
       <Augments ship={ship} />
-      <div className="lo-tabs" role="tablist" aria-label={texts.loadout.tabsLabel}>
-        {TABS.map((kind) => (
-          <button
-            key={kind}
-            type="button"
-            role="tab"
-            aria-selected={tab === kind}
-            className="lo-tab"
-            onClick={() => setTab(kind)}
-          >
-            {texts.loadout.tabs[kind]}
-          </button>
-        ))}
-      </div>
-      <ItemCards key={tab} kind={tab} />
+      <Section id="loadout-add" title={texts.sections.addItems}>
+        <div className="lo-tabs" role="tablist" aria-label={texts.loadout.tabsLabel}>
+          {TABS.map((kind) => (
+            <button
+              key={kind}
+              type="button"
+              role="tab"
+              aria-selected={tab === kind}
+              className="lo-tab"
+              onClick={() => setTab(kind)}
+            >
+              {texts.loadout.tabs[kind]}
+            </button>
+          ))}
+        </div>
+        <ItemCards key={tab} kind={tab} />
+      </Section>
     </>
   );
 }
