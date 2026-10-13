@@ -1,4 +1,4 @@
-/** The editor: top bar, tool rail, canvas, inspector and status bar. */
+/** The editor: top bar, inspector on the left, canvas, tool rail on the right, status bar. */
 import { useEditor } from "../../app/store";
 import { ShipCanvas } from "../../canvas/ShipCanvas";
 import { PicturePicker } from "./art/PicturePicker";
@@ -16,9 +16,9 @@ export function EditorWindow() {
     <div className="ed-window">
       <TopBar />
       <div className="ed-body">
-        <ToolRail />
-        <ShipCanvas />
         <Inspector />
+        <ShipCanvas />
+        <ToolRail />
       </div>
       <StatusBar />
       {dialog === "save" && <SaveDialog />}

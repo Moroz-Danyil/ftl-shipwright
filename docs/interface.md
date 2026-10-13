@@ -35,19 +35,19 @@ Shown when no ship is open.
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │ ship name · status   [1 Layout][2 Systems][3 Hull & art][4 Loadout][5 Details]   undo redo  checks  settings  [Save mod] │
-├────┬─────────────────────────────────────────────────┬───────────────┤
-│tool│                                                 │               │
-│rail│                    canvas                       │   inspector   │
-│    │                                                 │               │
-├────┴─────────────────────────────────────────────────┴───────────────┤
+├───────────────┬─────────────────────────────────────────────────┬────┤
+│               │                                                 │tool│
+│   inspector   │                    canvas                       │rail│
+│               │                                                 │    │
+├───────────────┴─────────────────────────────────────────────────┴────┤
 │ game data · ship counts · zoom                                        │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 - **Top bar**: the ship's name with an "unsaved changes" mark, the five workspace tabs (keys `1`–`5`), undo and redo, the **checks** button with the number of things to look at, settings, and **Save mod**.
-- **Tool rail**: the tools of the current workspace, each with its key.
+- **Inspector** (left): settings of the current workspace and the selection.
+- **Tool rail** (right): the tools of the current workspace, each with its key.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** shows the ship as the game's hangar does.
-- **Inspector**: settings of the current workspace and the selection.
 - **Status bar**: which game data and mod are loaded, counts of rooms and doors, zoom.
 
 ## Workspaces
