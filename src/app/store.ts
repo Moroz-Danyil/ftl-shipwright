@@ -223,11 +223,10 @@ export interface EditorState {
 let nextDocumentId = 1;
 
 const initialTools = (): Record<WorkspaceId, ToolId> => ({
-  layout: "select",
-  systems: "select",
-  art: "select",
+  rooms: "select",
+  hull: "select",
   loadout: "select",
-  details: "select",
+  hangar: "select",
 });
 
 /** The state on start: remembered paths and recent ships, nothing open. */
@@ -247,7 +246,7 @@ export function initialEditorState() {
     artTool: { picture: "auto", keepMounts: false, active: null } as ArtToolOptions,
     pictureTarget: null as PictureTarget | null,
     hoverWeapon: null as number | null,
-    workspace: "layout" as WorkspaceId,
+    workspace: "rooms" as WorkspaceId,
     tools: initialTools(),
     view: {
       layers: { ...DEFAULT_LAYERS },
@@ -302,7 +301,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         artTool: { picture: "auto", keepMounts: false, active: null },
         pictureTarget: null,
         hoverWeapon: null,
-        workspace: "layout",
+        workspace: "rooms",
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
         dialog: null,

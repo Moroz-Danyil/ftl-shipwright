@@ -1,8 +1,9 @@
 /**
- * The five workspaces and the tools each one offers.
+ * The four workspaces, in the order a ship is made, and the tools each one
+ * offers.
  */
 
-export const WORKSPACES = ["layout", "systems", "art", "loadout", "details"] as const;
+export const WORKSPACES = ["rooms", "hull", "loadout", "hangar"] as const;
 export type WorkspaceId = (typeof WORKSPACES)[number];
 
 export type ToolId = "select" | "room" | "door" | "station" | "movePicture" | "mount" | "gib";
@@ -30,14 +31,13 @@ export const TOOL_GLYPHS: Record<ToolId, string> = {
 };
 
 export const WORKSPACE_TOOLS: Record<WorkspaceId, ToolId[]> = {
-  layout: ["select", "room", "door", "station"],
-  systems: ["select", "station"],
-  art: ["select", "movePicture", "mount", "gib"],
+  rooms: ["select", "room", "door", "station"],
+  hull: ["select", "movePicture", "mount", "gib"],
   loadout: ["select"],
-  details: ["select"],
+  hangar: ["select"],
 };
 
-/** The key of a workspace: its position, 1 to 5. */
+/** The key of a workspace: its position, 1 to 4. */
 export function workspaceKey(id: WorkspaceId): string {
   return String(WORKSPACES.indexOf(id) + 1);
 }

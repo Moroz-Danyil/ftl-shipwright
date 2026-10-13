@@ -1,5 +1,5 @@
 /**
- * The Hull & art tools: Move picture drags a picture; Mount adds mounts and
+ * The Hull tools: Move picture drags a picture; Mount adds mounts and
  * drags them; Gib selects and drags gibs; Select picks mounts (and gibs when
  * they are shown). Drags move by whole pixels and are one undo step.
  */
@@ -25,7 +25,7 @@ import {
 } from "../artHitTest";
 import { draggedFar, type CanvasTool, type ToolContext, type ToolPointer } from "./types";
 
-/** The pictures shown in Hull & art: all but the cloak, which follows its layer. */
+/** The pictures shown in Hull: all but the cloak, which follows its layer. */
 const shownPictures = (): Record<MovablePicture, boolean> => ({
   hull: true,
   floor: true,
@@ -197,7 +197,7 @@ export function createGibTool(context: ToolContext): CanvasTool {
   return createArtPicker(context, findGib, clear);
 }
 
-/** The Select tool in Hull & art: mounts, and gibs when they are shown. */
+/** The Select tool in Hull: mounts, and gibs when they are shown. */
 export function createArtSelectTool(context: ToolContext): CanvasTool {
   return createArtPicker(
     context,

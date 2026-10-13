@@ -1,5 +1,5 @@
 /**
- * Loadout and Details edits on the open ship, each one undo step.
+ * Loadout and Hangar edits on the open ship, each one undo step.
  */
 import type { Platform } from "../platform/types";
 import type { Texts } from "../text";

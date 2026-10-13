@@ -65,7 +65,7 @@ beforeEach(async () => {
 
 afterEach(() => vi.restoreAllMocks());
 
-describe("Layout on the canvas", () => {
+describe("Rooms on the canvas", () => {
   it("drags a room to a new cell as one undo step, with a ghost on the way", () => {
     click(4.5, 0.5);
     fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(4.5, 0.5) });
@@ -122,7 +122,7 @@ describe("Layout on the canvas", () => {
   });
 });
 
-describe("Layout inspector", () => {
+describe("Rooms inspector", () => {
   it("edits a room's values and refuses invalid ones with a message", () => {
     click(4.5, 0.5);
     commitField(en.inspector.y, "2");
@@ -133,13 +133,48 @@ describe("Layout inspector", () => {
     expect(steps()).toBe(1);
   });
 
-  it("shows a room's systems, doors and a link to Systems", () => {
+  it("shows the palette when nothing is selected, and the tool help folded", () => {
+    const panel = inspector();
+    expect(within(panel).getByText(en.inspector.nothingSelected)).toBeInTheDocument();
+    const add = within(panel).getByRole("region", { name: en.sections.addSystem });
+    expect(within(add).getByRole("group", { name: en.systems.groups.core })).toBeInTheDocument();
+    expect(within(add).getByText(en.systems.help)).toBeInTheDocument();
+    const help = within(panel).getByRole("button", { name: en.inspector.toolHelp.select.title });
+    expect(help).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("shows a selected room's systems, the palette and its position, in that order", () => {
     click(2.5, 1.5);
     const panel = inspector();
+    expect(within(panel).getByText(en.inspector.roomWith(1, "pilot"))).toBeInTheDocument();
+    const sections = within(panel)
+      .getAllByRole("region")
+      .filter((r) => r.classList.contains("sec"))
+      .map((r) => r.getAttribute("aria-label"));
+    expect(sections.slice(0, 3)).toEqual([
+      en.sections.roomSystems,
+      en.sections.addSystem,
+      en.sections.position,
+    ]);
+    const systems = within(panel).getByRole("region", { name: en.sections.roomSystems });
+    expect(within(systems).getByRole("region", { name: "pilot" })).toBeInTheDocument();
+    const add = within(panel).getByRole("region", { name: en.sections.addSystem });
+    expect(within(add).getByText(en.systems.helpRoom)).toBeInTheDocument();
     expect(within(panel).getByText(en.inspector.doorsOnWalls(3))).toBeInTheDocument();
-    expect(within(panel).getAllByText("pilot").length).toBeGreaterThan(0);
-    fireEvent.click(within(panel).getByRole("button", { name: en.inspector.changeInSystems }));
-    expect(state().workspace).toBe("systems");
+  });
+
+  it("turns a crew station from its system's card", () => {
+    click(2.5, 1.5);
+    const card = within(inspector()).getByRole("region", { name: "pilot" });
+    expect(within(card).getByText(en.systems.station(1))).toBeInTheDocument();
+    const facing = within(card).getByRole("group", { name: en.inspector.facing });
+    expect(
+      within(facing).getByRole("button", { name: en.inspector.directions.right })
+    ).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(within(facing).getByRole("button", { name: en.inspector.directions.down }));
+    expect(screen.getByTestId("station-0")).toHaveAttribute("data-direction", "down");
+    expect(ship().blueprint.systems[0].slot).toEqual({ number: 1, direction: "down" });
+    expect(steps()).toBe(1);
   });
 
   it("asks before deleting a room with systems", async () => {

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Point } from "../core";
+import { addMount, type Point } from "../core";
 import { useEditor } from "../app/store";
 import { en } from "../text/en";
 import { openArtShip } from "../testing/artFixtures";
@@ -55,12 +55,12 @@ beforeEach(async () => {
   await waitFor(() =>
     expect(screen.getByTestId("ship-svg").querySelector(".cv-grid")).not.toBeNull()
   );
-  press("Digit3");
+  press("Digit2");
 });
 
 afterEach(() => vi.restoreAllMocks());
 
-describe("Hull & art pictures", () => {
+describe("Hull: pictures", () => {
   it("lists the ship's pictures and changes the hull from the game's pictures", async () => {
     const panel = within(inspector()).getByRole("region", { name: en.sections.pictures });
     expect(panel).toHaveTextContent("t_base.png");
@@ -114,7 +114,7 @@ describe("Hull & art pictures", () => {
   });
 });
 
-describe("Hull & art mounts and gibs", () => {
+describe("Hull: mounts and gibs", () => {
   it("adds a mount with the Mount tool and edits it", () => {
     press("KeyM");
     fireEvent.pointerDown(canvas(), { button: 0, ...screenAt({ x: 75, y: 95 }) });
@@ -164,7 +164,7 @@ describe("Hull & art mounts and gibs", () => {
   });
 });
 
-describe("Hull & art explosion pieces", () => {
+describe("Hull: explosion pieces", () => {
   it("lists the gibs, selects one with a click and removes another in one step", () => {
     const gibs = within(inspector()).getByRole("region", { name: en.sections.gibs });
     expect(within(gibs).getByRole("button", { name: /Explosion pieces/ })).toHaveTextContent("2");
@@ -181,7 +181,7 @@ describe("Hull & art explosion pieces", () => {
   });
 });
 
-describe("Hull & art picture zoom", () => {
+describe("Hull: picture zoom", () => {
   it("shows a thumbnail large, with its name and size, while it is hovered", async () => {
     const hull = within(inspector()).getByRole("button", {
       name: en.art.changeNamed("Hull"),
@@ -196,5 +196,21 @@ describe("Hull & art picture zoom", () => {
     expect(zoom.querySelector("img.zoom-img")).not.toBeNull();
     fireEvent.pointerLeave(thumb);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+  });
+});
+
+describe("Hull checks", () => {
+  it("opens Hull with the mount selected from a mount check", () => {
+    act(() =>
+      state().edit((s) => addMount(s, { x: 40, y: 40, rotate: false, mirror: false, gib: 9 }))
+    );
+    press("Digit1");
+    fireEvent.click(screen.getByRole("button", { name: /to check$/ }));
+    fireEvent.click(
+      screen.getByRole("button", { name: en.checks.messages["mount-gib-missing"]({ mount: 0 }) })
+    );
+    expect(state().workspace).toBe("hull");
+    expect(state().selection.mounts).toEqual([0]);
+    expect(within(inspector()).getByText(en.art.selectedMount)).toBeInTheDocument();
   });
 });

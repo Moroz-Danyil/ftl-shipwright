@@ -109,23 +109,23 @@ describe("editor store", () => {
     expect(currentTool(state())).toBe("room");
     state().setTool("mount");
     expect(currentTool(state())).toBe("room");
-    state().setWorkspace("art");
+    state().setWorkspace("hull");
     expect(currentTool(state())).toBe("select");
     state().setTool("mount");
-    state().setWorkspace("layout");
+    state().setWorkspace("rooms");
     expect(currentTool(state())).toBe("room");
-    state().setWorkspace("art");
+    state().setWorkspace("hull");
     expect(currentTool(state())).toBe("mount");
   });
 
-  it("starts each opened ship in Layout with the Select tool and nothing selected", () => {
+  it("starts each opened ship in Rooms with the Select tool and nothing selected", () => {
     state().openDocument({ ship: shipWithRooms(), art, saved: true });
-    state().setWorkspace("details");
+    state().setWorkspace("hangar");
     state().select(selectionOf({ kind: "room", id: 0 }));
     const firstId = state().doc!.id;
     state().openDocument({ ship: shipWithRooms(), art, saved: true });
     expect(state().doc!.id).not.toBe(firstId);
-    expect(state().workspace).toBe("layout");
+    expect(state().workspace).toBe("rooms");
     expect(state().selection).toEqual(EMPTY_SELECTION);
     state().closeDocument();
     expect(state().doc).toBeUndefined();

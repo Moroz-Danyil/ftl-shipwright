@@ -1,6 +1,6 @@
 # The interface
 
-How FTL Shipwright looks and behaves. The editor is built around **workspaces**: building a ship is split into five steps, and each step shows only the tools and settings it needs.
+How FTL Shipwright looks and behaves. The editor is built around **workspaces**: building a ship is split into four steps, in the order a ship is made, and each step shows only the tools and settings it needs.
 
 ## Look
 
@@ -35,7 +35,7 @@ Shown when no ship is open.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ ship name · status   [1 Layout][2 Systems][3 Hull & art][4 Loadout][5 Details]   undo redo  checks  settings  [Save mod] │
+│ ship name · status   [1 Rooms][2 Hull][3 Loadout][4 Hangar]   undo redo  checks  settings  [Save mod] │
 ├───────────────┬─────────────────────────────────────────────────┬────┤
 │               │                                                 │tool│
 │   inspector   │                    canvas                       │rail│
@@ -45,7 +45,7 @@ Shown when no ship is open.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Top bar**: the ship's name with an "unsaved changes" mark, the five workspace tabs (keys `1`–`5`), undo and redo, the **checks** button with the number of things to look at, settings, and **Save mod**.
+- **Top bar**: the ship's name with an "unsaved changes" mark, the four workspace tabs (keys `1`–`4`), undo and redo, the **checks** button with the number of things to look at, settings, and **Save mod**.
 - **Inspector** (left): settings of the current workspace and the selection.
 - **Tool rail** (right): the tools of the current workspace, each with its key.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** shows the ship as the game's hangar does.
@@ -53,9 +53,9 @@ Shown when no ship is open.
 
 ## Workspaces
 
-### 1 · Layout
+### 1 · Rooms
 
-Rooms, doors and crew stations.
+Rooms, doors, the systems in the rooms and the crew stations.
 
 | Tool    | Key | What it does                                                                                |
 | ------- | --- | ------------------------------------------------------------------------------------------- |
@@ -64,37 +64,34 @@ Rooms, doors and crew stations.
 | Door    | `D` | click a wall; a door on the outer wall opens to space and is drawn blue                     |
 | Station | `T` | click a cell of a room with a system to put that system's crew station there                |
 
-Inspector: the selected room's position and size, the systems in it (changed in Systems), its interior picture; for a door, its two sides; for a station, the direction the crew member faces. Loose doors are drawn red; an airlock on a room bigger than 2×2 shows a warning, because the game only partly vents such rooms.
-
-### 2 · Systems
-
-- A palette of the game's systems in three groups (core, subsystems, special) shows which are placed.
-- Drag a system onto a room to place it; drop it outside to remove it. Rooms show a label for each system they hold.
+- With nothing selected the inspector shows **Add a system**: a palette of the game's systems in three groups (core, subsystems, special), coloured by their state (installed at the start, on the ship but bought later, not on the ship), with the room each one is in.
+- Drag a system onto a room to place it; drop it outside or back on the palette to remove it. With a room selected, a click on a system puts it in that room.
+- A selected room shows a heading with its systems, then **Systems in this room**: a card for each system with its starting level, upgrade limit, "installed at the start", the artillery weapon, the facing of its crew station, the interior picture and Remove. Then **Add a system**, **Position and size**, and Delete.
 - A room can hold several systems; only one of them can be installed at the start, the others are bought later and drawn amber.
-- Inspector for the selected room: each system's starting and maximum level, "installed at the start", the interior picture.
+- A selected door shows its two sides; a selected station the direction the crew member faces. Loose doors are drawn red; an airlock on a room bigger than 2×2 shows a warning, because the game only partly vents such rooms.
 
-### 3 · Hull & art
+### 2 · Hull
 
 | Tool         | Key | What it does                                                                                |
 | ------------ | --- | ------------------------------------------------------------------------------------------- |
-| Select       | `V` |                                                                                             |
+| Select       | `V` | click a mount to select it, drag it to move it                                              |
 | Move picture | `H` | drag the hull, floor, cloak or shield picture; arrows move by 1 px, Shift + arrows by 10 px |
 | Mount        | `M` | click the hull to add a weapon mount (at most 8)                                            |
 | Gib          | `G` | select and drag the explosion pieces                                                        |
 
 - Pictures (hull, floor, cloak, shield, ship icon) are chosen from the game or from a PNG file.
 - A selected mount shows its number (the weapon slot drawn on it), buttons to move it earlier or later, **Rotate** and **Mirror** (also `[` and `]`), the direction the weapon slides out, the explosion piece it flies off with, and whether it moves together with the hull picture.
-- The explosion can be played on the canvas.
+- The explosion pieces are listed with their pictures; the explosion can be played on the canvas.
 
-### 4 · Loadout
+### 3 · Loadout
 
 - A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull.
 - The inspector lists the game's weapons, drones and augments with search and cards (picture, description, stats).
 - Weapon slots (at most 8), drone slots, augments (at most 3), starting missiles and drone parts.
 
-### 5 · Details
+### 4 · Hangar
 
-Name, class and description as the hangar shows them, the save name (the file names of the ship), hull (30 for a new ship), reactor, and the starting crew (at most 8 in total).
+Name, class and description as the hangar shows them, the save name (the file names of the ship), hull (30 for a new ship), reactor, and the starting crew (at most 8 in total). **Preview in hangar** on the canvas shows the ship as the hangar does.
 
 ## Checks
 
@@ -112,7 +109,7 @@ Interface scale (the whole window zooms, so the canvas stays exact), dark or lig
 
 | Key                                | Action                          |
 | ---------------------------------- | ------------------------------- |
-| `1`–`5`                            | workspaces                      |
+| `1`–`4`                            | workspaces                      |
 | `V`, `R`, `D`, `T`, `H`, `M`, `G`  | tools                           |
 | arrows, Shift + arrows             | move the selection              |
 | `Delete`, `Backspace`              | delete the selection            |

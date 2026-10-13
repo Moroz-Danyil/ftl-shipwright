@@ -1,6 +1,6 @@
 /**
  * The current tool of the canvas, with the overlay it draws. The Select tool
- * moves rooms only in Layout and picks mounts and gibs in Hull & art.
+ * moves rooms only in Rooms and picks mounts and gibs in Hull.
  */
 import { useEffect, useMemo, useState } from "react";
 import { setGestureCancel } from "../../app/gesture";
@@ -32,12 +32,12 @@ function sameOverlay(a: Overlay | null, b: Overlay | null): boolean {
 export function createTool(
   id: ToolId,
   context: ToolContext,
-  workspace: WorkspaceId = "layout"
+  workspace: WorkspaceId = "rooms"
 ): CanvasTool {
   if (id === "select")
-    return workspace === "art"
+    return workspace === "hull"
       ? createArtSelectTool(context)
-      : createSelectTool(context, workspace === "layout");
+      : createSelectTool(context, workspace === "rooms");
   if (id === "room") return createRoomTool(context);
   if (id === "door") return createDoorTool(context);
   if (id === "station") return createStationTool(context);

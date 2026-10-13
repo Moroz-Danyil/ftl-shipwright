@@ -1,5 +1,5 @@
 /**
- * The Details inspector: name, class and description as the hangar shows
+ * The Hangar inspector: name, class and description as the hangar shows
  * them, the save name, hull, reactor and the starting crew.
  */
 import type { Ship } from "../../../core";
@@ -133,8 +133,8 @@ export function DetailsInspector() {
   return (
     <>
       <div className="ed-heading">
-        <span className="eyebrow">{texts.details.eyebrow}</span>
-        <span className="ed-heading-title">{texts.inspector.details.title}</span>
+        <span className="eyebrow">{texts.inspector.hangar.eyebrow}</span>
+        <span className="ed-heading-title">{texts.inspector.hangar.title}</span>
       </div>
       <HangarTexts ship={ship} />
       <SaveName ship={ship} />

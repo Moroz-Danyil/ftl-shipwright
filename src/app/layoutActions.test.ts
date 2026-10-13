@@ -48,12 +48,12 @@ describe("deleting the selection", () => {
     expect(ship().layout.doors).toHaveLength(2);
   });
 
-  it("runs from the Delete key in Layout only", async () => {
+  it("runs from the Delete key in Rooms only", async () => {
     const platform = createFakePlatform();
     state().select(selectionOf({ kind: "door", index: 0 }));
-    state().setWorkspace("art");
+    state().setWorkspace("hull");
     expect(runCommand("delete", { platform, texts: en })).toBe(false);
-    state().setWorkspace("layout");
+    state().setWorkspace("rooms");
     expect(runCommand("delete", { platform, texts: en })).toBe(true);
     await Promise.resolve();
     expect(ship().layout.doors).toHaveLength(3);

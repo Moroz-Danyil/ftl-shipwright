@@ -1,5 +1,5 @@
 /**
- * A game and ship for the Hull & art tests: the Layout test ship with a
+ * A game and ship for the Hull tests: the Rooms test ship with a
  * 200 × 100 hull picture, a floor, two gibs and the game's pictures to choose
  * from, all with known sizes.
  */

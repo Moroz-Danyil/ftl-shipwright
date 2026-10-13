@@ -13,6 +13,7 @@ import { useSystemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { HoverPanel } from "../../common/HoverPanel";
+import { Section } from "../../common/Section";
 import { SystemIcon } from "../../common/SystemIcon";
 import { useHoverPanel } from "../../common/useHoverPanel";
 
@@ -119,5 +120,16 @@ export function Palette() {
         </div>
       ))}
     </div>
+  );
+}
+
+/** The "Add a system" section: the palette and a line on how to use it. */
+export function AddSystem({ hint }: { hint: string }) {
+  const texts = useTexts();
+  return (
+    <Section id="rooms-palette" title={texts.sections.addSystem}>
+      <Palette />
+      <span className="ed-help">{hint}</span>
+    </Section>
   );
 }

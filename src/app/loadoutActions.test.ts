@@ -69,7 +69,7 @@ describe("Loadout actions", () => {
   });
 });
 
-describe("Details actions", () => {
+describe("Hangar and crew actions", () => {
   it("store texts inline and change hull and crew, one step each", () => {
     openLoadoutShip();
     setShipText("name", "The T");

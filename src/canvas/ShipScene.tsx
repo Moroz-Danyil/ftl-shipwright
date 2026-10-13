@@ -2,7 +2,7 @@
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
  * interiors, doors, system icons, crew, mounts and the current tool's
  * overlay. The hangar preview leaves out the editor's marks.
- * In Hull & art the hull, floor and shield are always shown (the cloak
+ * In Hull the hull, floor and shield are always shown (the cloak
  * follows its layer), and the gibs with the Gib tool; during the explosion
  * preview only the gibs are drawn.
  */
@@ -36,7 +36,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
   const workspace = useEditor((s) => s.workspace);
   const tool = useEditor(currentTool);
   const data = useEditor((s) => s.game.data);
-  const art = workspace === "art";
+  const art = workspace === "hull";
   const loadout = workspace === "loadout";
   const hoverWeapon = useEditor((s) => s.hoverWeapon);
   const setHoverWeapon = useEditor((s) => s.setHoverWeapon);
@@ -54,7 +54,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
   const selection = hangarPreview ? EMPTY_SELECTION : editSelection;
   const ids = hangarPreview
     ? "none"
-    : layers.roomNumbers && workspace === "layout"
+    : layers.roomNumbers && workspace === "rooms"
       ? "all"
       : "selected";
 

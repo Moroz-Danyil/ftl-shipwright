@@ -99,7 +99,7 @@ describe("Select tool", () => {
     expect(ship().layout.doors[0]).toMatchObject({ x: 2, y: 2, roomA: 0, roomB: 1 });
   });
 
-  it("does not move rooms outside the Layout workspace", () => {
+  it("does not move rooms outside the Rooms workspace", () => {
     const tool = createSelectTool(context, false);
     drag(tool, { x: 4.5, y: 0.5 }, { x: 4.5, y: 2.5 });
     tool.up(at(4.5, 2.5));

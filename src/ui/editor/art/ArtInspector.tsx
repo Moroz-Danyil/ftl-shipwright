@@ -1,5 +1,5 @@
 /**
- * The Hull & art inspector: the selected mount or gib; otherwise the
+ * The Hull inspector: the selected mount or gib; otherwise the
  * pictures, the Move picture options, the mounts, the explosion pieces and
  * tool help, each in a section that folds away.
  */
@@ -66,8 +66,8 @@ export function ArtInspector() {
   return (
     <>
       <div className="ed-heading">
-        <span className="eyebrow">{texts.inspector.art.eyebrow}</span>
-        <span className="ed-heading-title">{texts.inspector.art.title}</span>
+        <span className="eyebrow">{texts.inspector.hull.eyebrow}</span>
+        <span className="ed-heading-title">{texts.inspector.hull.title}</span>
       </div>
       {several > 1 && selectionSize(selection) === several && (
         <div className="ed-row">

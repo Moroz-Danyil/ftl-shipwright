@@ -51,7 +51,7 @@ afterEach(() => vi.restoreAllMocks());
 describe("Loadout workspace", () => {
   beforeEach(async () => {
     await setUp();
-    press("Digit4");
+    press("Digit3");
   });
 
   it("shows the slots and adds items from the cards", () => {
@@ -139,10 +139,10 @@ describe("Loadout workspace", () => {
   });
 });
 
-describe("Details workspace", () => {
+describe("Hangar workspace", () => {
   it("edits the hangar texts, hull and crew", async () => {
     await setUp();
-    press("Digit5");
+    press("Digit4");
     commit(within(inspector()).getByLabelText(en.details.name), "The T");
     expect(bp().texts.name).toEqual({ kind: "text", text: "The T" });
     expect(screen.getAllByText("The T").length).toBeGreaterThan(0);
@@ -173,7 +173,7 @@ describe("Details workspace", () => {
 
   it("shows a race's description and abilities beside the list on hover", async () => {
     await setUp();
-    press("Digit5");
+    press("Digit4");
     fireEvent.click(within(inspector()).getByRole("button", { name: en.details.addRace }));
     const list = within(inspector()).getByRole("list", { name: en.details.races });
     const card = within(list).getByRole("button", { name: /Engi/ });
@@ -190,7 +190,7 @@ describe("Details workspace", () => {
 
   it("shows the details of a race already in the crew when its name is hovered", async () => {
     await setUp();
-    press("Digit5");
+    press("Digit4");
     fireEvent.click(within(inspector()).getByRole("button", { name: en.details.addRace }));
     fireEvent.click(within(inspector()).getByRole("button", { name: /Engi/ }));
     const row = within(inspector()).getByRole("group", { name: "Engi" });
@@ -205,7 +205,7 @@ describe("Details workspace", () => {
 
   it("explains a field on hover, with the game's hull bar", async () => {
     await setUp();
-    press("Digit5");
+    press("Digit4");
     const hull = within(inspector()).getByRole("group", { name: en.details.hull });
     fireEvent.pointerEnter(hull.parentElement!);
     const help = screen.getByRole("tooltip");
@@ -223,7 +223,7 @@ describe("Details workspace", () => {
 
   it("asks before giving a game ship a new save name", async () => {
     await setUp({ kind: "game" });
-    press("Digit5");
+    press("Digit4");
     platform.answers.confirm.push(true);
     commit(within(inspector()).getByLabelText(en.details.blueprintName), "MY_T");
     await waitFor(() => expect(bp().name).toBe("MY_T"));

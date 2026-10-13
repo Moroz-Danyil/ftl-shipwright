@@ -3,16 +3,14 @@ import { useEditor } from "../../app/store";
 import { useTexts } from "../../text";
 import { ArtInspector } from "./art/ArtInspector";
 import { DetailsInspector } from "./details/DetailsInspector";
-import { LayoutInspector } from "./LayoutInspector";
 import { LoadoutInspector } from "./loadout/LoadoutInspector";
-import { SystemsInspector } from "./systems/SystemsInspector";
+import { RoomsInspector } from "./RoomsInspector";
 
 const PANELS = {
-  layout: LayoutInspector,
-  systems: SystemsInspector,
-  art: ArtInspector,
+  rooms: RoomsInspector,
+  hull: ArtInspector,
   loadout: LoadoutInspector,
-  details: DetailsInspector,
+  hangar: DetailsInspector,
 };
 
 export function Inspector() {

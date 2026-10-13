@@ -1,5 +1,5 @@
 /**
- * Game data for the Systems tests: a few systems with titles and limits, an
+ * Game data for the tests of systems: a few systems with titles and limits, an
  * artillery weapon and interior pictures of known sizes.
  */
 import { createGameView, memorySource, type ShipSystem, type SystemCatalogEntry } from "../core";
@@ -84,7 +84,7 @@ export function systemsGame(): GameData {
   };
 }
 
-/** The Layout test ship open with the Systems game data loaded. */
+/** The Rooms test ship open with the game data of the systems loaded. */
 export function openSystemsShip(systems: ShipSystem[] = []): GameData {
   openTestShip(systems);
   const data = systemsGame();

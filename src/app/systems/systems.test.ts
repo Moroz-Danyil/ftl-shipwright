@@ -171,24 +171,24 @@ describe("unusual mixes and system checks", () => {
     const ship = testShip([medbay, { ...shields, room: 1 }, cloak]);
     const sizes = { room_cloaking_3: { width: 70, height: 70 } };
     expect(systemChecks(ship, sizes)).toEqual([
-      { code: "several-installed", rooms: [1], workspace: "systems" },
-      { code: "unusual-mix", rooms: [1], workspace: "systems" },
+      { code: "several-installed", rooms: [1], workspace: "rooms" },
+      { code: "unusual-mix", rooms: [1], workspace: "rooms" },
       {
         code: "cloak-interior-size",
         rooms: [0],
         system: 2,
         systemId: "cloaking",
-        workspace: "systems",
+        workspace: "rooms",
       },
     ]);
     expect(systemChecks(ship, { room_cloaking_3: { width: 70, height: 35 } })).toHaveLength(2);
   });
 
-  it("send core checks to Layout and system ones to Systems", () => {
+  it("send core and system checks to Rooms", () => {
     const ship = testShip([{ ...shields, room: 7 }]);
     expect(allChecks(ship).map((c) => [c.code, c.workspace])).toEqual([
-      ["system-unknown-room", "systems"],
-      ["no-crew", "details"],
+      ["system-unknown-room", "rooms"],
+      ["no-crew", "hangar"],
     ]);
   });
 });

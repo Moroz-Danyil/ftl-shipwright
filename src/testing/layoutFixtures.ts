@@ -1,5 +1,5 @@
 /**
- * A small ship for the Layout tests, at anchor (1, 1):
+ * A small ship for the Rooms tests, at anchor (1, 1):
  *   room 0: (0,0) 2x1, room 1: (2,0) 2x2, room 2: (4,0) 1x1
  * Doors: 0 between rooms 0 and 1, 1 between rooms 1 and 2,
  * 2 an airlock on the left of room 0, 3 an airlock below room 1.

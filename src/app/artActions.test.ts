@@ -64,7 +64,7 @@ describe("pictures", () => {
     moveShipPicture("floor", 3, 4);
     expect(snap().ship.layoutXml.floorOffset).toEqual({ x: 3, y: 4 });
     expect(state().artTool.active).toBe("floor");
-    state().setWorkspace("art");
+    state().setWorkspace("hull");
     state().setTool("movePicture");
     expect(runCommand("moveFar.left", context)).toBe(true);
     expect(snap().ship.layoutXml.floorOffset).toEqual({ x: -7, y: 4 });
@@ -96,7 +96,7 @@ describe("saving a picture from a file", () => {
 describe("mounts", () => {
   beforeEach(() => {
     openArtShip([mount(10, 10), mount(20, 20)]);
-    state().setWorkspace("art");
+    state().setWorkspace("hull");
   });
 
   it("are added on the hull (refused off it) and selected", () => {

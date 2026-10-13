@@ -74,17 +74,33 @@ describe("editor window", () => {
   });
 
   it("switches workspaces with the tabs and the number keys", () => {
-    fireEvent.click(screen.getByRole("tab", { name: /Hull & art/ }));
-    expect(screen.getByRole("tab", { name: /Hull & art/ })).toHaveAttribute(
-      "aria-selected",
-      "true"
-    );
+    fireEvent.click(screen.getByRole("tab", { name: /Hull/ }));
+    expect(screen.getByRole("tab", { name: /Hull/ })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("button", { name: en.tools.mount })).toBeInTheDocument();
-    expect(screen.getByText(en.inspector.art.title, { selector: "span" })).toBeInTheDocument();
+    expect(screen.getByText(en.inspector.hull.eyebrow)).toBeInTheDocument();
     press("Digit1");
-    expect(state().workspace).toBe("layout");
+    expect(state().workspace).toBe("rooms");
     expect(screen.getByRole("button", { name: en.tools.room })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: en.tools.mount })).not.toBeInTheDocument();
+  });
+
+  it("opens the four workspaces in order with the keys 1 to 4", () => {
+    const tabs = screen.getAllByRole("tab");
+    expect(tabs.map((t) => t.textContent)).toEqual([
+      "1" + en.workspaces.rooms.label,
+      "2" + en.workspaces.hull.label,
+      "3" + en.workspaces.loadout.label,
+      "4" + en.workspaces.hangar.label,
+    ]);
+    const order = ["rooms", "hull", "loadout", "hangar"] as const;
+    for (const [i, id] of [...order.entries()].reverse()) {
+      press(`Digit${i + 1}`);
+      expect(state().workspace).toBe(id);
+      expect(tabs[i]).toHaveAttribute("aria-selected", "true");
+      expect(screen.getByText(en.workspaces[id].hint)).toBeInTheDocument();
+    }
+    press("Digit5");
+    expect(state().workspace).toBe("rooms");
   });
 
   it("picks tools with the rail and their keys", () => {
@@ -109,7 +125,7 @@ describe("editor window", () => {
     const inspector = screen.getByRole("complementary", { name: en.inspector.label });
     expect(within(inspector).getByText(en.inspector.selectedRoom)).toBeInTheDocument();
     expect(within(inspector).getByLabelText(en.inspector.width)).toHaveValue(2);
-    expect(within(inspector).getByText("pilot")).toBeInTheDocument();
+    expect(within(inspector).getByRole("region", { name: "pilot" })).toBeInTheDocument();
 
     clickShip({ x: 35, y: 52 });
     expect(screen.getByTestId("door-1")).toHaveAttribute("data-selected", "true");

@@ -1,5 +1,5 @@
 /**
- * Help for the current tool (Layout or Hull & art), folded by default, and
+ * Help for the current tool (Rooms or Hull), folded by default, and
  * for the Station tool the choice of which system's station it places.
  */
 import { stationSystemIndices } from "../../../app/layout/stations";
@@ -15,7 +15,7 @@ export function ToolHelp() {
   const tool = useEditor(currentTool);
   const workspace = useEditor((s) => s.workspace);
   const table: Partial<Record<string, { title: string; body: string }>> =
-    workspace === "art" ? texts.art.toolHelp : texts.inspector.toolHelp;
+    workspace === "hull" ? texts.art.toolHelp : texts.inspector.toolHelp;
   const help = table[tool];
   if (!help) return null;
   return (

@@ -105,7 +105,6 @@ export const en = {
     defaultName: "New ship",
     copyName: (name: string) => `${name} copy`,
     savedAs: (id: string) => `Saved in the mod as ${id}`,
-    pickShip: "Pick a ship to copy.",
     create: "Create",
   },
 
@@ -116,13 +115,15 @@ export const en = {
   },
 
   workspaces: {
-    layout: { label: "Layout", hint: "Layout — rooms, doors and crew stations" },
-    systems: { label: "Systems", hint: "Systems — drag systems onto rooms" },
-    art: { label: "Hull & art", hint: "Hull & art — pictures, weapon mounts and explosion pieces" },
+    rooms: {
+      label: "Rooms",
+      hint: "Rooms — draw rooms and doors, drag systems onto them, place crew stations",
+    },
+    hull: { label: "Hull", hint: "Hull — pictures, weapon mounts and explosion pieces" },
     loadout: { label: "Loadout", hint: "Loadout — weapons and drones fill the slots in order" },
-    details: {
-      label: "Details",
-      hint: "Details — name, class, description, hull, reactor and crew",
+    hangar: {
+      label: "Hangar",
+      hint: "Hangar — name, class, description, hull, reactor and crew",
     },
   },
 
@@ -204,13 +205,13 @@ export const en = {
     notAtStart: "not at start",
     legend: "What the colours mean",
     help: "Drag a system onto a room, or select a room and click a system. Drop a system on empty space or back on this list to remove it.",
+    helpRoom:
+      "Click a system to put it in this room, or drag it onto any room. Drop a system on empty space or back on this list to remove it.",
     selectRoomFirst: "Select a room first, then click a system to put it there.",
     problems: {
       sameRoom: "The system is already in that room.",
       noRoom: "There is no room there.",
     },
-    selectedRoom: "Selected room",
-    roomTitle: (id: number) => `Room ${id}`,
     empty: "No system in this room yet.",
     level: "Starting level",
     levelOf: (level: number, max: number) => `${level} / ${max}`,
@@ -232,6 +233,8 @@ export const en = {
       "A cloaking picture that does not fit its room made the game crash in testing. Pick one of the room's size.",
     noInteriors: "The game has no interior picture for this system.",
     artilleryWeapon: "Weapon",
+    station: (cell: number) => `Crew station · cell ${cell}`,
+    noStation: "No crew station yet; place it with the Station tool (T).",
     unusualMix:
       "The game's own ships never put these systems in one room; the game may not handle it.",
   },
@@ -395,7 +398,6 @@ export const en = {
   },
 
   details: {
-    eyebrow: "What the hangar shows",
     name: "Name",
     class: "Class",
     description: "Description",
@@ -419,7 +421,7 @@ export const en = {
 
   sections: {
     position: "Position and size",
-    roomSystems: "Systems",
+    roomSystems: "Systems in this room",
     addSystem: "Add a system",
     pictures: "Pictures",
     mounts: "Weapon mounts",
@@ -460,6 +462,10 @@ export const en = {
     artilleryWeapon: {
       title: "Artillery weapon",
       body: "The weapon the artillery system fires on its own, like the Federation Cruiser's beam.",
+    },
+    stationFacing: {
+      title: "Crew station",
+      body: "The cell where a crew member mans the system, and the way they face there. The Station tool (T) moves the station to another cell.",
     },
     interior: {
       title: "Interior picture",
@@ -576,7 +582,6 @@ export const en = {
     y: "Y",
     width: "Width",
     height: "Height",
-    noSystem: "No system yet",
     boughtLater: (name: string) => `${name} (bought later)`,
     selectedDoor: "Selected door",
     door: (index: number) => `Door ${index}`,
@@ -594,10 +599,8 @@ export const en = {
     roomId: "Id",
     doorsOnWalls: (n: number) =>
       n === 0 ? "No doors on its walls" : `${plural(n, "door", "doors")} on its walls`,
-    changeInSystems: "Change in Systems (2)",
     crewCell: (name: string, cell: number) => `${name}: crew cell ${cell}, kept as it is`,
     delete: "Delete",
-    position: "Position",
     selectedStation: "Selected crew station",
     station: (system: string) => `${system} station`,
     stationCell: "Cell",
@@ -616,7 +619,7 @@ export const en = {
     stationFor: "The Station tool places the station of",
     stationChoice: (system: string, room: number) => `${system} · room ${room}`,
     noStationSystems:
-      "No system on this ship has a crew station yet. Place pilot, doors, sensors, weapons, shields, engines or hacking in Systems first.",
+      "No system on this ship has a crew station yet. Put piloting, doors, sensors, weapons, shields, engines or hacking in a room first.",
     toolHelp: {
       select: {
         title: "Select tool (V)",
@@ -632,24 +635,23 @@ export const en = {
       },
       station: {
         title: "Station tool (T)",
-        body: "Click a cell of a room with a system to put that system's crew station there. Select a station to turn it.",
+        body: "Click a cell of a room with a system to put that system's crew station there. Turn a station in its system's card, or select the station.",
       },
     },
-    systems: {
-      eyebrow: "Drag a system onto a room",
-      title: "Systems",
+    rooms: {
+      title: "Rooms",
     },
-    art: {
+    hull: {
       eyebrow: "Pictures, weapon mounts and explosion pieces",
-      title: "Hull & art",
+      title: "Hull",
     },
     loadout: {
       eyebrow: "Pick from the game's weapons, drones and augments",
       title: "Loadout",
     },
-    details: {
+    hangar: {
       eyebrow: "What the hangar shows",
-      title: "Details",
+      title: "Hangar",
     },
   },
 
@@ -684,7 +686,7 @@ export const en = {
         `Room ${list(i.rooms)} holds systems the game never puts together; the game may not handle it.`,
       "cloak-interior-size": (i: IssueRefs) =>
         `The cloaking interior picture of room ${list(i.rooms)} does not match the room size; such a picture made the game crash.`,
-      "no-hull": () => "The ship has no hull picture; choose one in Hull & art.",
+      "no-hull": () => "The ship has no hull picture; choose one in Hull.",
       "few-mounts": () => "The ship has fewer weapon mounts than weapon slots.",
       "gib-no-picture": (i: IssueRefs) => `Gib ${(i.gib ?? 0) + 1} has no picture.`,
       "mount-gib-missing": (i: IssueRefs) =>

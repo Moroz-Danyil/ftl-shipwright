@@ -1,5 +1,5 @@
 /**
- * The buttons in the canvas corner: Play explosion (Hull & art), the Layers
+ * The buttons in the canvas corner: Play explosion (Hull), the Layers
  * menu and Preview in hangar.
  */
 import { useEffect, useRef, useState } from "react";
@@ -27,7 +27,7 @@ function LayersMenu({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** `onPlayExplosion`: shows the Play explosion button (Hull & art). */
+/** `onPlayExplosion`: shows the Play explosion button (Hull). */
 export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => void }) {
   const texts = useTexts();
   const preview = useEditor((s) => s.view.hangarPreview);

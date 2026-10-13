@@ -1,5 +1,5 @@
 /**
- * Hull & art edits on the open ship, each one undo step: pictures, picture
+ * Hull edits on the open ship, each one undo step: pictures, picture
  * moves, mounts and gibs.
  */
 import type { Gib, MountSlide, Point } from "../core";
@@ -158,12 +158,12 @@ export function removeGib(index: number): void {
 }
 
 /**
- * Arrow keys in Hull & art: with the Move picture tool they move the picture
+ * Arrow keys in Hull: with the Move picture tool they move the picture
  * moved last (or the chosen one); otherwise the selected mounts and gibs.
  */
 export function nudgeArt(dx: number, dy: number): boolean {
   const { tools, artTool } = state();
-  if (tools.art === "movePicture") {
+  if (tools.hull === "movePicture") {
     const picture = artTool.picture === "auto" ? (artTool.active ?? "hull") : artTool.picture;
     moveShipPicture(picture, dx, dy);
     return true;

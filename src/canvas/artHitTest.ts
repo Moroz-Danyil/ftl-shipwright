@@ -1,5 +1,5 @@
 /**
- * What lies under the pointer in Hull & art: a mount, a gib or one of the
+ * What lies under the pointer in Hull: a mount, a gib or one of the
  * ship's pictures. Picture sizes are those already read; a gib whose picture
  * is not read yet counts as one cell.
  */

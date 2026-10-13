@@ -67,12 +67,12 @@ async function setUp(shipSystems: ShipSystem[]) {
   await waitFor(() =>
     expect(screen.getByTestId("ship-svg").querySelector(".cv-grid")).not.toBeNull()
   );
-  act(() => state().setWorkspace("systems"));
+  act(() => state().setWorkspace("rooms"));
 }
 
 afterEach(() => vi.restoreAllMocks());
 
-describe("Systems palette and canvas", () => {
+describe("Rooms: the palette and the canvas", () => {
   beforeEach(() => setUp([pilot, shields]));
 
   it("shows where each system is and its icon in the rooms", async () => {
@@ -166,7 +166,7 @@ describe("Systems palette and canvas", () => {
   });
 });
 
-describe("Systems inspector", () => {
+describe("Rooms: the system cards", () => {
   it("edits levels, installs one system per room and removes systems", async () => {
     await setUp([
       { system: "medbay", power: 1, room: 1, start: true },
@@ -241,17 +241,17 @@ describe("Systems inspector", () => {
     expect(within(select).queryByText("LASER_BURST_1")).toBeNull();
   });
 
-  it("opens Systems from a system check", async () => {
+  it("opens Rooms from a system check", async () => {
     await setUp([
       { system: "medbay", power: 1, room: 1, start: true },
       { system: "clonebay", power: 1, room: 1, start: true },
     ]);
-    act(() => state().setWorkspace("layout"));
+    act(() => state().setWorkspace("hull"));
     fireEvent.click(screen.getByRole("button", { name: en.topBar.checks(3) }));
     fireEvent.click(
       screen.getByRole("button", { name: en.checks.messages["several-installed"]({ rooms: [1] }) })
     );
-    expect(state().workspace).toBe("systems");
+    expect(state().workspace).toBe("rooms");
     expect(state().selection.rooms).toEqual([1]);
   });
 });

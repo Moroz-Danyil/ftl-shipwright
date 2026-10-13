@@ -34,8 +34,9 @@ describe("key names", () => {
     expect(commandForEvent(key("KeyZ", { ctrlKey: true, shiftKey: true }))).toBe("redo");
     expect(commandForEvent(key("KeyY", { ctrlKey: true }))).toBe("redo");
     expect(commandForEvent(key("KeyS", { ctrlKey: true }))).toBe("save");
-    expect(commandForEvent(key("Digit1"))).toBe("workspace.layout");
-    expect(commandForEvent(key("Digit5"))).toBe("workspace.details");
+    expect(commandForEvent(key("Digit1"))).toBe("workspace.rooms");
+    expect(commandForEvent(key("Digit4"))).toBe("workspace.hangar");
+    expect(commandForEvent(key("Digit5"))).toBeUndefined();
     expect(commandForEvent(key("KeyV"))).toBe("tool.select");
     expect(commandForEvent(key("KeyH"))).toBe("tool.movePicture");
     expect(commandForEvent(key("Escape"))).toBe("cancel");
@@ -64,15 +65,15 @@ describe("commands", () => {
   beforeEach(() => resetEditorStore());
 
   it("do nothing while no ship is open", () => {
-    expect(runCommand("workspace.art", context)).toBe(false);
-    expect(useEditor.getState().workspace).toBe("layout");
+    expect(runCommand("workspace.hull", context)).toBe(false);
+    expect(useEditor.getState().workspace).toBe("rooms");
   });
 
   it("switch workspaces and tools, clear the selection and save", () => {
     const ship = createShip({ name: "T", layout: "t", img: "t" });
     useEditor.getState().openDocument({ ship, art, saved: true });
-    runCommand("workspace.art", context);
-    expect(useEditor.getState().workspace).toBe("art");
+    runCommand("workspace.hull", context);
+    expect(useEditor.getState().workspace).toBe("hull");
     runCommand("tool.mount", context);
     expect(currentTool(useEditor.getState())).toBe("mount");
     runCommand("tool.room", context);

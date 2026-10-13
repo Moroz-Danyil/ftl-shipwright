@@ -70,7 +70,7 @@ export function ShipCanvas() {
       </svg>
       <div className="cv-hint">{texts.workspaces[workspace].hint}</div>
       {workspace === "loadout" && <SlotBar />}
-      <CanvasControls onPlayExplosion={workspace === "art" ? explosion.play : undefined} />
+      <CanvasControls onPlayExplosion={workspace === "hull" ? explosion.play : undefined} />
     </main>
   );
 }

@@ -43,18 +43,18 @@ export function runCommand(command: CommandId, context: CommandContext): boolean
   else if (command === "cancel") {
     if (!cancelGesture()) state.select(EMPTY_SELECTION);
   } else if (command === "delete") {
-    if (state.workspace === "art") return deleteSelectedArt();
+    if (state.workspace === "hull") return deleteSelectedArt();
     if (state.workspace === "loadout") return removeSelectedSlots();
-    if (state.workspace !== "layout") return false;
+    if (state.workspace !== "rooms") return false;
     void deleteSelected(context);
   } else if (command.startsWith("move.") || command.startsWith("moveFar.")) {
     const far = command.startsWith("moveFar.");
     const [dx, dy] = STEPS[command.slice(command.indexOf(".") + 1) as MoveDirection];
-    if (state.workspace === "art") return nudgeArt(dx * (far ? 10 : 1), dy * (far ? 10 : 1));
-    if (state.workspace !== "layout") return false;
+    if (state.workspace === "hull") return nudgeArt(dx * (far ? 10 : 1), dy * (far ? 10 : 1));
+    if (state.workspace !== "rooms") return false;
     return nudgeSelection(dx, dy, context.texts);
   } else if (command === "mount.rotate" || command === "mount.mirror") {
-    if (state.workspace !== "art") return false;
+    if (state.workspace !== "hull") return false;
     return turnSelectedMounts(command === "mount.rotate" ? "rotate" : "mirror");
   } else if (command.startsWith("workspace."))
     state.setWorkspace(command.slice("workspace.".length) as WorkspaceId);

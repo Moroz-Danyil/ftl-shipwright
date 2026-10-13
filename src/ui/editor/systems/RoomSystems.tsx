@@ -1,9 +1,12 @@
 /**
- * The systems of the selected room: level, installed at the start, upgrade
- * limit, artillery weapon, interior picture and remove; with the warning for
- * an unusual mix of systems.
+ * "Systems in this room": a card for each system of the selected room with
+ * its level, upgrade limit, installed at the start, artillery weapon, crew
+ * station facing, interior picture and remove; with the warning for an
+ * unusual mix of systems and the crew cells medbay and clonebay keep.
  */
 import type { Room, Ship } from "../../../core";
+import { turnStation } from "../../../app/layoutActions";
+import { DIRECTIONS, isStationSystem, stationOf } from "../../../app/layout/stations";
 import {
   levelLimit,
   removeSystemFromShip,
@@ -23,6 +26,7 @@ import {
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
+import { Section } from "../../common/Section";
 import { Stepper } from "../../common/Stepper";
 import { SystemName } from "../../common/SystemIcon";
 import { InteriorPicker } from "./InteriorPicker";
@@ -49,6 +53,33 @@ function ArtilleryWeapon({ index, weapon }: { index: number; weapon: string | un
           ))}
         </select>
       </label>
+    </Help>
+  );
+}
+
+/** The facing of a system's crew station, turned with the same action as the station panel's. */
+function StationFacing({ ship, index }: { ship: Ship; index: number }) {
+  const texts = useTexts();
+  const station = stationOf(ship, index);
+  if (!station) return <span className="muted">{texts.systems.noStation}</span>;
+  return (
+    <Help topic="stationFacing">
+      <div className="sy-station">
+        <span className="eyebrow">{texts.systems.station(station.slot.number)}</span>
+        <div className="ed-directions" role="group" aria-label={texts.inspector.facing}>
+          {DIRECTIONS.map((d) => (
+            <button
+              key={d}
+              type="button"
+              className={station.slot.direction === d ? "btn btn--on" : "btn"}
+              aria-pressed={station.slot.direction === d}
+              onClick={() => turnStation(index, d)}
+            >
+              {texts.inspector.directions[d]}
+            </button>
+          ))}
+        </div>
+      </div>
     </Help>
   );
 }
@@ -109,26 +140,38 @@ function SystemCard({ ship, index, room }: { ship: Ship; index: number; room: Ro
         </label>
       </Help>
       {system.system === "artillery" && <ArtilleryWeapon index={index} weapon={system.weapon} />}
+      {isStationSystem(system.system) && <StationFacing ship={ship} index={index} />}
       <InteriorPicker index={index} room={room} />
     </section>
   );
 }
 
+/** Cell numbers that medbay and clonebay keep (read only here). */
+function useKeptCells(ship: Ship, room: Room): string[] {
+  const texts = useTexts();
+  const nameOf = useSystemName();
+  return ship.blueprint.systems
+    .filter((s) => s.room === room.id && !isStationSystem(s.system) && s.slot?.number !== undefined)
+    .map((s) => texts.inspector.crewCell(nameOf(s.system), s.slot!.number!));
+}
+
 export function RoomSystems({ ship, room }: { ship: Ship; room: Room }) {
   const texts = useTexts();
+  const kept = useKeptCells(ship, room);
   const indices = systemsInRoom(ship, room.id);
   const unusual = isUnusualMix(indices.map((i) => ship.blueprint.systems[i].system));
   return (
-    <>
-      <div className="ed-heading">
-        <span className="eyebrow">{texts.systems.selectedRoom}</span>
-        <span className="ed-heading-title">{texts.systems.roomTitle(room.id)}</span>
-      </div>
+    <Section id="room-systems" title={texts.sections.roomSystems} count={String(indices.length)}>
       {unusual && <div className="ed-group ed-group--warn">{texts.systems.unusualMix}</div>}
       {indices.length === 0 && <span className="muted">{texts.systems.empty}</span>}
       {indices.map((i) => (
         <SystemCard key={ship.blueprint.systems[i].system} ship={ship} index={i} room={room} />
       ))}
-    </>
+      {kept.map((line, i) => (
+        <span key={i} className="muted">
+          {line}
+        </span>
+      ))}
+    </Section>
   );
 }

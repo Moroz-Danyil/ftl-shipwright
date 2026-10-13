@@ -49,15 +49,13 @@ export interface CheckIssue {
   severity?: "problem";
 }
 
-const SYSTEM_CODES: ReadonlySet<CheckCode> = new Set(["system-unknown-room"]);
-
 /** The editor's own system checks; `sizes` are the interior picture sizes by name. */
 export function systemChecks(ship: Ship, sizes: Record<string, PictureSize>): CheckIssue[] {
   const issues: CheckIssue[] = [];
   for (const id of roomsWithSeveralInstalled(ship))
-    issues.push({ code: "several-installed", rooms: [id], workspace: "systems" });
+    issues.push({ code: "several-installed", rooms: [id], workspace: "rooms" });
   for (const id of roomsWithUnusualMix(ship))
-    issues.push({ code: "unusual-mix", rooms: [id], workspace: "systems" });
+    issues.push({ code: "unusual-mix", rooms: [id], workspace: "rooms" });
   ship.blueprint.systems.forEach((s, index) => {
     if (s.system !== "cloaking" || !s.img) return;
     const room = ship.layout.rooms.find((r) => r.id === s.room);
@@ -68,31 +66,31 @@ export function systemChecks(ship: Ship, sizes: Record<string, PictureSize>): Ch
         rooms: [room.id],
         system: index,
         systemId: "cloaking",
-        workspace: "systems",
+        workspace: "rooms",
       });
   });
   return issues;
 }
 
-/** The Hull & art checks: the hull picture, enough mounts, gib pictures and mount links. */
+/** The Hull checks: the hull picture, enough mounts, gib pictures and mount links. */
 export function artChecks(ship: Ship, art: ShipArt | undefined): CheckIssue[] {
   const issues: CheckIssue[] = [];
   const xml = ship.layoutXml;
-  if (art && !art.hull) issues.push({ code: "no-hull", workspace: "art", severity: "problem" });
+  if (art && !art.hull) issues.push({ code: "no-hull", workspace: "hull", severity: "problem" });
   if ((ship.blueprint.weaponSlots ?? 0) > xml.mounts.length)
-    issues.push({ code: "few-mounts", workspace: "art" });
+    issues.push({ code: "few-mounts", workspace: "hull" });
   if (art)
     xml.gibs.forEach((_, gib) => {
-      if (!art.gibs[gib]) issues.push({ code: "gib-no-picture", gib, workspace: "art" });
+      if (!art.gibs[gib]) issues.push({ code: "gib-no-picture", gib, workspace: "hull" });
     });
   xml.mounts.forEach((m, mount) => {
     if (m.gib > xml.gibs.length)
-      issues.push({ code: "mount-gib-missing", mount, workspace: "art" });
+      issues.push({ code: "mount-gib-missing", mount, workspace: "hull" });
   });
   return issues;
 }
 
-/** The Loadout and Details checks: items beyond their slots, items the game does not know, crew and hull. */
+/** The Loadout and Hangar checks: items beyond their slots, items the game does not know, crew and hull. */
 export function loadoutChecks(ship: Ship, catalogs: Catalogs | undefined): CheckIssue[] {
   const issues: CheckIssue[] = [];
   const bp = ship.blueprint;
@@ -112,9 +110,9 @@ export function loadoutChecks(ship: Ship, catalogs: Catalogs | undefined): Check
         issues.push({ code: "unknown-drone", drone, item, workspace: "loadout" });
     });
   }
-  if (crewTotal(ship) === 0) issues.push({ code: "no-crew", workspace: "details" });
+  if (crewTotal(ship) === 0) issues.push({ code: "no-crew", workspace: "hangar" });
   if (bp.health === 0)
-    issues.push({ code: "no-hull-points", workspace: "details", severity: "problem" });
+    issues.push({ code: "no-hull-points", workspace: "hangar", severity: "problem" });
   return issues;
 }
 
@@ -128,7 +126,7 @@ export function allChecks(
   const core: CheckIssue[] = validateShip(ship).map((issue) => {
     const out: CheckIssue = {
       code: issue.code,
-      workspace: SYSTEM_CODES.has(issue.code) ? "systems" : "layout",
+      workspace: "rooms",
     };
     if (issue.rooms) out.rooms = issue.rooms;
     if (issue.door !== undefined) out.door = issue.door;

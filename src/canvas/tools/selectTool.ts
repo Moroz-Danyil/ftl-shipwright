@@ -61,7 +61,7 @@ export function cellOffset(start: Point, p: Point): { dx: number; dy: number } {
   };
 }
 
-/** `moveRooms`: whether dragging moves rooms (only in the Layout workspace). */
+/** `moveRooms`: whether dragging moves rooms (only in the Rooms workspace). */
 export function createSelectTool(context: ToolContext, moveRooms = true): CanvasTool {
   let gesture: Gesture | null = null;
   const state = () => useEditor.getState();

@@ -209,10 +209,6 @@
   color: var(--muted);
   line-height: 1.5;
 }
-.ed-help-title {
-  color: var(--text);
-  font-weight: 500;
-}
 .ed-row {
   display: flex;
   justify-content: space-between;
@@ -453,7 +449,7 @@
   fill: var(--station);
 }
 
-/* Layout inspector */
+/* Rooms inspector */
 .ed-directions {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -482,12 +478,8 @@
 .ed-choice input {
   accent-color: var(--accent);
 }
-.ed-link {
-  align-self: flex-start;
-  font-size: 13px;
-}
 
-/* Systems workspace */
+/* Systems in Rooms */
 .sy-palette {
   display: flex;
   flex-direction: column;
@@ -618,6 +610,11 @@
 .sy-card-title {
   font-weight: 600;
 }
+.sy-station {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 .stepper {
   display: flex;
   align-items: center;
@@ -709,7 +706,7 @@
   color: var(--problem);
 }
 
-/* Hull & art */
+/* Hull */
 .ar-pictures {
   display: flex;
   flex-direction: column;
@@ -984,7 +981,7 @@
   stroke: var(--accent);
 }
 
-/* Details */
+/* Hangar and crew */
 .dt-crew {
   display: flex;
   align-items: center;
