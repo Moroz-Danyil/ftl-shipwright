@@ -59,7 +59,7 @@ describe("key names", () => {
 
 describe("commands", () => {
   const context = { platform: createFakePlatform(), texts: en };
-  const pictures = { source: memorySource({}), paths: { gibs: [], interiors: {} } };
+  const art = { source: memorySource({}), gibs: [] };
 
   beforeEach(() => resetEditorStore());
 
@@ -70,7 +70,7 @@ describe("commands", () => {
 
   it("switch workspaces and tools, clear the selection and save", () => {
     const ship = createShip({ name: "T", layout: "t", img: "t" });
-    useEditor.getState().openDocument({ ship, pictures, saved: true });
+    useEditor.getState().openDocument({ ship, art, saved: true });
     runCommand("workspace.art", context);
     expect(useEditor.getState().workspace).toBe("art");
     runCommand("tool.mount", context);

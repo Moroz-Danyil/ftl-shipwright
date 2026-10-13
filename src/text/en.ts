@@ -11,6 +11,8 @@ const list = (ids: number[] | undefined) => (ids && ids.length > 0 ? ids.join(" 
 interface IssueRefs {
   rooms?: number[];
   door?: number;
+  mount?: number;
+  gib?: number;
 }
 
 export const en = {
@@ -220,6 +222,96 @@ export const en = {
       "The game's own ships never put these systems in one room; the game may not handle it.",
   },
 
+  art: {
+    pngFilter: "PNG picture",
+    fileFailed: (reason: string) => `Could not read the picture: ${reason}`,
+    notPng: "That file is not a PNG picture.",
+    pictures: "Pictures",
+    slots: {
+      hull: "Hull",
+      floor: "Floor",
+      cloak: "Cloak",
+      shield: "Shield",
+      miniship: "Ship icon",
+    },
+    noPicture: "No picture",
+    change: "Change",
+    remove: "Remove",
+    changeNamed: (what: string) => `Change ${what}`,
+    removeNamed: (what: string) => `Remove ${what}`,
+    pictureOf: (name: string) => `Picture: ${name}`,
+    choose: (what: string) => `Choose a picture: ${what}`,
+    gibName: (n: number) => `Gib ${n}`,
+    newGib: "New gib",
+    fromFile: "From a PNG file…",
+    searchPlaceholder: "File name…",
+    noMatches: "No picture matches.",
+    pictureSize: (w: number, h: number) => `${w} × ${h} px`,
+    moveOptions: "Move picture",
+    moveWhich: "Picture to move",
+    moveAuto: "The one under the pointer",
+    keepMounts: "Keep mounts in place on the ship",
+    mountProblems: {
+      full: "A ship has at most 8 weapon mounts.",
+      outside: "Put mounts on the hull picture.",
+    },
+    mountsCount: (n: number) => `Weapon mounts ${n} / 8`,
+    selectedMount: "Selected weapon mount",
+    mount: (n: number) => `Mount ${n}`,
+    weaponHere: (name: string) => `Weapon ${name} is drawn here.`,
+    noWeapon: "No weapon is equipped on this mount.",
+    earlier: "Earlier",
+    later: "Later",
+    rotate: "Rotate",
+    mirror: "Mirror",
+    slide: "Slides out",
+    slides: { up: "Up", down: "Down", left: "Left", right: "Right", no: "None" } as Record<
+      string,
+      string
+    >,
+    gib: "Flies off with",
+    gibNone: "No gib",
+    x: "X",
+    y: "Y",
+    delete: "Delete",
+    selectedGib: "Selected explosion piece",
+    velocity: "Velocity",
+    direction: "Direction (degrees)",
+    angular: "Turning",
+    min: "Min",
+    max: "Max",
+    addGib: "Add gib",
+    gibsCount: (n: number) => `Explosion pieces ${n}`,
+    playExplosion: "Play explosion",
+    explosionApprox:
+      "The explosion preview is approximate; the game's units for speed and turning are not confirmed yet.",
+    several: (mounts: number, gibs: number) =>
+      [
+        mounts > 0 ? plural(mounts, "mount", "mounts") : "",
+        gibs > 0 ? plural(gibs, "gib", "gibs") : "",
+      ]
+        .filter((part) => part !== "")
+        .join(", "),
+    toolHelp: {
+      select: {
+        title: "Select tool (V)",
+        body: "Click a mount to select it, drag it to move it. Arrows move the selection by 1 px, Shift + arrows by 10 px.",
+      },
+      movePicture: {
+        title: "Move picture tool (H)",
+        body: "Drag the hull, floor, cloak or shield picture. Arrows move the picture by 1 px, Shift + arrows by 10 px.",
+      },
+      mount: {
+        title: "Mount tool (M)",
+        body: "Click the hull picture to add a weapon mount (at most 8); drag a mount to move it. [ rotates and ] mirrors the selected mount.",
+      },
+      gib: {
+        title: "Gib tool (G)",
+        body: "Click an explosion piece to select it, drag it to move it.",
+      },
+    },
+  },
+
   inspector: {
     label: "Inspector",
     selectedRoom: "Selected room",
@@ -296,7 +388,6 @@ export const en = {
     art: {
       eyebrow: "Pictures, weapon mounts and explosion pieces",
       title: "Hull & art",
-      body: "Choose and place the hull, floor, cloak and shield pictures, add weapon mounts and arrange the explosion pieces.",
     },
     loadout: {
       eyebrow: "Pick from the game's weapons, drones and augments",
@@ -342,6 +433,11 @@ export const en = {
         `Room ${list(i.rooms)} holds systems the game never puts together; the game may not handle it.`,
       "cloak-interior-size": (i: IssueRefs) =>
         `The cloaking interior picture of room ${list(i.rooms)} does not match the room size; such a picture made the game crash.`,
+      "no-hull": () => "The ship has no hull picture; choose one in Hull & art.",
+      "few-mounts": () => "The ship has fewer weapon mounts than weapon slots.",
+      "gib-no-picture": (i: IssueRefs) => `Gib ${(i.gib ?? 0) + 1} has no picture.`,
+      "mount-gib-missing": (i: IssueRefs) =>
+        `Mount ${(i.mount ?? 0) + 1} flies off with a gib that does not exist.`,
     } satisfies Record<CheckCode, (issue: IssueRefs) => string>,
   },
 

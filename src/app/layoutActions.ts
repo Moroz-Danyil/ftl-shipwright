@@ -12,7 +12,7 @@ import { placeStation, removeStation, setStationDirection } from "./layout/stati
 import { EMPTY_SELECTION, isEmptySelection, selectionOf } from "./selection";
 import { useEditor } from "./store";
 
-const present = () => useEditor.getState().doc?.history.present;
+const present = () => useEditor.getState().doc?.history.present.ship;
 
 /** The message for a refused room placement. */
 export function problemText(texts: Texts, problem: PlaceProblem): string {
@@ -49,7 +49,7 @@ export async function deleteSelected(context: CommandContext): Promise<boolean> 
   const systems = systemsInRooms(ship, selection.rooms).length;
   if (systems > 0 && !(await context.platform.confirm(context.texts.layout.confirmDelete(systems))))
     return false;
-  if (useEditor.getState().doc?.history.present !== ship) return false;
+  if (useEditor.getState().doc?.history.present.ship !== ship) return false;
   useEditor.getState().edit((s) => deleteSelection(s, selection), EMPTY_SELECTION);
   return true;
 }

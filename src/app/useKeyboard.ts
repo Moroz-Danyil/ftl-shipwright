@@ -25,7 +25,7 @@ export function useKeyboard(bindings: KeyBinding[] = DEFAULT_BINDINGS): void {
         event.preventDefault();
         return;
       }
-      const repeats = command === "undo" || command === "redo" || command.startsWith("move.");
+      const repeats = command === "undo" || command === "redo" || command.startsWith("move");
       if (event.repeat && !repeats) return;
       if (runCommand(command, { platform, texts })) event.preventDefault();
     };

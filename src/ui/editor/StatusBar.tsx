@@ -6,7 +6,7 @@ import { useTexts } from "../../text";
 export function StatusBar() {
   const texts = useTexts();
   const game = useEditor((s) => s.game.data);
-  const ship = useEditor((s) => s.doc?.history.present);
+  const ship = useEditor((s) => s.doc?.history.present.ship);
   const scale = useEditor((s) => s.view.camera.scale);
   const gameText = game
     ? [

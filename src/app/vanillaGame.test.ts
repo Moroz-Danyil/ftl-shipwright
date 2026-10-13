@@ -35,15 +35,18 @@ describe.skipIf(!HAS_GAME_DATA)("the editor on the vanilla game", () => {
     expect(await openGameShip(en, "PLAYER_SHIP_HARD")).toBe(true);
     const doc = state().doc!;
     expect(state().recent[0].name).toBe("The Kestrel");
-    expect(validateShip(doc.history.present)).toEqual([]);
-    expect(doc.pictures.paths).toMatchObject({
-      hull: "img/ship/kestral_base.png",
-      floor: "img/ship/kestral_floor.png",
-      cloak: "img/ship/kestral_cloak.png",
-      shield: "img/ship/kestral_shields1.png",
-      miniship: "img/customizeUI/miniship_kestral.png",
-    });
-    expect(doc.pictures.paths.gibs).toHaveLength(6);
+    expect(validateShip(doc.history.present.ship)).toEqual([]);
+    const art = doc.history.present.art;
+    expect([art.hull, art.floor, art.cloak, art.shield, art.miniship]).toEqual(
+      [
+        "img/ship/kestral_base.png",
+        "img/ship/kestral_floor.png",
+        "img/ship/kestral_cloak.png",
+        "img/ship/kestral_shields1.png",
+        "img/customizeUI/miniship_kestral.png",
+      ].map((path) => ({ kind: "game", path }))
+    );
+    expect(art.gibs).toHaveLength(6);
   }, 60_000);
 
   it("saves the unchanged Kestrel without copying the game's pictures", async () => {

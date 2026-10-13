@@ -4,6 +4,7 @@
  */
 import { useEffect, useState } from "react";
 import type { FileSource } from "../core";
+import type { PictureRef } from "../app/art/model";
 
 export interface LoadedPicture {
   url: string;
@@ -73,4 +74,64 @@ export function usePicture(
     };
   }, [source, path]);
   return loaded && loaded.source === source && loaded.path === path ? loaded.picture : undefined;
+}
+
+const fileCache = new WeakMap<Uint8Array, Promise<LoadedPicture | undefined>>();
+const settled = new WeakMap<Promise<LoadedPicture | undefined>, LoadedPicture | undefined>();
+
+function remember(promise: Promise<LoadedPicture | undefined>) {
+  void promise.then((picture) => settled.set(promise, picture));
+  return promise;
+}
+
+function refPromise(source: FileSource, ref: PictureRef): Promise<LoadedPicture | undefined> {
+  if (ref.kind === "game") return loadPicture(source, ref.path);
+  let picture = fileCache.get(ref.bytes);
+  if (!picture) {
+    const size = pngSize(ref.bytes);
+    picture = Promise.resolve(size ? { url: bytesToUrl(ref.bytes), ...size } : undefined);
+    fileCache.set(ref.bytes, picture);
+  }
+  return picture;
+}
+
+/** Reads a picture of the ship (from the game or from a chosen file), cached. */
+export function loadPictureRef(
+  source: FileSource,
+  ref: PictureRef
+): Promise<LoadedPicture | undefined> {
+  const promise = refPromise(source, ref);
+  if (!settled.has(promise)) remember(promise);
+  return promise;
+}
+
+/** The picture if it has been read already; for hit tests that cannot wait. */
+export function loadedPictureNow(
+  source: FileSource,
+  ref: PictureRef | null | undefined
+): LoadedPicture | undefined {
+  return ref ? settled.get(loadPictureRef(source, ref)) : undefined;
+}
+
+/** A picture of the ship once it is read; `undefined` while reading, or when there is none. */
+export function usePictureRef(
+  source: FileSource | undefined,
+  ref: PictureRef | null | undefined
+): LoadedPicture | undefined {
+  const [loaded, setLoaded] = useState<{
+    source: FileSource;
+    ref: PictureRef;
+    picture?: LoadedPicture;
+  }>();
+  useEffect(() => {
+    if (!source || !ref) return;
+    let live = true;
+    void loadPictureRef(source, ref).then((picture) => {
+      if (live) setLoaded({ source, ref, picture });
+    });
+    return () => {
+      live = false;
+    };
+  }, [source, ref]);
+  return loaded && loaded.source === source && loaded.ref === ref ? loaded.picture : undefined;
 }

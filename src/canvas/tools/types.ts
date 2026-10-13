@@ -21,7 +21,9 @@ export type Overlay =
   | { kind: "box"; rect: Rect }
   | { kind: "ghost"; cells: Rect[]; ok: boolean }
   | { kind: "wall"; wall: WallSegment; exists: boolean }
-  | { kind: "cell"; cell: Point; ok: boolean };
+  | { kind: "cell"; cell: Point; ok: boolean }
+  | { kind: "outline"; rect: Rect }
+  | { kind: "artGhost"; mounts: Point[]; gibs: Rect[] };
 
 export interface CanvasTool {
   down(pointer: ToolPointer): void;

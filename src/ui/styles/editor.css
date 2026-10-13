@@ -383,17 +383,6 @@
   stroke: var(--accent);
   stroke-width: 2;
 }
-.cv-mount circle {
-  fill: var(--accent);
-  stroke: var(--canvas);
-  stroke-width: 3;
-}
-.cv-mount text {
-  font-size: 12px;
-  font-weight: 600;
-  fill: var(--accent-ink);
-  pointer-events: none;
-}
 
 /* Tool feedback */
 .cv-canvas[data-tool="room"],
@@ -680,4 +669,76 @@
 }
 .cv-system-label--later text {
   fill: var(--accent-soft);
+}
+.ed-check--problem {
+  border-color: var(--problem);
+  color: var(--problem);
+}
+
+/* Hull & art */
+.ar-pictures {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ar-picture {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ar-thumb {
+  width: 56px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: var(--tile);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.ar-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.ar-picture-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ar-picture-text .eyebrow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ar-range {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.ar-range legend {
+  margin-bottom: 4px;
+}
+.cv-mount circle:not(.cv-selection-ring) {
+  fill: #3a424f;
+  stroke: var(--canvas);
+  stroke-width: 2;
+}
+.cv-mount text {
+  font-size: 10px;
+  font-weight: 600;
+  fill: var(--text);
+  pointer-events: none;
+}
+.cv-mount--armed circle:not(.cv-selection-ring) {
+  fill: var(--accent);
+}
+.cv-mount--armed text {
+  fill: var(--accent-ink);
+}
+.cv-weapon {
+  pointer-events: none;
 }

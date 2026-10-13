@@ -1,12 +1,10 @@
 /**
- * Rooms, doors and weapon mounts, drawn over the pictures. Each layer only
+ * Rooms and doors, drawn over the pictures. Each layer only
  * redraws when its ship part or selection changes.
  */
 import { memo } from "react";
-import { mountPositionPx, roomRectPx, type ShipLayout, type ShipLayoutXml } from "../core";
+import { roomRectPx, type ShipLayout } from "../core";
 import { doorKind, doorRectPx } from "./doors";
-
-const MOUNT_RADIUS = 11;
 
 interface RoomsProps {
   layout: ShipLayout;
@@ -82,30 +80,6 @@ export const Doors = memo(function Doors({ layout, selected }: DoorsProps) {
               height={r.h}
               rx={2}
             />
-          </g>
-        );
-      })}
-    </g>
-  );
-});
-
-export const Mounts = memo(function Mounts({
-  layout,
-  layoutXml,
-}: {
-  layout: ShipLayout;
-  layoutXml: ShipLayoutXml;
-}) {
-  return (
-    <g>
-      {layoutXml.mounts.map((mount, i) => {
-        const p = mountPositionPx(layout, layoutXml, mount);
-        return (
-          <g key={i} className="cv-mount" data-testid={`mount-${i + 1}`}>
-            <circle cx={p.x} cy={p.y} r={MOUNT_RADIUS} />
-            <text x={p.x} y={p.y} dy="0.35em" textAnchor="middle">
-              {i + 1}
-            </text>
           </g>
         );
       })}

@@ -73,9 +73,13 @@ export function openSystemsShip(systems: ShipSystem[] = []): GameData {
   openTestShip(systems);
   const data = systemsGame();
   const doc = useEditor.getState().doc!;
+  const present = {
+    ...doc.history.present,
+    art: { ...doc.history.present.art, source: data.view },
+  };
   useEditor.setState({
     game: { status: "ready", datPath: data.datPath, data },
-    doc: { ...doc, pictures: { ...doc.pictures, source: data.view } },
+    doc: { ...doc, history: { ...doc.history, present }, saved: present },
   });
   return data;
 }

@@ -1,5 +1,6 @@
 /**
- * The buttons in the canvas corner: the Layers menu and Preview in hangar.
+ * The buttons in the canvas corner: Play explosion (Hull & art), the Layers
+ * menu and Preview in hangar.
  */
 import { useEffect, useRef, useState } from "react";
 import { LAYERS, useEditor } from "../app/store";
@@ -26,7 +27,8 @@ function LayersMenu({ onClose }: { onClose: () => void }) {
   );
 }
 
-export function CanvasControls() {
+/** `onPlayExplosion`: shows the Play explosion button (Hull & art). */
+export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => void }) {
   const texts = useTexts();
   const preview = useEditor((s) => s.view.hangarPreview);
   const setPreview = useEditor((s) => s.setHangarPreview);
@@ -45,6 +47,16 @@ export function CanvasControls() {
   return (
     <div className="cv-controls" ref={box} onPointerDown={(e) => e.stopPropagation()}>
       {open && <LayersMenu onClose={() => setOpen(false)} />}
+      {onPlayExplosion && (
+        <button
+          type="button"
+          className="btn btn--small btn--panel"
+          title={texts.art.explosionApprox}
+          onClick={onPlayExplosion}
+        >
+          {texts.art.playExplosion}
+        </button>
+      )}
       <button
         type="button"
         className="btn btn--small btn--panel"

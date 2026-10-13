@@ -29,7 +29,7 @@ export function dropTargetAt(
       ? document.elementFromPoint(clientX, clientY)
       : null;
   if (hit?.closest(`[${PALETTE_ATTRIBUTE}]`)) return { room: null, target: "remove" };
-  const ship = useEditor.getState().doc?.history.present;
+  const ship = useEditor.getState().doc?.history.present.ship;
   const p = clientToShip(clientX, clientY);
   if (!ship || !p) return { room: null, target: "none" };
   const cell = pxToCell(ship.layout, p.x, p.y);
@@ -39,7 +39,7 @@ export function dropTargetAt(
 
 /** Applies a drop. Drops the rules refuse (the system is already in that room) change nothing. */
 export function dropSystem(system: string, drop: Pick<SystemDrag, "room" | "target">): void {
-  const ship = useEditor.getState().doc?.history.present;
+  const ship = useEditor.getState().doc?.history.present.ship;
   if (!ship) return;
   if (drop.target === "room" && drop.room !== null) placeSystemInRoom(system, drop.room);
   else if (drop.target === "remove" && systemIndex(ship, system) !== -1)

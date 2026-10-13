@@ -11,11 +11,11 @@ export function SaveDialog() {
   const texts = useTexts();
   const platform = usePlatform();
   const doc = useEditor((s) => s.doc);
-  const issues = useChecks(doc?.history.present, doc?.pictures.source);
+  const issues = useChecks(doc?.history.present.ship, doc?.history.present.art);
   const [busy, setBusy] = useState(false);
   const close = () => useEditor.getState().openDialog(null);
   if (!doc) return null;
-  const layout = doc.history.present.blueprint.layout;
+  const layout = doc.history.present.ship.blueprint.layout;
   const last = doc.saveTarget;
 
   const askPath = (kind: SaveTarget["kind"]) =>

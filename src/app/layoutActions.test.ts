@@ -15,7 +15,7 @@ import { EMPTY_SELECTION, selectionOf } from "./selection";
 import { undoAvailable, useEditor } from "./store";
 
 const state = () => useEditor.getState();
-const ship = () => state().doc!.history.present;
+const ship = () => state().doc!.history.present.ship;
 const steps = () => state().doc!.history.past.length;
 
 describe("deleting the selection", () => {

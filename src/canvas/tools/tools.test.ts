@@ -10,7 +10,7 @@ import { boxBetween, cellOffset, createSelectTool, targetsInBox } from "./select
 import type { CanvasTool, Overlay, ToolContext } from "./types";
 
 const state = () => useEditor.getState();
-const ship = (): Ship => state().doc!.history.present;
+const ship = (): Ship => state().doc!.history.present.ship;
 const steps = () => state().doc!.history.past.length;
 
 let overlay: Overlay | null;
@@ -132,7 +132,7 @@ describe("Select tool", () => {
     drag(tool, { x: -0.5, y: -0.5 }, { x: 4.2, y: 2.2 });
     expect(overlay).toMatchObject({ kind: "box" });
     tool.up(at(4.2, 2.2));
-    expect(state().selection).toEqual({ rooms: [0, 1], doors: [0, 1, 2, 3], stations: [] });
+    expect(state().selection).toEqual({ ...EMPTY_SELECTION, rooms: [0, 1], doors: [0, 1, 2, 3] });
   });
 
   it("snaps drags to the nearest whole cell", () => {

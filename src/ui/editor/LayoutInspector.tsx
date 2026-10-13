@@ -36,7 +36,7 @@ function Several() {
 
 function SelectionPanel() {
   const texts = useTexts();
-  const ship = useEditor((s) => s.doc?.history.present);
+  const ship = useEditor((s) => s.doc?.history.present.ship);
   const selection = useEditor((s) => s.selection);
   if (!ship) return null;
   const size = selectionSize(selection);
@@ -56,11 +56,12 @@ function SelectionPanel() {
     const door = ship.layout.doors[target.index];
     return door ? <DoorPanel ship={ship} door={door} index={target.index} /> : null;
   }
-  return <StationPanel ship={ship} system={target.system} />;
+  if (target.kind === "station") return <StationPanel ship={ship} system={target.system} />;
+  return null;
 }
 
 export function LayoutInspector() {
-  const ship = useEditor((s) => s.doc?.history.present);
+  const ship = useEditor((s) => s.doc?.history.present.ship);
   const tool = useEditor(currentTool);
   if (!ship) return null;
   return (

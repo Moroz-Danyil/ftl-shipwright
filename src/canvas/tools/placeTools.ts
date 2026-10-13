@@ -10,7 +10,7 @@ import { stationCellAt, stationSystemsInRoom } from "../../app/layout/stations";
 import { useEditor } from "../../app/store";
 import type { CanvasTool, ToolContext } from "./types";
 
-const ship = () => useEditor.getState().doc?.history.present;
+const ship = () => useEditor.getState().doc?.history.present.ship;
 
 export function createRoomTool(context: ToolContext): CanvasTool {
   let start: Point | null = null;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { addDoor } from "../../core";
+import { EMPTY_SELECTION } from "../selection";
 import { cellPx as at, medbay, pilot, shields, testShip } from "../../testing/layoutFixtures";
 import { addDoorOnWall, doorAt, doorsOfRoom, isDoorWall, nearestWall } from "./doors";
 import { deleteSelection, systemsInRooms } from "./remove";
@@ -170,14 +171,19 @@ describe("deleting", () => {
   it("removes stations, doors and rooms together", () => {
     const ship = testShip([pilot, shields]);
     expect(systemsInRooms(ship, [1, 2])).toEqual([0]);
-    const next = deleteSelection(ship, { rooms: [2], doors: [0], stations: [0] });
+    const next = deleteSelection(ship, {
+      ...EMPTY_SELECTION,
+      rooms: [2],
+      doors: [0],
+      stations: [0],
+    });
     expect(next.layout.rooms).toHaveLength(2);
     expect(next.layout.doors.map((d) => [d.x, d.y])).toEqual([
       [0, 0],
       [2, 2],
     ]);
     expect("slot" in next.blueprint.systems[0]).toBe(false);
-    const rooms = deleteSelection(ship, { rooms: [0, 1], doors: [], stations: [] });
+    const rooms = deleteSelection(ship, { ...EMPTY_SELECTION, rooms: [0, 1] });
     expect(rooms.layout.rooms).toEqual([{ id: 0, x: 4, y: 0, w: 1, h: 1 }]);
     expect(rooms.blueprint.systems).toEqual([]);
   });

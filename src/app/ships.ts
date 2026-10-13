@@ -14,6 +14,7 @@ import {
 import { modSource } from "../platform/sources";
 import type { Platform } from "../platform/types";
 import type { Texts } from "../text";
+import { artFromPaths } from "./art/model";
 import { reasonOf } from "./errors";
 import { addRecent, saveRecent, type RecentShip, type ShipOrigin } from "./settings";
 import { useEditor, type GameData, type SaveTarget } from "./store";
@@ -61,7 +62,7 @@ export async function openGameShip(texts: Texts, name: string): Promise<boolean>
     const origin: ShipOrigin = data.mod ? { kind: "game", mod: data.mod } : { kind: "game" };
     store.openDocument({
       ship: loaded.ship,
-      pictures: { source: data.view, paths: loaded.pictures },
+      art: artFromPaths(data.view, loaded.pictures),
       origin,
       saved: true,
     });
@@ -133,7 +134,7 @@ export async function createNewShip(
       };
       store.openDocument({
         ship,
-        pictures: { source: data.view, paths: loaded.pictures },
+        art: artFromPaths(data.view, loaded.pictures),
         saved: false,
       });
     } else {
@@ -144,7 +145,7 @@ export async function createNewShip(
       };
       store.openDocument({
         ship,
-        pictures: { source: data.view, paths: { gibs: [], interiors: {} } },
+        art: { source: data.view, gibs: [] },
         saved: false,
       });
     }
@@ -185,7 +186,7 @@ export async function openRecentShip(
         : { kind: "folder", path: origin.path };
     store.openDocument({
       ship: loaded.ship,
-      pictures: { source: view, paths: loaded.pictures },
+      art: artFromPaths(view, loaded.pictures),
       origin,
       saveTarget,
       saved: true,

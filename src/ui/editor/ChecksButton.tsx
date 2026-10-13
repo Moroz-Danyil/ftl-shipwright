@@ -7,9 +7,9 @@ import { WarningIcon } from "../common/icons";
 
 export function ChecksButton() {
   const texts = useTexts();
-  const ship = useEditor((s) => s.doc?.history.present);
-  const source = useEditor((s) => s.doc?.pictures.source);
-  const issues = useChecks(ship, source);
+  const ship = useEditor((s) => s.doc?.history.present.ship);
+  const art = useEditor((s) => s.doc?.history.present.art);
+  const issues = useChecks(ship, art);
   const openDialog = useEditor((s) => s.openDialog);
   const count = issues.length;
   return (
@@ -26,9 +26,9 @@ export function ChecksButton() {
 
 export function ChecksDialog() {
   const texts = useTexts();
-  const ship = useEditor((s) => s.doc?.history.present);
-  const source = useEditor((s) => s.doc?.pictures.source);
-  const issues = useChecks(ship, source);
+  const ship = useEditor((s) => s.doc?.history.present.ship);
+  const art = useEditor((s) => s.doc?.history.present.art);
+  const issues = useChecks(ship, art);
   const close = () => useEditor.getState().openDialog(null);
 
   const show = (issue: CheckIssue) => {
@@ -53,7 +53,12 @@ export function ChecksDialog() {
       ) : (
         <div className="ed-checks-list">
           {issues.map((issue, i) => (
-            <button key={i} type="button" className="ed-check" onClick={() => show(issue)}>
+            <button
+              key={i}
+              type="button"
+              className={issue.severity === "problem" ? "ed-check ed-check--problem" : "ed-check"}
+              onClick={() => show(issue)}
+            >
               {texts.checks.messages[issue.code](issue)}
             </button>
           ))}

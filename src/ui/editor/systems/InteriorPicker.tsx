@@ -71,8 +71,8 @@ function CurrentWarning({
 export function InteriorPicker({ index, room }: { index: number; room: Room }) {
   const texts = useTexts();
   const view = useEditor((s) => s.game.data?.view);
-  const source = useEditor((s) => s.doc?.pictures.source);
-  const system = useEditor((s) => s.doc?.history.present.blueprint.systems[index]);
+  const source = useEditor((s) => s.doc?.history.present.art.source);
+  const system = useEditor((s) => s.doc?.history.present.ship.blueprint.systems[index]);
   const list = useInteriorList(view);
   const [all, setAll] = useState(false);
   if (!system || !source) return null;

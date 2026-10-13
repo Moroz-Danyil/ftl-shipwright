@@ -1,5 +1,5 @@
 /**
- * A whole-number field that applies its value on Enter or when it loses
+ * A number field that applies its value on Enter or when it loses
  * focus; Esc puts back the current value. A value the owner refuses goes
  * back to the current one as well.
  */
@@ -8,18 +8,21 @@ import { useState } from "react";
 interface Props {
   label: string;
   value: number;
+  /** Accept fractions (e.g. gib speeds); otherwise whole numbers only. */
+  decimals?: boolean;
   /** Applies a new value. */
   onCommit: (value: number) => void;
 }
 
-export function NumberField({ label, value, onCommit }: Props) {
+export function NumberField({ label, value, decimals = false, onCommit }: Props) {
   const [draft, setDraft] = useState<string | null>(null);
 
   const commit = () => {
     if (draft === null) return;
     const parsed = Number(draft.trim());
     setDraft(null);
-    if (draft.trim() !== "" && Number.isInteger(parsed) && parsed !== value) onCommit(parsed);
+    const valid = decimals ? Number.isFinite(parsed) : Number.isInteger(parsed);
+    if (draft.trim() !== "" && valid && parsed !== value) onCommit(parsed);
   };
 
   return (
@@ -28,7 +31,7 @@ export function NumberField({ label, value, onCommit }: Props) {
       <input
         className="input mono"
         type="number"
-        step={1}
+        step={decimals ? "any" : 1}
         value={draft ?? String(value)}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={commit}

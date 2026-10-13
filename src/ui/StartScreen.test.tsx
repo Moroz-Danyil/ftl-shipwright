@@ -93,7 +93,7 @@ describe("start screen", () => {
     fireEvent.click(create);
 
     expect(await screen.findByText(en.topBar.unsaved)).toBeInTheDocument();
-    expect(useEditor.getState().doc!.history.present.blueprint.name).toBe("THE_MINI_COPY");
+    expect(useEditor.getState().doc!.history.present.ship.blueprint.name).toBe("THE_MINI_COPY");
   });
 
   it("lists recent ships and opens one again", async () => {

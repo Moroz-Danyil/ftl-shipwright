@@ -1,6 +1,7 @@
 /** The editor: top bar, tool rail, canvas, inspector and status bar. */
 import { useEditor } from "../../app/store";
 import { ShipCanvas } from "../../canvas/ShipCanvas";
+import { PicturePicker } from "./art/PicturePicker";
 import { ChecksDialog } from "./ChecksButton";
 import { Inspector } from "./Inspector";
 import { SaveDialog } from "./SaveDialog";
@@ -22,6 +23,7 @@ export function EditorWindow() {
       <StatusBar />
       {dialog === "save" && <SaveDialog />}
       {dialog === "checks" && <ChecksDialog />}
+      {dialog === "picture" && <PicturePicker />}
       <DragChip />
     </div>
   );

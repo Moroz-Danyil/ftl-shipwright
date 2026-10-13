@@ -15,6 +15,9 @@ export type CommandId =
   | "pan"
   | "delete"
   | `move.${MoveDirection}`
+  | `moveFar.${MoveDirection}`
+  | "mount.rotate"
+  | "mount.mirror"
   | `workspace.${WorkspaceId}`
   | `tool.${ToolId}`;
 
@@ -33,11 +36,13 @@ export const DEFAULT_BINDINGS: KeyBinding[] = [
   { keys: "Space", command: "pan" },
   { keys: "Delete", command: "delete" },
   { keys: "Backspace", command: "delete" },
+  { keys: "[", command: "mount.rotate" },
+  { keys: "]", command: "mount.mirror" },
   ...(["Up", "Down", "Left", "Right"] as const).flatMap((d) => {
-    const command = `move.${d.toLowerCase() as MoveDirection}` as const;
+    const direction = d.toLowerCase() as MoveDirection;
     return [
-      { keys: `Arrow${d}`, command },
-      { keys: `Shift+Arrow${d}`, command },
+      { keys: `Arrow${d}`, command: `move.${direction}` as const },
+      { keys: `Shift+Arrow${d}`, command: `moveFar.${direction}` as const },
     ];
   }),
   ...WORKSPACES.map((w) => ({ keys: workspaceKey(w), command: `workspace.${w}` as const })),

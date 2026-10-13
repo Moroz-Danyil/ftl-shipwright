@@ -3,15 +3,9 @@
  * the selection, the workspace and tool, and the view settings.
  */
 import { create } from "zustand";
-import type {
-  Animations,
-  Catalogs,
-  FileSource,
-  GameTexts,
-  GameView,
-  Ship,
-  ShipPicturePaths,
-} from "../core";
+import type { Animations, Catalogs, FileSource, GameTexts, GameView, Ship } from "../core";
+import type { PictureSlot, ShipArt, ShipSnapshot } from "./art/model";
+import type { MovablePicture } from "./art/pictures";
 import type { ModRef } from "../platform/types";
 import { canRedo, canUndo, createHistory, record, redo, undo, type History } from "./history";
 import { EMPTY_SELECTION, validSelection, type Selection } from "./selection";
@@ -48,21 +42,15 @@ export interface GameState {
 // ---------------------------------------------------------------------------
 // The open ship
 
-/** Where the open ship's pictures are read from. */
-export interface ShipPictureRefs {
-  source: FileSource;
-  paths: ShipPicturePaths;
-}
-
 export type SaveTarget = { kind: "ftl"; path: string } | { kind: "folder"; path: string };
 
 export interface ShipDocument {
   /** Changes every time a ship is opened, so views can reset (e.g. fit the ship). */
   id: number;
-  history: History<Ship>;
-  /** The ship as it was last saved or opened; absent for a ship never saved. */
-  saved?: Ship;
-  pictures: ShipPictureRefs;
+  /** The ship and its pictures, with undo. */
+  history: History<ShipSnapshot>;
+  /** The snapshot last saved or opened; absent for a ship never saved. */
+  saved?: ShipSnapshot;
   /** Where the ship can be opened again; absent for a new ship not saved yet. */
   origin?: ShipOrigin;
   /** Where the ship was saved last in this session. */
@@ -114,7 +102,20 @@ export interface ViewState {
   panHeld: boolean;
 }
 
-export type DialogId = "newShip" | "openShip" | "save" | "checks";
+export type DialogId = "newShip" | "openShip" | "save" | "checks" | "picture";
+
+/** What the picture picker chooses a picture for. */
+export type PictureTarget = { slot: PictureSlot } | { gib: number } | { newGib: true };
+
+/** Options of the Move picture tool. */
+export interface ArtToolOptions {
+  /** The picture a drag moves: a chosen one, or the one under the pointer. */
+  picture: MovablePicture | "auto";
+  /** Moving the hull leaves the mounts where they are on the ship. */
+  keepMounts: boolean;
+  /** The picture moved last; the arrow keys move it. */
+  active: MovablePicture | null;
+}
 
 /** A system chip being dragged from the palette. */
 export interface SystemDrag {
@@ -144,6 +145,8 @@ export interface EditorState {
   /** The system whose station the Station tool places (index in the blueprint). */
   stationSystem: number | null;
   systemDrag: SystemDrag | null;
+  artTool: ArtToolOptions;
+  pictureTarget: PictureTarget | null;
   workspace: WorkspaceId;
   /** The chosen tool of each workspace. */
   tools: Record<WorkspaceId, ToolId>;
@@ -155,7 +158,7 @@ export interface EditorState {
   setRecent(recent: RecentShip[]): void;
   openDocument(input: {
     ship: Ship;
-    pictures: ShipPictureRefs;
+    art: ShipArt;
     origin?: ShipOrigin;
     saveTarget?: SaveTarget;
     saved: boolean;
@@ -166,13 +169,17 @@ export interface EditorState {
    * selected afterwards.
    */
   edit(change: (ship: Ship) => Ship, selection?: Selection): void;
+  /** Like `edit`, for changes that also touch the pictures. */
+  editSnapshot(change: (snapshot: ShipSnapshot) => ShipSnapshot, selection?: Selection): void;
   undo(): void;
   redo(): void;
-  /** Records that this ship (the present one, or an earlier state) was saved to the target. */
-  markSaved(ship: Ship, target: SaveTarget, origin: ShipOrigin): void;
+  /** Records that this snapshot (the present one, or an earlier one) was saved to the target. */
+  markSaved(snapshot: ShipSnapshot, target: SaveTarget, origin: ShipOrigin): void;
   select(selection: Selection): void;
   setStationSystem(system: number | null): void;
   setSystemDrag(drag: SystemDrag | null): void;
+  setArtTool(options: Partial<ArtToolOptions>): void;
+  openPicturePicker(target: PictureTarget): void;
   setWorkspace(workspace: WorkspaceId): void;
   setTool(tool: ToolId): void;
   setLayer(layer: LayerId, visible: boolean): void;
@@ -204,6 +211,8 @@ export function initialEditorState() {
     selection: EMPTY_SELECTION,
     stationSystem: null as number | null,
     systemDrag: null as SystemDrag | null,
+    artTool: { picture: "auto", keepMounts: false, active: null } as ArtToolOptions,
+    pictureTarget: null as PictureTarget | null,
     workspace: "layout" as WorkspaceId,
     tools: initialTools(),
     view: {
@@ -218,19 +227,24 @@ export function initialEditorState() {
 }
 
 export const useEditor = create<EditorState>()((set, get) => {
-  const changeHistory = (change: (h: History<Ship>) => History<Ship>, next?: Selection) => {
+  const changeHistory = (
+    change: (h: History<ShipSnapshot>) => History<ShipSnapshot>,
+    next?: Selection
+  ) => {
     const { doc, selection } = get();
     if (!doc) return;
     const history = change(doc.history);
     if (history === doc.history) {
-      if (next) set({ selection: validSelection(history.present, next) });
+      if (next) set({ selection: validSelection(history.present.ship, next) });
       return;
     }
     set({
       doc: { ...doc, history },
-      selection: validSelection(history.present, next ?? selection),
+      selection: validSelection(history.present.ship, next ?? selection),
     });
   };
+  const recordSnapshot = (h: History<ShipSnapshot>, next: ShipSnapshot) =>
+    next.ship === h.present.ship && next.art === h.present.art ? h : record(h, next);
 
   return {
     ...initialEditorState(),
@@ -238,42 +252,53 @@ export const useEditor = create<EditorState>()((set, get) => {
     setGame: (game) => set({ game: { ...get().game, ...game } }),
     setRecent: (recent) => set({ recent }),
 
-    openDocument: ({ ship, pictures, origin, saved, saveTarget }) =>
+    openDocument: ({ ship, art, origin, saved, saveTarget }) => {
+      const snapshot: ShipSnapshot = { ship, art };
       set({
         doc: {
           id: nextDocumentId++,
-          history: createHistory(ship),
-          saved: saved ? ship : undefined,
-          pictures,
+          history: createHistory(snapshot),
+          saved: saved ? snapshot : undefined,
           origin,
           saveTarget,
         },
         selection: EMPTY_SELECTION,
         stationSystem: null,
         systemDrag: null,
+        artTool: { picture: "auto", keepMounts: false, active: null },
+        pictureTarget: null,
         workspace: "layout",
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
         dialog: null,
-      }),
+      });
+    },
 
     closeDocument: () => set({ doc: undefined, selection: EMPTY_SELECTION, dialog: null }),
 
-    edit: (change, selection) => changeHistory((h) => record(h, change(h.present)), selection),
+    edit: (change, selection) =>
+      changeHistory(
+        (h) => recordSnapshot(h, { ...h.present, ship: change(h.present.ship) }),
+        selection
+      ),
+    editSnapshot: (change, selection) =>
+      changeHistory((h) => recordSnapshot(h, change(h.present)), selection),
     undo: () => changeHistory(undo),
     redo: () => changeHistory(redo),
 
-    markSaved: (ship, target, origin) => {
+    markSaved: (snapshot, target, origin) => {
       const doc = get().doc;
-      if (doc) set({ doc: { ...doc, saved: ship, saveTarget: target, origin } });
+      if (doc) set({ doc: { ...doc, saved: snapshot, saveTarget: target, origin } });
     },
 
     select: (selection) => {
-      const ship = get().doc?.history.present;
+      const ship = get().doc?.history.present.ship;
       set({ selection: ship ? validSelection(ship, selection) : selection });
     },
     setStationSystem: (stationSystem) => set({ stationSystem }),
     setSystemDrag: (systemDrag) => set({ systemDrag }),
+    setArtTool: (options) => set({ artTool: { ...get().artTool, ...options } }),
+    openPicturePicker: (pictureTarget) => set({ pictureTarget, dialog: "picture" }),
 
     setWorkspace: (workspace) => set({ workspace }),
 
@@ -303,7 +328,9 @@ export function resetEditorStore(): void {
 // ---------------------------------------------------------------------------
 // Selectors
 
-export const currentShip = (s: EditorState): Ship | undefined => s.doc?.history.present;
+export const currentShip = (s: EditorState): Ship | undefined => s.doc?.history.present.ship;
+
+export const currentArt = (s: EditorState): ShipArt | undefined => s.doc?.history.present.art;
 
 export const currentTool = (s: EditorState): ToolId => {
   const tool = s.tools[s.workspace];
@@ -311,8 +338,12 @@ export const currentTool = (s: EditorState): ToolId => {
 };
 
 /** True when the ship differs from the one last saved (or was never saved). */
-export const hasUnsavedChanges = (s: EditorState): boolean =>
-  !!s.doc && s.doc.history.present !== s.doc.saved;
+export const hasUnsavedChanges = (s: EditorState): boolean => {
+  const doc = s.doc;
+  if (!doc) return false;
+  const { present } = doc.history;
+  return present.ship !== doc.saved?.ship || present.art !== doc.saved.art;
+};
 
 export const undoAvailable = (s: EditorState) => !!s.doc && canUndo(s.doc.history);
 export const redoAvailable = (s: EditorState) => !!s.doc && canRedo(s.doc.history);

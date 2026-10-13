@@ -11,7 +11,7 @@ import { openSystemsShip } from "../testing/systemsFixtures";
 import { App } from "./App";
 
 const state = () => useEditor.getState();
-const ship = () => state().doc!.history.present;
+const ship = () => state().doc!.history.present.ship;
 const systems = () => ship().blueprint.systems;
 const steps = () => state().doc!.history.past.length;
 
@@ -183,7 +183,7 @@ describe("Systems inspector", () => {
     expect(systems()[0].img).toBe("room_cloaking_2");
     expect(await within(card).findByText(en.systems.cloakMismatch)).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: en.topBar.checks(1) })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: en.topBar.checks(2) })).toBeInTheDocument()
     );
 
     fireEvent.click(within(card).getByRole("radio", { name: /^room_cloaking70/ }));
@@ -214,7 +214,7 @@ describe("Systems inspector", () => {
       { system: "clonebay", power: 1, room: 1, start: true },
     ]);
     act(() => state().setWorkspace("layout"));
-    fireEvent.click(screen.getByRole("button", { name: en.topBar.checks(1) }));
+    fireEvent.click(screen.getByRole("button", { name: en.topBar.checks(2) }));
     fireEvent.click(
       screen.getByRole("button", { name: en.checks.messages["several-installed"]({ rooms: [1] }) })
     );

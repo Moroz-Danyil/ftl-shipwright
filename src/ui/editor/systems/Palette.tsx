@@ -13,7 +13,7 @@ function Chip({ system }: { system: string }) {
   const texts = useTexts();
   const nameOf = useSystemName();
   const placed = useEditor((s) =>
-    s.doc?.history.present.blueprint.systems.find((x) => x.system === system)
+    s.doc?.history.present.ship.blueprint.systems.find((x) => x.system === system)
   );
   const later = placed !== undefined && !isInstalled(placed);
   const className = ["sy-chip", placed ? "sy-chip--placed" : "", later ? "sy-chip--later" : ""]

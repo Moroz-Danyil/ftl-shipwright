@@ -1,15 +1,17 @@
 /**
  * What the current tool draws over the ship: the hover outline, the
  * selection box, ghost rooms (red when refused), the wall under the Door tool
- * and the cell under the Station tool.
+ * the cell under the Station tool, picture outlines and dragged mounts and gibs.
  */
-import { CELL_SIZE, cellToPx, roomRectPx, type Rect, type Ship } from "../core";
+import { CELL_SIZE, cellToPx, mountPositionPx, roomRectPx, type Rect, type Ship } from "../core";
+import type { ShipArt } from "../app/art/model";
+import { MOUNT_HIT_RADIUS, gibRectPx } from "./artHitTest";
 import type { Target } from "../app/selection";
 import { doorRectPx } from "./doors";
 import { STATION_RADIUS, stationCentre } from "./hitTest";
 import type { Overlay } from "./tools/types";
 
-function Hover({ ship, target }: { ship: Ship; target: Target }) {
+function Hover({ ship, art, target }: { ship: Ship; art: ShipArt; target: Target }) {
   const layout = ship.layout;
   let shape: Rect | undefined;
   if (target.kind === "room") {
@@ -19,7 +21,22 @@ function Hover({ ship, target }: { ship: Ship; target: Target }) {
     const door = layout.doors[target.index];
     const r = door && doorRectPx(layout, door);
     shape = r && { x: r.x - 3, y: r.y - 3, w: r.w + 6, h: r.h + 6 };
-  } else {
+  } else if (target.kind === "gib") {
+    shape = gibRectPx(ship, art, target.index);
+  } else if (target.kind === "mount") {
+    const m = ship.layoutXml.mounts[target.index];
+    const c = m && mountPositionPx(layout, ship.layoutXml, m);
+    if (c)
+      return (
+        <circle
+          className="cv-hover"
+          cx={c.x}
+          cy={c.y}
+          r={MOUNT_HIT_RADIUS + 2}
+          vectorEffect="non-scaling-stroke"
+        />
+      );
+  } else if (target.kind === "station") {
     const c = stationCentre(ship, target.system);
     if (c)
       return (
@@ -46,12 +63,56 @@ function Hover({ ship, target }: { ship: Ship; target: Target }) {
   );
 }
 
-export function ToolOverlay({ ship, overlay }: { ship: Ship; overlay: Overlay | null }) {
+interface Props {
+  ship: Ship;
+  art: ShipArt;
+  overlay: Overlay | null;
+}
+
+export function ToolOverlay({ ship, art, overlay }: Props) {
   if (!overlay) return null;
   const layout = ship.layout;
   switch (overlay.kind) {
     case "hover":
-      return <Hover ship={ship} target={overlay.target} />;
+      return <Hover ship={ship} art={art} target={overlay.target} />;
+    case "outline":
+      return (
+        <rect
+          className="cv-box"
+          data-testid="picture-outline"
+          x={overlay.rect.x}
+          y={overlay.rect.y}
+          width={overlay.rect.w}
+          height={overlay.rect.h}
+          vectorEffect="non-scaling-stroke"
+        />
+      );
+    case "artGhost":
+      return (
+        <g data-testid="art-ghost">
+          {overlay.mounts.map((p, i) => (
+            <circle
+              key={`m${i}`}
+              className="cv-ghost"
+              cx={p.x}
+              cy={p.y}
+              r={MOUNT_HIT_RADIUS}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+          {overlay.gibs.map((r, i) => (
+            <rect
+              key={`g${i}`}
+              className="cv-ghost"
+              x={r.x}
+              y={r.y}
+              width={r.w}
+              height={r.h}
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
+        </g>
+      );
     case "box":
       return (
         <rect

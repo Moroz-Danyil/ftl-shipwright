@@ -11,7 +11,7 @@ import {
 } from "./store";
 import { EMPTY_SELECTION, selectionOf, validSelection } from "./selection";
 
-const pictures = { source: memorySource({}), paths: { gibs: [], interiors: {} } };
+const art = { source: memorySource({}), gibs: [] };
 
 function shipWithRooms(): Ship {
   let ship = createShip({ name: "TEST", layout: "test", img: "test" });
@@ -26,7 +26,7 @@ describe("editor store", () => {
 
   it("opens a ship as saved and tracks unsaved changes through undo and redo", () => {
     const ship = shipWithRooms();
-    state().openDocument({ ship, pictures, origin: { kind: "game" }, saved: true });
+    state().openDocument({ ship, art, origin: { kind: "game" }, saved: true });
     expect(currentShip(state())).toBe(ship);
     expect(hasUnsavedChanges(state())).toBe(false);
     expect(undoAvailable(state())).toBe(false);
@@ -47,17 +47,20 @@ describe("editor store", () => {
   });
 
   it("records no step for an edit that changes nothing", () => {
-    state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
+    state().openDocument({ ship: shipWithRooms(), art, saved: true });
     state().edit((s) => s);
     expect(undoAvailable(state())).toBe(false);
   });
 
   it("treats a new ship as unsaved until it is saved", () => {
     const ship = shipWithRooms();
-    state().openDocument({ ship, pictures, saved: false });
+    state().openDocument({ ship, art, saved: false });
     expect(hasUnsavedChanges(state())).toBe(true);
     const target = { kind: "ftl" as const, path: "out/test.ftl" };
-    state().markSaved(ship, target, { kind: "modFile", path: target.path });
+    state().markSaved({ ship, art: state().doc!.history.present.art }, target, {
+      kind: "modFile",
+      path: target.path,
+    });
     expect(hasUnsavedChanges(state())).toBe(false);
     expect(state().doc!.saveTarget).toEqual(target);
     expect(state().doc!.origin).toEqual({ kind: "modFile", path: "out/test.ftl" });
@@ -65,15 +68,18 @@ describe("editor store", () => {
 
   it("keeps changes made after the saved state as unsaved", () => {
     const ship = shipWithRooms();
-    state().openDocument({ ship, pictures, saved: false });
+    state().openDocument({ ship, art, saved: false });
     state().edit((s) => addRoom(s, { x: 5, y: 5, w: 1, h: 1 }));
     const target = { kind: "folder" as const, path: "mods/x" };
-    state().markSaved(ship, target, { kind: "modFolder", path: target.path });
+    state().markSaved({ ship, art: state().doc!.history.present.art }, target, {
+      kind: "modFolder",
+      path: target.path,
+    });
     expect(hasUnsavedChanges(state())).toBe(true);
   });
 
   it("drops a selection that undo or redo leaves pointing at nothing", () => {
-    state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
+    state().openDocument({ ship: shipWithRooms(), art, saved: true });
     state().edit((s) => addRoom(s, { x: 0, y: 3, w: 1, h: 1 }));
     state().select(selectionOf({ kind: "room", id: 2 }));
     state().undo();
@@ -97,7 +103,7 @@ describe("editor store", () => {
   });
 
   it("keeps one tool per workspace and refuses tools a workspace does not have", () => {
-    state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
+    state().openDocument({ ship: shipWithRooms(), art, saved: true });
     expect(currentTool(state())).toBe("select");
     state().setTool("room");
     expect(currentTool(state())).toBe("room");
@@ -113,11 +119,11 @@ describe("editor store", () => {
   });
 
   it("starts each opened ship in Layout with the Select tool and nothing selected", () => {
-    state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
+    state().openDocument({ ship: shipWithRooms(), art, saved: true });
     state().setWorkspace("details");
     state().select(selectionOf({ kind: "room", id: 0 }));
     const firstId = state().doc!.id;
-    state().openDocument({ ship: shipWithRooms(), pictures, saved: true });
+    state().openDocument({ ship: shipWithRooms(), art, saved: true });
     expect(state().doc!.id).not.toBe(firstId);
     expect(state().workspace).toBe("layout");
     expect(state().selection).toEqual(EMPTY_SELECTION);

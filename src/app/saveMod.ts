@@ -18,7 +18,8 @@ import { reasonOf } from "./errors";
 import type { ShipOrigin } from "./settings";
 import { rememberRecent } from "./ships";
 import { interiorPath } from "./systems/interiors";
-import { useEditor, type SaveTarget, type ShipPictureRefs } from "./store";
+import { readPicture, type PictureRef, type ShipArt } from "./art/model";
+import { useEditor, type SaveTarget } from "./store";
 
 /**
  * Reads the bytes of the ship's pictures. `undefined` when there is no hull
@@ -26,30 +27,28 @@ import { useEditor, type SaveTarget, type ShipPictureRefs } from "./store";
  * the N-th picture. Interiors are the pictures the ship's systems name.
  */
 export async function readPictureFiles(
-  refs: ShipPictureRefs,
+  art: ShipArt,
   ship: Ship
 ): Promise<ShipPictureFiles | undefined> {
-  const { source, paths } = refs;
-  const read = async (path: string | undefined) =>
-    path === undefined ? undefined : source.readBytes(path);
-  const hull = await read(paths.hull);
+  const read = (ref: PictureRef | null | undefined) => readPicture(art.source, ref);
+  const hull = await read(art.hull);
   if (!hull) return undefined;
   const files: ShipPictureFiles = { hull, gibs: [], interiors: {} };
-  const floor = await read(paths.floor);
-  const cloak = await read(paths.cloak);
-  const shield = await read(paths.shield);
-  const miniship = await read(paths.miniship);
+  const floor = await read(art.floor);
+  const cloak = await read(art.cloak);
+  const shield = await read(art.shield);
+  const miniship = await read(art.miniship);
   if (floor) files.floor = floor;
   if (cloak) files.cloak = cloak;
   if (shield) files.shield = shield;
   if (miniship) files.miniship = miniship;
-  for (const gib of paths.gibs) {
-    const bytes = gib === null ? undefined : await source.readBytes(gib);
+  for (const gib of art.gibs.slice(0, ship.layoutXml.gibs.length)) {
+    const bytes = await read(gib);
     if (!bytes) break;
     files.gibs.push(bytes);
   }
   for (const name of new Set(ship.blueprint.systems.flatMap((s) => (s.img ? [s.img] : [])))) {
-    const bytes = await source.readBytes(interiorPath(name));
+    const bytes = await art.source.readBytes(interiorPath(name));
     if (bytes) files.interiors[name] = bytes;
   }
   return files;
@@ -88,9 +87,10 @@ export async function saveShipMod(
   const store = useEditor.getState();
   const { doc, game } = store;
   if (!doc || !game.data) return false;
-  const ship = doc.history.present;
+  const snapshot = doc.history.present;
+  const ship = snapshot.ship;
   try {
-    const pictures = await readPictureFiles(doc.pictures, ship);
+    const pictures = await readPictureFiles(snapshot.art, ship);
     if (!pictures) {
       store.setNotice({ kind: "error", text: texts.save.needHull });
       return false;
@@ -109,7 +109,7 @@ export async function saveShipMod(
     }
     const origin = originOfTarget(target);
     const latest = useEditor.getState();
-    if (latest.doc?.id === doc.id) latest.markSaved(ship, target, origin);
+    if (latest.doc?.id === doc.id) latest.markSaved(snapshot, target, origin);
     rememberRecent(ship, origin);
     useEditor.getState().setNotice({ kind: "info", text: texts.save.savedTo(target.path) });
     return true;

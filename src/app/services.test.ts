@@ -57,8 +57,8 @@ describe("opening ships", () => {
     await withMiniGame();
     expect(await openGameShip(en, "PLAYER_SHIP_MINI")).toBe(true);
     const doc = state().doc!;
-    expect(doc.history.present.blueprint.name).toBe("PLAYER_SHIP_MINI");
-    expect(doc.pictures.paths.hull).toBe("img/ship/mini_base.png");
+    expect(doc.history.present.ship.blueprint.name).toBe("PLAYER_SHIP_MINI");
+    expect(doc.history.present.art.hull).toEqual({ kind: "game", path: "img/ship/mini_base.png" });
     expect(hasUnsavedChanges(state())).toBe(false);
     expect(state().recent[0]).toMatchObject({
       name: "The Mini",
@@ -91,7 +91,10 @@ describe("opening ships", () => {
     expect(ship.blueprint.texts.name).toEqual({ kind: "text", text: "Tiny" });
     expect(ship.blueprint.texts.class).toEqual({ kind: "id", id: "ship_MINI_class" });
     expect(ship.layout.rooms).toHaveLength(2);
-    expect(state().doc!.pictures.paths.hull).toBe("img/ship/mini_base.png");
+    expect(state().doc!.history.present.art.hull).toEqual({
+      kind: "game",
+      path: "img/ship/mini_base.png",
+    });
     expect(hasUnsavedChanges(state())).toBe(true);
   });
 
@@ -183,7 +186,7 @@ describe("picture files for saving", () => {
     });
     const ship = testShip([{ system: "shields", power: 1, room: 0, img: "room_shields_3" }]);
     const files = await readPictureFiles(
-      { source, paths: { hull: "img/ship/a_base.png", gibs: [], interiors: {} } },
+      { source, hull: { kind: "game", path: "img/ship/a_base.png" }, gibs: [] },
       ship
     );
     expect(files?.interiors).toEqual({ room_shields_3: new Uint8Array([2]) });

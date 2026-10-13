@@ -17,7 +17,7 @@ import {
 import { useEditor } from "./store";
 import type { Ship } from "../core";
 
-const present = () => useEditor.getState().doc?.history.present;
+const present = () => useEditor.getState().doc?.history.present.ship;
 const catalogs = () => useEditor.getState().game.data?.catalogs;
 
 /** The artillery weapon a newly placed artillery system fires: the game's first. */

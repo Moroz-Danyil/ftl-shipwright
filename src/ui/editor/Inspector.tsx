@@ -3,12 +3,13 @@ import { useEditor } from "../../app/store";
 import type { WorkspaceId } from "../../app/workspaces";
 import { useTexts } from "../../text";
 import { LayoutInspector } from "./LayoutInspector";
+import { ArtInspector } from "./art/ArtInspector";
 import { SystemsInspector } from "./systems/SystemsInspector";
 
 function WorkspaceSummary({
   workspace,
 }: {
-  workspace: Exclude<WorkspaceId, "layout" | "systems">;
+  workspace: Exclude<WorkspaceId, "layout" | "systems" | "art">;
 }) {
   const texts = useTexts();
   const info = texts.inspector[workspace];
@@ -35,6 +36,8 @@ export function Inspector() {
         <LayoutInspector />
       ) : workspace === "systems" ? (
         <SystemsInspector />
+      ) : workspace === "art" ? (
+        <ArtInspector />
       ) : (
         <WorkspaceSummary workspace={workspace} />
       )}

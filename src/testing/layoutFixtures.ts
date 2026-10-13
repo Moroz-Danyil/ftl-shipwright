@@ -35,7 +35,7 @@ export function openTestShip(systems: ShipSystem[] = []): Ship {
   const ship = testShip(systems);
   useEditor.getState().openDocument({
     ship,
-    pictures: { source: memorySource({}), paths: { gibs: [], interiors: {} } },
+    art: { source: memorySource({}), gibs: [] },
     saved: true,
   });
   return ship;

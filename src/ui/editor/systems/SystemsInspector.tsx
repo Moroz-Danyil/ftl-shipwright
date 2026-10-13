@@ -7,7 +7,7 @@ import { RoomSystems } from "./RoomSystems";
 
 export function SystemsInspector() {
   const texts = useTexts();
-  const ship = useEditor((s) => s.doc?.history.present);
+  const ship = useEditor((s) => s.doc?.history.present.ship);
   const selection = useEditor((s) => s.selection);
   if (!ship) return null;
   const target = singleTarget(selection);

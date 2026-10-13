@@ -50,7 +50,7 @@ export function targetsInBox(ship: Ship, box: Rect): Selection {
     const s = doorSegmentPx(ship.layout, door);
     if (inside((s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2)) doors.push(index);
   });
-  return { rooms: [...rooms].sort((a, b) => a - b), doors, stations: [] };
+  return { ...EMPTY_SELECTION, rooms: [...rooms].sort((a, b) => a - b), doors };
 }
 
 /** The whole-cell offset of a drag from `start` to `p` (ship pixels). */
@@ -65,7 +65,7 @@ export function cellOffset(start: Point, p: Point): { dx: number; dy: number } {
 export function createSelectTool(context: ToolContext, moveRooms = true): CanvasTool {
   let gesture: Gesture | null = null;
   const state = () => useEditor.getState();
-  const ship = () => state().doc?.history.present;
+  const ship = () => state().doc?.history.present.ship;
 
   const end = () => {
     gesture = null;

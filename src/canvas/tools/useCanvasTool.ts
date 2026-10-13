@@ -1,12 +1,18 @@
 /**
  * The current tool of the canvas, with the overlay it draws. The Select tool
- * moves rooms only in the Layout workspace; the Hull & art tools do nothing yet.
+ * moves rooms only in Layout and picks mounts and gibs in Hull & art.
  */
 import { useEffect, useMemo, useState } from "react";
 import { setGestureCancel } from "../../app/gesture";
 import { useEditor } from "../../app/store";
 import type { ToolId, WorkspaceId } from "../../app/workspaces";
 import type { Texts } from "../../text";
+import {
+  createArtSelectTool,
+  createGibTool,
+  createMountTool,
+  createMovePictureTool,
+} from "./artTools";
 import { createDoorTool, createRoomTool, createStationTool } from "./placeTools";
 import { createSelectTool } from "./selectTool";
 import type { CanvasTool, Overlay, ToolContext } from "./types";
@@ -28,10 +34,16 @@ export function createTool(
   context: ToolContext,
   workspace: WorkspaceId = "layout"
 ): CanvasTool {
-  if (id === "select") return createSelectTool(context, workspace === "layout");
+  if (id === "select")
+    return workspace === "art"
+      ? createArtSelectTool(context)
+      : createSelectTool(context, workspace === "layout");
   if (id === "room") return createRoomTool(context);
   if (id === "door") return createDoorTool(context);
   if (id === "station") return createStationTool(context);
+  if (id === "movePicture") return createMovePictureTool(context);
+  if (id === "mount") return createMountTool(context);
+  if (id === "gib") return createGibTool(context);
   return IDLE;
 }
 

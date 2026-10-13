@@ -51,6 +51,8 @@ beforeEach(async () => {
   await waitFor(() =>
     expect(screen.getByTestId("ship-svg").querySelector(".cv-grid")).not.toBeNull()
   );
+  // The canvas fits the ship once it knows its size, which can come a moment after the first render.
+  await waitFor(() => expect(state().view.camera.x).not.toBe(0));
 });
 
 afterEach(() => vi.restoreAllMocks());
@@ -62,7 +64,7 @@ describe("editor window", () => {
     const zoom = Math.round(state().view.camera.scale * 100);
     expect(screen.getByText(en.status.counts(2, 2, zoom))).toBeInTheDocument();
     expect(screen.getByText(/Game data: ftl\.dat/)).toHaveTextContent(en.status.noMod);
-    expect(screen.getByRole("button", { name: en.topBar.checks(0) })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: en.topBar.checks(2) })).toBeInTheDocument();
   });
 
   it("fits the ship into the canvas on open", () => {
@@ -182,18 +184,18 @@ describe("editor window", () => {
     expect(screen.getByText(en.topBar.unsaved)).toBeInTheDocument();
     expect(undo).toBeEnabled();
     press("KeyZ", { ctrlKey: true });
-    expect(state().doc!.history.present.layout.rooms).toHaveLength(2);
+    expect(state().doc!.history.present.ship.layout.rooms).toHaveLength(2);
     expect(screen.queryByText(en.topBar.unsaved)).not.toBeInTheDocument();
     press("KeyY", { ctrlKey: true });
-    expect(state().doc!.history.present.layout.rooms).toHaveLength(3);
+    expect(state().doc!.history.present.ship.layout.rooms).toHaveLength(3);
     fireEvent.click(undo);
     fireEvent.click(screen.getByRole("button", { name: en.topBar.redo }));
-    expect(state().doc!.history.present.layout.rooms).toHaveLength(3);
+    expect(state().doc!.history.present.ship.layout.rooms).toHaveLength(3);
   });
 
   it("counts the checks, lists them and shows what they are about", () => {
     act(() => state().edit((s) => addDoor(s, { x: 9, y: 9, vertical: true })));
-    const checks = screen.getByRole("button", { name: en.topBar.checks(1) });
+    const checks = screen.getByRole("button", { name: en.topBar.checks(3) });
     fireEvent.click(checks);
     const dialog = screen.getByRole("dialog", { name: en.checks.title });
     const message = en.checks.messages["door-no-room"]({ door: 2 });

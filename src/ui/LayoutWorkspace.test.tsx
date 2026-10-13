@@ -10,7 +10,7 @@ import { cellPx, openTestShip, pilot, shields } from "../testing/layoutFixtures"
 import { App } from "./App";
 
 const state = () => useEditor.getState();
-const ship = () => state().doc!.history.present;
+const ship = () => state().doc!.history.present.ship;
 const steps = () => state().doc!.history.past.length;
 
 function press(code: string, extra: Partial<KeyboardEventInit> = {}) {

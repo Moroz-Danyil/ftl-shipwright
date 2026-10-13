@@ -13,7 +13,7 @@ import { ChecksButton } from "./ChecksButton";
 function ShipTitle() {
   const texts = useTexts();
   const platform = usePlatform();
-  const ship = useEditor((s) => s.doc?.history.present);
+  const ship = useEditor((s) => s.doc?.history.present.ship);
   const data = useEditor((s) => s.game.data);
   const unsaved = useEditor(hasUnsavedChanges);
   if (!ship) return null;
