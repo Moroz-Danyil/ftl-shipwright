@@ -2,7 +2,7 @@
  * The game's weapons, drones or augments as a searchable list, one row each
  * with its picture, name and short stats. A click puts the item in the next
  * free slot (or adds the augment); hovering or focusing a row shows its
- * details in a panel beside the inspector.
+ * details in a panel beside the inspector (or beside the slot bar's picker).
  */
 import { useMemo, useState } from "react";
 import { addShipAugment, addLoadoutItem } from "../../../app/loadoutActions";
@@ -50,7 +50,19 @@ export function Details({ item }: { item: CatalogItem }) {
   );
 }
 
-export function ItemList({ kind }: { kind: ItemKind }) {
+/**
+ * `onAdded`: called after an item went in (the slot bar's picker closes then).
+ * `autoFocus`: the search field takes the focus when the list appears.
+ */
+export function ItemList({
+  kind,
+  onAdded,
+  autoFocus = false,
+}: {
+  kind: ItemKind;
+  onAdded?: () => void;
+  autoFocus?: boolean;
+}) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const [query, setQuery] = useState("");
@@ -61,8 +73,11 @@ export function ItemList({ kind }: { kind: ItemKind }) {
     [all, data, query]
   );
   const add = (item: CatalogItem) => {
-    if (item.kind === "augment") addShipAugment(item.entry.name, texts);
-    else addLoadoutItem(item.kind, item.entry.name, texts);
+    const added =
+      item.kind === "augment"
+        ? addShipAugment(item.entry.name, texts)
+        : addLoadoutItem(item.kind, item.entry.name, texts);
+    if (added) onAdded?.();
   };
   return (
     <>
@@ -71,6 +86,7 @@ export function ItemList({ kind }: { kind: ItemKind }) {
         <input
           className="input"
           type="search"
+          autoFocus={autoFocus}
           value={query}
           placeholder={texts.loadout.searchPlaceholder[kind]}
           onChange={(e) => setQuery(e.target.value)}

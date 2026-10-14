@@ -60,7 +60,7 @@ A ship opens in Ship.
 
 ### 1 · Ship
 
-Everything about the ship itself. A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull. **Preview in hangar** on the canvas shows the ship as the hangar does.
+Everything about the ship itself. A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull. A click on a filled slot selects it (`Delete` then removes it), a right click removes its item and the later ones move up. A click on an empty slot ("+ weapon", "+ drone", or Enter / Space on it) opens a picker above the bar with the same searchable list as the Weapons or Drones section, details on hover included; the item clicked goes in the first empty slot and the picker closes. Esc or a click outside closes it too. **Preview in hangar** on the canvas shows the ship as the hangar does.
 
 - **Info**: name, class and description as the hangar shows them; under **Save name**, the blueprint name and the file name of the ship.
 - **Stats**: hull points (30 for a new ship), the reactor's power, weapon slots (at most 8), drone slots, starting missiles and drone parts. The game has no starting fuel per ship.

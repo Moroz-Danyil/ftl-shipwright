@@ -376,6 +376,15 @@ export const en = {
     emptySlot: { weapon: "+ weapon", drone: "+ drone" },
     slotLabel: (n: number, name: string) => `Slot ${n}: ${name}`,
     emptySlotLabel: (n: number) => `Slot ${n}: empty`,
+    slotHint: "Click to select. Right click removes it.",
+    pickHint: {
+      weapon: "Choose a weapon for the next free slot",
+      drone: "Choose a drone for the next free slot",
+    },
+    pickTitle: {
+      weapon: (n: number) => `Weapon for slot ${n}`,
+      drone: (n: number) => `Drone for slot ${n}`,
+    },
     full: {
       weapon: "Every weapon slot is taken. Add a slot or remove a weapon first.",
       drone: "Every drone slot is taken. Add a slot or remove a drone first.",

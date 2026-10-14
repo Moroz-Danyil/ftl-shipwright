@@ -195,6 +195,87 @@ describe("Ship workspace: equipment", () => {
     expect(state().hoverWeapon).toBe(0);
   });
 
+  it("picks a weapon for an empty slot in the bar", () => {
+    const empty = within(bar()).getByRole("button", { name: en.loadout.emptySlotLabel(2) });
+    expect(empty).toHaveAttribute("title", en.loadout.pickHint.weapon);
+    fireEvent.click(empty);
+    const picker = screen.getByRole("dialog", { name: en.loadout.pickTitle.weapon(2) });
+    expect(empty).toHaveAttribute("aria-expanded", "true");
+    expect(within(picker).getByRole("searchbox")).toHaveFocus();
+    fireEvent.change(within(picker).getByRole("searchbox"), { target: { value: "artem" } });
+    expect(within(picker).queryByRole("button", { name: /Burst Laser I/ })).toBeNull();
+    const artemis = within(picker).getByRole("button", { name: /Artemis/ });
+    fireEvent.pointerEnter(artemis);
+    expect(
+      within(screen.getByRole("tooltip")).getByRole("region", { name: "Artemis" })
+    ).toBeInTheDocument();
+    fireEvent.click(artemis);
+    expect(bp().weaponList?.items).toEqual(["LASER_BURST_1", "MISSILES_1"]);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    expect(
+      within(bar()).getByRole("button", { name: en.loadout.slotLabel(2, "Artemis") })
+    ).toHaveAttribute("aria-pressed", "true");
+    expect(steps()).toBe(1);
+  });
+
+  it("puts a picked drone in the first empty slot and closes the picker with Esc or outside", () => {
+    act(() => state().edit((s) => ({ ...s, blueprint: { ...s.blueprint, droneSlots: 3 } })));
+    const slot = (n: number) => within(bar()).getByTestId(`drone-slot-${n}`);
+
+    fireEvent.click(slot(3));
+    let picker = screen.getByRole("dialog", { name: en.loadout.pickTitle.drone(1) });
+    fireEvent.keyDown(within(picker).getByRole("searchbox"), { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(slot(1)).toHaveFocus();
+
+    fireEvent.click(slot(2));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    fireEvent.pointerDown(inspector());
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    fireEvent.click(slot(1));
+    fireEvent.click(slot(1));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    // From the weapon picker straight to the drone one: a fresh list with the focus in its search.
+    fireEvent.click(within(bar()).getByTestId("weapon-slot-2"));
+    const search = () => within(screen.getByRole("dialog")).getByRole("searchbox");
+    fireEvent.change(search(), { target: { value: "artem" } });
+    fireEvent.click(slot(1));
+    expect(screen.getByRole("dialog", { name: en.loadout.pickTitle.drone(1) })).toBeInTheDocument();
+    expect(search()).toHaveFocus();
+    expect(search()).toHaveValue("");
+    fireEvent.keyDown(slot(1), { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    fireEvent.click(slot(3));
+    picker = screen.getByRole("dialog");
+    fireEvent.click(within(picker).getByRole("button", { name: /Combat Drone I/ }));
+    expect(bp().droneList?.items).toEqual(["COMBAT_1"]);
+    expect(within(bar()).getByTestId("drone-slot-1")).toHaveAccessibleName(
+      en.loadout.slotLabel(1, "Combat Drone I")
+    );
+  });
+
+  it("removes a slot's item with a right click, the later ones moving up", () => {
+    fireEvent.click(within(cards("weapon")).getByRole("button", { name: /Artemis/ }));
+    act(() => state().select({ ...state().selection, weapons: [] }));
+    const first = within(bar()).getByRole("button", { name: en.loadout.slotLabel(1, "Burst I") });
+    expect(first).toHaveAttribute("title", en.loadout.slotHint);
+    expect(fireEvent.contextMenu(first)).toBe(false);
+    expect(bp().weaponList?.items).toEqual(["MISSILES_1"]);
+    expect(
+      within(bar()).getByRole("button", { name: en.loadout.slotLabel(1, "Artemis") })
+    ).toBeInTheDocument();
+    expect(steps()).toBe(2);
+    act(() => state().undo());
+    expect(bp().weaponList?.items).toEqual(["LASER_BURST_1", "MISSILES_1"]);
+    // No browser menu on an empty slot either, and nothing changes.
+    expect(fireEvent.contextMenu(within(bar()).getByTestId("drone-slot-1"))).toBe(false);
+    expect(bp().weaponList?.items).toEqual(["LASER_BURST_1", "MISSILES_1"]);
+  });
+
   it("changes slot counts and missiles", () => {
     const slots = within(inspector()).getByRole("group", { name: en.loadout.weaponSlots });
     fireEvent.click(
