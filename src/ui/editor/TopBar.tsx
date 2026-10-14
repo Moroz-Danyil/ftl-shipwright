@@ -5,21 +5,20 @@
 import { shipDisplayName } from "../../app/ships";
 import { hasUnsavedChanges, redoAvailable, undoAvailable, useEditor } from "../../app/store";
 import { WORKSPACES, workspaceKey } from "../../app/workspaces";
-import { usePlatform } from "../../platform/PlatformContext";
 import { useTexts } from "../../text";
 import { LogoMark, RedoIcon, SettingsIcon, UndoIcon } from "../common/icons";
 import { ChecksButton } from "./ChecksButton";
 
 function ShipTitle() {
   const texts = useTexts();
-  const platform = usePlatform();
   const ship = useEditor((s) => s.doc?.history.present.ship);
   const data = useEditor((s) => s.game.data);
   const unsaved = useEditor(hasUnsavedChanges);
   if (!ship) return null;
 
   const close = async () => {
-    if (unsaved && !(await platform.confirm(texts.topBar.confirmClose))) return;
+    const { askConfirm } = useEditor.getState();
+    if (unsaved && !(await askConfirm({ ...texts.topBar.confirmClose, danger: true }))) return;
     useEditor.getState().closeDocument();
   };
 

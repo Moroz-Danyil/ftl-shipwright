@@ -370,10 +370,32 @@ describe("Ship workspace: info", () => {
   });
 
   it("asks before giving a game ship a new save name", async () => {
+    const texts = en.hangar.confirmRename;
     await setUp({ kind: "game" });
-    platform.answers.confirm.push(true);
-    commit(within(inspector()).getByLabelText(en.hangar.blueprintName), "MY_T");
+    const field = () => within(inspector()).getByLabelText(en.hangar.blueprintName);
+    const name = bp().name;
+
+    commit(field(), "MY_T");
+    let dialog = await screen.findByRole("dialog", { name: texts.title });
+    expect(within(dialog).getByText(texts.message)).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: en.common.cancel }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(bp().name).toBe(name);
+    expect(field()).toHaveValue(name);
+
+    commit(field(), "MY_T");
+    dialog = await screen.findByRole("dialog", { name: texts.title });
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(bp().name).toBe(name);
+
+    commit(field(), "MY_T");
+    dialog = await screen.findByRole("dialog", { name: texts.title });
+    const rename = within(dialog).getByRole("button", { name: texts.confirm });
+    expect(rename).toHaveFocus();
+    expect(rename).not.toHaveClass("btn--destructive");
+    fireEvent.click(rename);
     await waitFor(() => expect(bp().name).toBe("MY_T"));
-    expect(platform.asked).toEqual([{ kind: "confirm", message: en.hangar.confirmRename }]);
+    expect(steps()).toBe(1);
   });
 });

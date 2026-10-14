@@ -2,7 +2,6 @@
  * Edits of the ship in the Ship workspace (info, save name, stats, crew and
  * equipment), each one undo step.
  */
-import type { Platform } from "../platform/types";
 import type { Texts } from "../text";
 import { rename, setCrew, setHull, setReactor, setText, type TextField } from "./details/rules";
 import {
@@ -98,7 +97,6 @@ export function isGameShipInPlace(): boolean {
  * then saved as a separate ship. Returns false when refused or invalid.
  */
 export async function renameShip(
-  platform: Platform,
   texts: Texts,
   ids: { name?: string; base?: string }
 ): Promise<boolean> {
@@ -110,7 +108,7 @@ export async function renameShip(
     return false;
   }
   if (next === current) return true;
-  if (isGameShipInPlace() && !(await platform.confirm(texts.hangar.confirmRename))) return false;
+  if (isGameShipInPlace() && !(await state().askConfirm(texts.hangar.confirmRename))) return false;
   state().edit((s) => rename(s, ids) ?? s);
   return true;
 }

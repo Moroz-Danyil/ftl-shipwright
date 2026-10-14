@@ -22,6 +22,8 @@
   --ok: #8fd19e;
   --problem: #ef6b6b;
   --problem-bg: #2a1718;
+  --problem-hover: #f58a8a;
+  --problem-ink: #1f0a0a;
   --room-floor: #e3e1dc;
   --room-tile-line: #bcb9b3;
   --room-wall: #33302c;
@@ -67,6 +69,8 @@
   --ok: #2e7d45;
   --problem: #c23a3a;
   --problem-bg: #f6dcdc;
+  --problem-hover: #d54a4a;
+  --problem-ink: #ffffff;
   --room-floor: #e3e1dc;
   --room-tile-line: #bcb9b3;
   --room-wall: #33302c;
@@ -174,6 +178,16 @@ input[type="checkbox"] {
 }
 .btn--primary:hover:not(:disabled) {
   background: var(--accent-hover);
+}
+/* The confirm button of a question that loses something. */
+.btn--destructive {
+  border: none;
+  background: var(--problem);
+  color: var(--problem-ink);
+  font-weight: 600;
+}
+.btn--destructive:hover:not(:disabled) {
+  background: var(--problem-hover);
 }
 .btn--tall {
   height: 36px;

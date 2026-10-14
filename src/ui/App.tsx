@@ -10,6 +10,7 @@ import { PlatformContext, usePlatform } from "../platform/PlatformContext";
 import type { Platform } from "../platform/types";
 import { useTexts } from "../text";
 import { TextsProvider } from "../text/TextsProvider";
+import { ConfirmDialog } from "./common/ConfirmDialog";
 import { LogoMark } from "./common/icons";
 import { NoticeBar } from "./common/NoticeBar";
 import { EditorWindow } from "./editor/EditorWindow";
@@ -68,6 +69,7 @@ function Shell() {
     <>
       {hasShip ? <EditorWindow /> : <StartScreen />}
       {settingsOpen && <SettingsDialog />}
+      <ConfirmDialog />
       <NoticeBar />
     </>
   );

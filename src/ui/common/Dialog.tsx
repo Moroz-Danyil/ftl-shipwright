@@ -1,5 +1,7 @@
 /**
- * A modal dialog: a title, content and actions. Esc and a click outside close it.
+ * A modal dialog: a title, content and actions. Esc and a click outside close
+ * it. The focus starts on the element marked `data-autofocus`, or else on the
+ * first field or button.
  */
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
@@ -8,16 +10,20 @@ interface Props {
   onClose: () => void;
   children: ReactNode;
   actions?: ReactNode;
+  /** A small dialog for a short question. */
+  size?: "small";
 }
 
-export function Dialog({ title, onClose, children, actions }: Props) {
+export function Dialog({ title, onClose, children, actions, size }: Props) {
   const titleId = useId();
   const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const first = panel.current?.querySelector<HTMLElement>(
-      'input, select, textarea, button:not(:disabled):not([tabindex="-1"])'
-    );
+    const first =
+      panel.current?.querySelector<HTMLElement>("[data-autofocus]") ??
+      panel.current?.querySelector<HTMLElement>(
+        'input, select, textarea, button:not(:disabled):not([tabindex="-1"])'
+      );
     first?.focus();
   }, []);
 
@@ -30,7 +36,7 @@ export function Dialog({ title, onClose, children, actions }: Props) {
     >
       <div
         ref={panel}
-        className="dlg"
+        className={size === "small" ? "dlg dlg--small" : "dlg"}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

@@ -15,10 +15,9 @@ export interface FakePlatform extends Platform {
     pickFile: Array<string | null>;
     pickFolder: Array<string | null>;
     pickSavePath: Array<string | null>;
-    confirm: boolean[];
   };
   /** The dialogs asked so far, with their options. */
-  asked: Array<{ kind: string; filters?: FileFilter[]; defaultPath?: string; message?: string }>;
+  asked: Array<{ kind: string; filters?: FileFilter[]; defaultPath?: string }>;
   /** The last zoom the interface asked for. */
   zoom: number;
 }
@@ -48,7 +47,7 @@ export function createFakePlatform(
     available: options.available ?? true,
     disk,
     folders: [],
-    answers: { pickFile: [], pickFolder: [], pickSavePath: [], confirm: [] },
+    answers: { pickFile: [], pickFolder: [], pickSavePath: [] },
     asked: [],
     zoom: 1,
     dat: {
@@ -87,10 +86,6 @@ export function createFakePlatform(
     async pickSavePath(o) {
       platform.asked.push({ kind: "pickSavePath", ...o });
       return platform.answers.pickSavePath.shift() ?? null;
-    },
-    async confirm(message) {
-      platform.asked.push({ kind: "confirm", message });
-      return platform.answers.confirm.shift() ?? false;
     },
     async setZoom(factor) {
       platform.zoom = factor;

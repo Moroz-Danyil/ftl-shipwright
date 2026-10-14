@@ -7,7 +7,6 @@ import { renameShip, setShipText } from "../../../app/loadoutActions";
 import { gameText } from "../../../app/loadout/catalog";
 import type { TextField as Field } from "../../../app/details/rules";
 import { useEditor } from "../../../app/store";
-import { usePlatform } from "../../../platform/PlatformContext";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
 import { Section, SubHeading } from "../../common/Section";
@@ -15,7 +14,6 @@ import { TextField } from "../../common/TextField";
 
 export function Info({ ship }: { ship: Ship }) {
   const texts = useTexts();
-  const platform = usePlatform();
   const data = useEditor((s) => s.game.data);
   const value = (field: Field) => gameText(data, ship.blueprint.texts[field]) ?? "";
   return (
@@ -48,7 +46,7 @@ export function Info({ ship }: { ship: Ship }) {
             label={texts.hangar.blueprintName}
             className="input mono"
             value={ship.blueprint.name}
-            onCommit={(name) => renameShip(platform, texts, { name })}
+            onCommit={(name) => renameShip(texts, { name })}
           />
         </Help>
         <Help topic="baseName">
@@ -56,7 +54,7 @@ export function Info({ ship }: { ship: Ship }) {
             label={texts.hangar.baseName}
             className="input mono"
             value={ship.blueprint.layout}
-            onCommit={(base) => renameShip(platform, texts, { base })}
+            onCommit={(base) => renameShip(texts, { base })}
           />
         </Help>
       </SubHeading>

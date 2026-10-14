@@ -13,7 +13,7 @@ vi.mock("@tauri-apps/plugin-fs", () => ({
   writeFile: vi.fn(),
   mkdir: vi.fn(),
 }));
-vi.mock("@tauri-apps/plugin-dialog", () => ({ open: vi.fn(), save: vi.fn(), ask: vi.fn() }));
+vi.mock("@tauri-apps/plugin-dialog", () => ({ open: vi.fn(), save: vi.fn() }));
 
 const tauri = await import("./tauri");
 

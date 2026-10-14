@@ -15,7 +15,7 @@ export function useKeyboard(bindings: KeyBinding[] = DEFAULT_BINDINGS): void {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const state = useEditor.getState();
-      if (!state.doc || state.dialog) return;
+      if (!state.doc || state.dialog || state.confirmation) return;
       const command = commandForEvent(event, bindings);
       if (!command) return;
       const typing = isTextField(event.target);

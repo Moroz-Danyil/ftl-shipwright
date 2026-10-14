@@ -140,7 +140,11 @@ export const en = {
   topBar: {
     workspaces: "Workspaces",
     closeShip: "Close the ship and go back to the start screen",
-    confirmClose: "Close this ship? Its unsaved changes will be lost.",
+    confirmClose: {
+      title: "Close this ship?",
+      message: "Its unsaved changes will be lost.",
+      confirm: "Close ship",
+    },
     unsaved: "unsaved changes",
     saved: "saved",
     undo: "Undo",
@@ -228,8 +232,12 @@ export const en = {
       overlap: "Rooms cannot overlap other rooms.",
       tooSmall: "A room is at least 1 × 1 cell.",
     },
-    confirmDelete: (systems: number) =>
-      `The rooms you are deleting hold ${plural(systems, "system", "systems")}. Delete the rooms together with their systems?`,
+    confirmDelete: {
+      title: "Delete rooms with systems?",
+      message: (systems: number) =>
+        `The rooms you are deleting hold ${plural(systems, "system", "systems")}. The systems are deleted together with the rooms.`,
+      confirm: "Delete",
+    },
     noStationSystem: "This room has no system with a crew station.",
   },
 
@@ -444,8 +452,12 @@ export const en = {
     blueprintName: "Blueprint name",
     baseName: "File name (layout and pictures)",
     invalidId: "Use only letters, digits and underscores.",
-    confirmRename:
-      "This ship comes from the game. With a new save name it is saved as a separate ship and the original stays as it is. Change it?",
+    confirmRename: {
+      title: "Change the save name?",
+      message:
+        "This ship comes from the game. With a new save name it is saved as a separate ship and the original stays as it is.",
+      confirm: "Rename",
+    },
   },
 
   crew: {

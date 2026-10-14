@@ -155,6 +155,21 @@ export interface Notice {
   text: string;
 }
 
+/** A yes/no question asked in the app's own dialog. */
+export interface ConfirmRequest {
+  title: string;
+  message: string;
+  /** The confirm button's verb, e.g. "Delete". */
+  confirm: string;
+  /** Something is lost when confirmed: the confirm button is red and Cancel has the focus. */
+  danger?: boolean;
+}
+
+/** The question on screen and how its answer is passed on. */
+export interface Confirmation extends ConfirmRequest {
+  resolve(yes: boolean): void;
+}
+
 // ---------------------------------------------------------------------------
 
 export interface EditorState {
@@ -178,6 +193,8 @@ export interface EditorState {
   tools: Record<WorkspaceId, ToolId>;
   view: ViewState;
   dialog: DialogId | null;
+  /** The yes/no question on screen, if any. */
+  confirmation: Confirmation | null;
   notice?: Notice;
 
   setGame(game: Partial<GameState>): void;
@@ -214,6 +231,13 @@ export interface EditorState {
   setCamera(camera: Camera): void;
   setPanHeld(held: boolean): void;
   openDialog(dialog: DialogId | null): void;
+  /**
+   * Asks a yes/no question in the app's own dialog and resolves with the
+   * answer. A question still open is answered no.
+   */
+  askConfirm(request: ConfirmRequest): Promise<boolean>;
+  /** Answers the question on screen. */
+  answerConfirm(yes: boolean): void;
   setNotice(notice: Notice | undefined): void;
   setLanguage(language: string): void;
   setTheme(theme: Theme): void;
@@ -254,6 +278,7 @@ export function initialEditorState() {
       panHeld: false,
     },
     dialog: null,
+    confirmation: null as Confirmation | null,
     notice: undefined,
   };
 }
@@ -352,6 +377,17 @@ export const useEditor = create<EditorState>()((set, get) => {
     },
 
     openDialog: (dialog) => set({ dialog }),
+    askConfirm: (request) =>
+      new Promise<boolean>((resolve) => {
+        get().confirmation?.resolve(false);
+        set({ confirmation: { ...request, resolve } });
+      }),
+    answerConfirm: (yes) => {
+      const open = get().confirmation;
+      if (!open) return;
+      set({ confirmation: null });
+      open.resolve(yes);
+    },
     setNotice: (notice) => set({ notice }),
 
     setLanguage: (language) => {
@@ -371,6 +407,7 @@ export const useEditor = create<EditorState>()((set, get) => {
 
 /** Puts the store back to its starting state (tests, and a clean start). */
 export function resetEditorStore(): void {
+  useEditor.getState().confirmation?.resolve(false);
   useEditor.setState(initialEditorState());
 }
 

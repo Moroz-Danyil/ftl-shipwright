@@ -23,14 +23,21 @@ describe("deleting the selection", () => {
 
   it("asks before deleting rooms that hold systems, and does nothing when refused", async () => {
     const platform = createFakePlatform();
-    platform.answers.confirm.push(false);
     state().select(selectionOf({ kind: "room", id: 1 }, { kind: "room", id: 2 }));
-    expect(await deleteSelected({ platform, texts: en })).toBe(false);
-    expect(platform.asked).toEqual([{ kind: "confirm", message: en.layout.confirmDelete(1) }]);
+    const refused = deleteSelected({ platform, texts: en });
+    expect(state().confirmation).toMatchObject({
+      title: en.layout.confirmDelete.title,
+      message: en.layout.confirmDelete.message(1),
+      confirm: en.layout.confirmDelete.confirm,
+      danger: true,
+    });
+    state().answerConfirm(false);
+    expect(await refused).toBe(false);
     expect(ship().layout.rooms).toHaveLength(3);
 
-    platform.answers.confirm.push(true);
-    expect(await deleteSelected({ platform, texts: en })).toBe(true);
+    const agreed = deleteSelected({ platform, texts: en });
+    state().answerConfirm(true);
+    expect(await agreed).toBe(true);
     expect(ship().layout.rooms).toHaveLength(1);
     expect(ship().blueprint.systems.map((s) => s.system)).toEqual(["shields"]);
     expect(state().selection).toEqual(EMPTY_SELECTION);
@@ -43,7 +50,7 @@ describe("deleting the selection", () => {
     const platform = createFakePlatform();
     state().select(selectionOf({ kind: "room", id: 2 }, { kind: "door", index: 3 }));
     expect(await deleteSelected({ platform, texts: en })).toBe(true);
-    expect(platform.asked).toEqual([]);
+    expect(state().confirmation).toBeNull();
     expect(ship().layout.rooms).toHaveLength(2);
     expect(ship().layout.doors).toHaveLength(2);
   });

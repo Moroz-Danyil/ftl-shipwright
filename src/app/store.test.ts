@@ -144,4 +144,21 @@ describe("editor store", () => {
     state().setHangarPreview(true);
     expect(state().view.hangarPreview).toBe(true);
   });
+
+  it("asks a question and resolves with the answer", async () => {
+    const request = { title: "T", message: "M", confirm: "Do" };
+    const yes = state().askConfirm(request);
+    expect(state().confirmation).toMatchObject(request);
+    state().answerConfirm(true);
+    expect(state().confirmation).toBeNull();
+    expect(await yes).toBe(true);
+
+    const first = state().askConfirm(request);
+    const second = state().askConfirm({ ...request, title: "T2" });
+    expect(await first).toBe(false);
+    expect(state().confirmation?.title).toBe("T2");
+    resetEditorStore();
+    expect(await second).toBe(false);
+    expect(state().confirmation).toBeNull();
+  });
 });

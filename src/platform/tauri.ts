@@ -5,7 +5,7 @@
  */
 import { invoke, isTauri } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
-import { ask, open, save } from "@tauri-apps/plugin-dialog";
+import { open, save } from "@tauri-apps/plugin-dialog";
 import { mkdir, readDir, readFile, writeFile } from "@tauri-apps/plugin-fs";
 import type { DatAccess, FolderAccess } from "../core";
 import type { Platform } from "./types";
@@ -72,7 +72,6 @@ export function createTauriPlatform(): Platform {
       return typeof picked === "string" ? picked : null;
     },
     pickSavePath: ({ filters, defaultPath }) => save({ filters, defaultPath }),
-    confirm: (message) => ask(message, { kind: "warning" }),
     setZoom: (factor) => getCurrentWebview().setZoom(factor),
   };
 }

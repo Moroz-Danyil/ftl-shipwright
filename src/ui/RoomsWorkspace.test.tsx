@@ -198,11 +198,41 @@ describe("Rooms inspector", () => {
   });
 
   it("asks before deleting a room with systems", async () => {
+    const texts = en.layout.confirmDelete;
     click(2.5, 1.5);
-    platform.answers.confirm.push(true);
-    fireEvent.click(within(inspector()).getByRole("button", { name: en.inspector.delete }));
+    const ask = () => {
+      fireEvent.click(within(inspector()).getByRole("button", { name: en.inspector.delete }));
+      return screen.findByRole("dialog", { name: texts.title });
+    };
+
+    let dialog = await ask();
+    expect(within(dialog).getByText(texts.message(1))).toBeInTheDocument();
+    expect(within(dialog).getByRole("button", { name: en.common.cancel })).toHaveFocus();
+    fireEvent.click(within(dialog).getByRole("button", { name: en.common.cancel }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(ship().layout.rooms).toHaveLength(3);
+
+    dialog = await ask();
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(ship().layout.rooms).toHaveLength(3);
+    expect(steps()).toBe(0);
+
+    dialog = await ask();
+    const confirm = within(dialog).getByRole("button", { name: texts.confirm });
+    expect(confirm).toHaveClass("btn--destructive");
+    fireEvent.click(confirm);
     await waitFor(() => expect(ship().layout.rooms).toHaveLength(2));
-    expect(platform.asked[0].message).toBe(en.layout.confirmDelete(1));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(steps()).toBe(1);
+  });
+
+  it("asks from the Delete key too", async () => {
+    click(2.5, 1.5);
+    press("Delete");
+    const dialog = await screen.findByRole("dialog", { name: en.layout.confirmDelete.title });
+    fireEvent.click(within(dialog).getByRole("button", { name: en.layout.confirmDelete.confirm }));
+    await waitFor(() => expect(ship().layout.rooms).toHaveLength(2));
   });
 
   it("counts several selected things", () => {

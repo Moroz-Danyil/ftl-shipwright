@@ -47,8 +47,11 @@ export async function deleteSelected(context: CommandContext): Promise<boolean> 
   const { selection } = useEditor.getState();
   if (!ship || isEmptySelection(selection)) return false;
   const systems = systemsInRooms(ship, selection.rooms).length;
-  if (systems > 0 && !(await context.platform.confirm(context.texts.layout.confirmDelete(systems))))
-    return false;
+  if (systems > 0) {
+    const { title, message, confirm } = context.texts.layout.confirmDelete;
+    const request = { title, message: message(systems), confirm, danger: true };
+    if (!(await useEditor.getState().askConfirm(request))) return false;
+  }
   if (useEditor.getState().doc?.history.present.ship !== ship) return false;
   useEditor.getState().edit((s) => deleteSelection(s, selection), EMPTY_SELECTION);
   return true;

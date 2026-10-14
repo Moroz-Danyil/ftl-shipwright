@@ -87,29 +87,27 @@ describe("Hangar and crew actions", () => {
   it("ask before renaming a game ship edited in place", async () => {
     openLoadoutShip({ kind: "game" });
     expect(isGameShipInPlace()).toBe(true);
-    const platform = createFakePlatform();
-    platform.answers.confirm.push(false);
-    expect(await renameShip(platform, en, { name: "MY_T" })).toBe(false);
+    const refused = renameShip(en, { name: "MY_T" });
+    expect(state().confirmation).toMatchObject(en.hangar.confirmRename);
+    expect(state().confirmation?.danger).toBeFalsy();
+    state().answerConfirm(false);
+    expect(await refused).toBe(false);
     expect(bp().name).toBe("PLAYER_SHIP_T");
-    platform.answers.confirm.push(true);
-    expect(await renameShip(platform, en, { name: "MY_T", base: "my_t" })).toBe(true);
+    const agreed = renameShip(en, { name: "MY_T", base: "my_t" });
+    state().answerConfirm(true);
+    expect(await agreed).toBe(true);
     expect(bp()).toMatchObject({ name: "MY_T", layout: "my_t", img: "my_t" });
-    expect(platform.asked.map((a) => a.message)).toEqual([
-      en.hangar.confirmRename,
-      en.hangar.confirmRename,
-    ]);
     expect(isGameShipInPlace()).toBe(false);
-    expect(await renameShip(platform, en, { base: "my_t2" })).toBe(true);
-    expect(platform.asked).toHaveLength(2);
+    expect(await renameShip(en, { base: "my_t2" })).toBe(true);
+    expect(state().confirmation).toBeNull();
   });
 
   it("rename a new ship without asking, refusing invalid names", async () => {
     openLoadoutShip();
-    const platform = createFakePlatform();
-    expect(await renameShip(platform, en, { name: "bad name" })).toBe(false);
+    expect(await renameShip(en, { name: "bad name" })).toBe(false);
     expect(state().notice?.text).toBe(en.hangar.invalidId);
-    expect(await renameShip(platform, en, { name: "GOOD" })).toBe(true);
-    expect(platform.asked).toEqual([]);
+    expect(await renameShip(en, { name: "GOOD" })).toBe(true);
+    expect(state().confirmation).toBeNull();
     state().select(selectionOf({ kind: "weapon", index: 0 }));
     expect(state().selection.weapons).toEqual([0]);
   });

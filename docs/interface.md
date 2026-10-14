@@ -51,6 +51,7 @@ Shown when no ship is open.
 - **Tool rail** (right): the tools of the current workspace, each with a small line icon, its name and its key underneath. Hovering or focusing a tool shows what it does in a panel left of the rail.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** shows the ship as the game's hangar does.
 - **Status bar**: which game data and mod are loaded, counts of rooms and doors, zoom.
+- **Questions** open in the app's own small dialog, never the system's: a title, the message, Cancel and a button named by what it does. Closing a ship with unsaved changes ("Close ship") and deleting rooms that hold systems ("Delete") lose something, so their button is red and the focus starts on Cancel; giving a game ship a new save name ("Rename") starts on Rename. Esc, Cancel and a click outside answer no; Enter presses the focused button.
 
 ## Workspaces
 
@@ -104,7 +105,7 @@ The checks button opens a list of everything about the ship that is unfinished o
 
 ## Saving
 
-**Save mod** saves the ship as a single `.ftl` file (ready for Slipstream Mod Manager) or into a mod folder. Closing the window with unsaved changes asks first.
+**Save mod** saves the ship as a single `.ftl` file (ready for Slipstream Mod Manager) or into a mod folder. Closing the ship (the logo in the top bar) with unsaved changes asks first.
 
 ## Settings
 

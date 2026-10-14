@@ -280,16 +280,47 @@ describe("editor window", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("asks before closing a ship with unsaved changes", async () => {
+  it("asks in its own dialog before closing a ship with unsaved changes", async () => {
     act(() => state().edit((s) => addRoom(s, { x: 4, y: 0, w: 1, h: 1 })));
     const close = screen.getByRole("button", { name: en.topBar.closeShip });
-    platform.answers.confirm.push(false);
-    fireEvent.click(close);
-    await act(async () => {});
+    const ask = async () => {
+      fireEvent.click(close);
+      return screen.findByRole("dialog", { name: en.topBar.confirmClose.title });
+    };
+
+    let dialog = await ask();
+    expect(within(dialog).getByText(en.topBar.confirmClose.message)).toBeInTheDocument();
+    const cancel = within(dialog).getByRole("button", { name: en.common.cancel });
+    expect(cancel).toHaveFocus();
+    expect(
+      within(dialog).getByRole("button", { name: en.topBar.confirmClose.confirm })
+    ).toHaveClass("btn--destructive");
+    fireEvent.click(cancel);
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
     expect(state().doc).toBeDefined();
-    platform.answers.confirm.push(true);
-    fireEvent.click(close);
+
+    dialog = await ask();
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(state().doc).toBeDefined();
+
+    dialog = await ask();
+    fireEvent.click(within(dialog).getByRole("button", { name: en.topBar.confirmClose.confirm }));
     expect(await screen.findByText(en.app.name)).toBeInTheDocument();
-    expect(platform.asked.filter((a) => a.kind === "confirm")).toHaveLength(2);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("closes a saved ship without asking", async () => {
+    fireEvent.click(screen.getByRole("button", { name: en.topBar.closeShip }));
+    expect(await screen.findByText(en.app.name)).toBeInTheDocument();
+    expect(state().confirmation).toBeNull();
+  });
+
+  it("keeps the editor's keys away while a question is open", async () => {
+    act(() => state().edit((s) => addRoom(s, { x: 4, y: 0, w: 1, h: 1 })));
+    fireEvent.click(screen.getByRole("button", { name: en.topBar.closeShip }));
+    await screen.findByRole("dialog");
+    press("Digit3");
+    expect(state().workspace).toBe("rooms");
   });
 });
