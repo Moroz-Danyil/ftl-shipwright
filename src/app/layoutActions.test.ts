@@ -6,7 +6,6 @@ import { runCommand } from "./commands";
 import {
   changeRoomValues,
   deleteSelected,
-  deleteStation,
   nudgeSelection,
   placeStationAt,
   turnStation,
@@ -99,12 +98,13 @@ describe("inspector edits", () => {
     expect(steps()).toBe(1);
   });
 
-  it("place, turn and delete a station, each one step", () => {
+  it("place, turn and delete a station, each one step", async () => {
     placeStationAt(1, 0);
     expect(ship().blueprint.systems[1].slot).toEqual({ number: 0, direction: "left" });
     turnStation(1, "up");
     expect(ship().blueprint.systems[1].slot!.direction).toBe("up");
-    deleteStation(1);
+    useEditor.getState().select(selectionOf({ kind: "station", system: 1 }));
+    expect(await deleteSelected({ platform: createFakePlatform(), texts: en })).toBe(true);
     expect(ship().blueprint.systems[1].slot).toBeUndefined();
     expect(steps()).toBe(3);
   });

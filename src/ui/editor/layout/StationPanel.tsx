@@ -1,6 +1,6 @@
 /** The selected crew station: its system, cell and facing, which can be turned. */
 import type { Ship } from "../../../core";
-import { deleteStation, turnStation } from "../../../app/layoutActions";
+import { turnStation } from "../../../app/layoutActions";
 import { DIRECTIONS, stationOf } from "../../../app/layout/stations";
 import { systemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
@@ -45,11 +45,6 @@ export function StationPanel({ ship, system }: { ship: Ship; system: number }) {
             </button>
           ))}
         </div>
-      </div>
-      <div>
-        <button type="button" className="btn btn--danger" onClick={() => deleteStation(system)}>
-          {texts.inspector.delete}
-        </button>
       </div>
     </>
   );

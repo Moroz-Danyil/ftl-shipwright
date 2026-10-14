@@ -2,8 +2,8 @@
  * The Rooms inspector: with nothing selected, the palette of systems; for a
  * selected room, its systems, the palette, position and size; for a door, a
  * station or several things, their panel. Help for the current tool comes
- * last, and with the Station tool the choice of which station it places
- * comes first.
+ * next and Delete (for any selection) last; with the Station tool the choice
+ * of which station it places comes first.
  */
 import { selectionSize, singleTarget } from "../../app/selection";
 import { currentTool, useEditor } from "../../app/store";
@@ -34,7 +34,6 @@ function Several() {
           )}
         </span>
       </div>
-      <DeleteButton />
     </>
   );
 }
@@ -73,12 +72,14 @@ function SelectionPanel({ ship }: { ship: Ship }) {
 export function RoomsInspector() {
   const ship = useEditor((s) => s.doc?.history.present.ship);
   const tool = useEditor(currentTool);
+  const selected = useEditor((s) => selectionSize(s.selection) > 0);
   if (!ship) return null;
   return (
     <>
       {tool === "station" && <StationChooser ship={ship} />}
       <SelectionPanel ship={ship} />
       <ToolHelp />
+      {selected && <DeleteButton />}
     </>
   );
 }

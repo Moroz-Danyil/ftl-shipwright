@@ -8,7 +8,7 @@ import type { CommandContext } from "./commands";
 import { addDoorOnWall, type WallSegment } from "./layout/doors";
 import { deleteSelection, systemsInRooms } from "./layout/remove";
 import { addRoomChecked, changeRoom, moveRooms, type PlaceProblem } from "./layout/rooms";
-import { placeStation, removeStation, setStationDirection } from "./layout/stations";
+import { placeStation, setStationDirection } from "./layout/stations";
 import { EMPTY_SELECTION, isEmptySelection, selectionOf } from "./selection";
 import { useEditor } from "./store";
 
@@ -96,8 +96,4 @@ export function placeStationAt(system: number, number: number): void {
 
 export function turnStation(system: number, direction: StationDirection): void {
   useEditor.getState().edit((s) => setStationDirection(s, system, direction));
-}
-
-export function deleteStation(system: number): void {
-  useEditor.getState().edit((s) => removeStation(s, system), EMPTY_SELECTION);
 }

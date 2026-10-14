@@ -13,7 +13,6 @@ import { NumberField } from "../../common/NumberField";
 import { Section } from "../../common/Section";
 import { AddSystem } from "../systems/Palette";
 import { RoomSystems } from "../systems/RoomSystems";
-import { DeleteButton } from "./DeleteButton";
 
 function useSystemNames(ship: Ship, room: Room): string[] {
   const texts = useTexts();
@@ -88,7 +87,6 @@ export function RoomPanel({ ship, room }: { ship: Ship; room: Room }) {
       <RoomSystems ship={ship} room={room} />
       <AddSystem hint={texts.systems.helpRoom} />
       <Position key={room.id} ship={ship} room={room} />
-      <DeleteButton />
     </>
   );
 }

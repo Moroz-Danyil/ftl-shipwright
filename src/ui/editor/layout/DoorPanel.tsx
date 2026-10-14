@@ -2,7 +2,6 @@
 import { doorRooms, type Door, type Ship } from "../../../core";
 import { doorKind } from "../../../canvas/doors";
 import { useTexts } from "../../../text";
-import { DeleteButton } from "./DeleteButton";
 
 function Value({ label, value }: { label: string; value: string | number }) {
   return (
@@ -47,7 +46,6 @@ export function DoorPanel({ ship, door, index }: { ship: Ship; door: Door; index
       {kind === "loose" && (
         <div className="ed-group ed-group--problem">{texts.inspector.loose}</div>
       )}
-      <DeleteButton />
     </>
   );
 }
