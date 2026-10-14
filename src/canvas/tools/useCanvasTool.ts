@@ -1,6 +1,7 @@
 /**
  * The current tool of the canvas, with the overlay it draws. The Select tool
- * moves rooms only in Rooms and picks mounts and gibs in Hull.
+ * moves rooms only in Rooms and picks mounts and gibs in Hull; every Hull
+ * tool also turns the selected gib's direction with its fan.
  */
 import { useEffect, useMemo, useState } from "react";
 import { setGestureCancel } from "../../app/gesture";
@@ -12,6 +13,7 @@ import {
   createGibTool,
   createMountTool,
   createMovePictureTool,
+  withGibDirection,
 } from "./artTools";
 import { createDoorTool, createRoomTool, createStationTool } from "./placeTools";
 import { createSelectTool } from "./selectTool";
@@ -34,6 +36,11 @@ export function createTool(
   context: ToolContext,
   workspace: WorkspaceId = "rooms"
 ): CanvasTool {
+  const tool = createPlainTool(id, context, workspace);
+  return workspace === "hull" ? withGibDirection(tool, context) : tool;
+}
+
+function createPlainTool(id: ToolId, context: ToolContext, workspace: WorkspaceId): CanvasTool {
   if (id === "select")
     return workspace === "hull"
       ? createArtSelectTool(context)

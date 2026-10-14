@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { memorySource, mountPositionPx, type Mount, type Ship } from "../../core";
 import { testShip } from "../../testing/layoutFixtures";
 import { weaponFramePoint, weaponTransform } from "../../canvas/weaponDraw";
-import { gibMotionAt } from "./explosion";
+import { EXPLOSION_SECONDS, gibMotionAt, previewDistance } from "./explosion";
 import { NEW_GIB, addGib, moveGibs, removeGibs, setGibPicture, updateGib } from "./gibs";
 import { gamePicture, type ShipArt, type ShipSnapshot } from "./model";
 import {
@@ -185,12 +185,18 @@ describe("gibs", () => {
     expect(gibMotionAt(gib, 0, 0)).toEqual({ dx: 0, dy: -0, angle: 0 });
     const later = gibMotionAt(gib, 0, 0.5);
     expect(later.dx).toBeCloseTo(0);
-    expect(later.dy).toBeCloseTo(-30);
-    expect(later.angle).toBeCloseTo(30);
+    expect(later.dy).toBeCloseTo(-10);
+    expect(later.angle).toBeCloseTo(10);
     const right = gibMotionAt({ ...gib, direction: { min: 90, max: 90 } }, 2, 1);
-    expect(right.dx).toBeCloseTo(60);
+    expect(right.dx).toBeCloseTo(20);
     expect(right.dy).toBeCloseTo(0);
     expect(gibMotionAt(NEW_GIB, 3, 1)).toEqual(gibMotionAt(NEW_GIB, 3, 1));
+  });
+
+  it("fly as far in the preview at ×1 as the fan's arrows show", () => {
+    const gib = { ...NEW_GIB, velocity: { min: 0.5, max: 0.5 }, direction: { min: 0, max: 0 } };
+    expect(-gibMotionAt(gib, 0, EXPLOSION_SECONDS).dy).toBeCloseTo(previewDistance(0.5));
+    expect(previewDistance(1)).toBe(100);
   });
 });
 

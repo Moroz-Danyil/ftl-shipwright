@@ -1,15 +1,17 @@
 /**
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
- * interiors, doors, system icons, crew, mounts and the current tool's
- * overlay.
+ * interiors, doors, system icons, crew, mounts, the selected gib's direction
+ * fan (Hull) and the current tool's overlay.
  * In Hull the hull, floor, shield and mounts are always shown (the cloak
  * follows its layer); the Gib tool shows only the hull and the gibs, and
  * during the explosion preview only the gibs are drawn.
  */
 import { useMemo } from "react";
 import type { Rect } from "../core";
+import { singleTarget } from "../app/selection";
 import { currentTool, useEditor } from "../app/store";
 import { gibRectPx } from "./artHitTest";
+import { GibFan } from "./GibFan";
 import { CellZeroEdge, GridLines, ViewLimitFrame } from "./GridLayer";
 import { MountsLayer } from "./MountsLayer";
 import { ShipPictures } from "./ShipPictures";
@@ -51,6 +53,14 @@ export function ShipScene({ area, overlay, explosion }: Props) {
   const { ship } = snapshot;
   const playing = explosion !== undefined;
   const ids = layers.roomNumbers && workspace === "rooms" ? "all" : "selected";
+  const target = singleTarget(selection);
+  const fanGib = art && !view.hangarPreview && target?.kind === "gib" ? target.index : undefined;
+  const fanDirection =
+    fanGib === undefined
+      ? undefined
+      : overlay?.kind === "direction" && overlay.gib === fanGib
+        ? overlay.direction
+        : ship.layoutXml.gibs[fanGib]?.direction;
 
   return (
     <>
@@ -101,6 +111,15 @@ export function ShipScene({ area, overlay, explosion }: Props) {
               hovered={equipment ? hoverWeapon : null}
               onHover={equipment ? setHoverWeapon : undefined}
               weapons={weapons}
+            />
+          )}
+          {fanGib !== undefined && fanDirection && (
+            <GibFan
+              ship={ship}
+              art={snapshot.art}
+              index={fanGib}
+              direction={fanDirection}
+              scale={view.camera.scale}
             />
           )}
           {!gibView && <ViewLimitFrame ship={ship} />}

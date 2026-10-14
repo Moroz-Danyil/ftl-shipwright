@@ -9,6 +9,7 @@ import {
   type Ship,
 } from "../core";
 import { HAS_GAME_DATA, readData, vanillaShips } from "../core/testing/gameData";
+import { directionTo, draggedDirection, fanPath, pointAt } from "./directionFan";
 import { doorKind } from "./doors";
 import { shipBounds } from "./fit";
 import { hitTest } from "./hitTest";
@@ -177,5 +178,40 @@ describe("pictures", () => {
     ]);
     expect(pngSize(header)).toEqual({ width: 652, height: 418 });
     expect(pngSize(new Uint8Array([1, 2, 3]))).toBeUndefined();
+  });
+});
+
+describe("the direction fan", () => {
+  const centre = { x: 100, y: 100 };
+
+  it("measures directions from up, clockwise", () => {
+    expect(directionTo(centre, { x: 100, y: 50 })).toBe(0);
+    expect(directionTo(centre, { x: 150, y: 100 })).toBe(90);
+    expect(directionTo(centre, { x: 100, y: 150 })).toBe(180);
+    expect(directionTo(centre, { x: 50, y: 100 })).toBe(270);
+    const p = pointAt(centre, 90, 10);
+    expect(p.x).toBeCloseTo(110);
+    expect(p.y).toBeCloseTo(100);
+  });
+
+  it("drags to whole degrees, snaps to 15° with Shift and sweeps past 0 and 360", () => {
+    const at = (degrees: number) => pointAt(centre, degrees, 50);
+    expect(draggedDirection(centre, at(41.4), 30, false)).toBe(41);
+    expect(draggedDirection(centre, at(41.4), 30, true)).toBe(45);
+    expect(draggedDirection(centre, at(52), 30, true)).toBe(45);
+    expect(draggedDirection(centre, at(10), 355, false)).toBe(370);
+    expect(draggedDirection(centre, at(340), 5, false)).toBe(-20);
+    expect(draggedDirection(centre, at(340), 300, false)).toBe(340);
+  });
+
+  it("draws a wedge, a band, and a full ring for a whole turn", () => {
+    const fan = { centre, inner: 0, outer: 50, direction: { min: 0, max: 90 } };
+    expect(fanPath(fan, 0, 50)).toBe("M100 50A50 50 0 0 1 150 100L100 100Z");
+    expect(fanPath(fan, 20, 50)).toBe("M100 50A50 50 0 0 1 150 100L120 100A20 20 0 0 0 100 80Z");
+    const back = { ...fan, direction: { min: 90, max: -90 } };
+    expect(fanPath(back, 0, 50)).toBe("M150 100A50 50 0 0 0 50 100L100 100Z");
+    const whole = { ...fan, direction: { min: 0, max: 360 } };
+    expect(fanPath(whole, 0, 50).match(/A/g)).toHaveLength(2);
+    expect(fanPath(whole, 20, 50).match(/A/g)).toHaveLength(4);
   });
 });

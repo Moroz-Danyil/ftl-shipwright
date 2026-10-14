@@ -5,6 +5,7 @@
  */
 import { create } from "zustand";
 import type { Animations, Catalogs, FileSource, GameTexts, GameView, Ship } from "../core";
+import { DEFAULT_EXPLOSION_SPEED, type ExplosionSpeed } from "./art/explosion";
 import type { PictureSlot, ShipArt, ShipSnapshot } from "./art/model";
 import type { MovablePicture } from "./art/pictures";
 import type { ModRef } from "../platform/types";
@@ -200,6 +201,8 @@ export interface EditorState {
   dialog: DialogId | null;
   /** The ship overview shows only the items that need a look (for the session). */
   overviewNeedsOnly: boolean;
+  /** The speed the explosion preview plays at (for the session). */
+  explosionSpeed: ExplosionSpeed;
   /** The yes/no question on screen, if any. */
   confirmation: Confirmation | null;
   notice?: Notice;
@@ -239,6 +242,7 @@ export interface EditorState {
   setPanHeld(held: boolean): void;
   openDialog(dialog: DialogId | null): void;
   setOverviewNeedsOnly(on: boolean): void;
+  setExplosionSpeed(speed: ExplosionSpeed): void;
   /**
    * Asks a yes/no question in the app's own dialog and resolves with the
    * answer. A question still open is answered no.
@@ -296,6 +300,7 @@ export function initialEditorState() {
     },
     dialog: null,
     overviewNeedsOnly: false,
+    explosionSpeed: DEFAULT_EXPLOSION_SPEED as ExplosionSpeed,
     confirmation: null as Confirmation | null,
     notice: undefined,
   };
@@ -396,6 +401,7 @@ export const useEditor = create<EditorState>()((set, get) => {
 
     openDialog: (dialog) => set({ dialog }),
     setOverviewNeedsOnly: (overviewNeedsOnly) => set({ overviewNeedsOnly }),
+    setExplosionSpeed: (explosionSpeed) => set({ explosionSpeed }),
     askConfirm: (request) =>
       new Promise<boolean>((resolve) => {
         get().confirmation?.resolve(false);

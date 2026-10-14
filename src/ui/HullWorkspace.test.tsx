@@ -1,11 +1,22 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { addMount, type Point } from "../core";
+import { EXPLOSION_SECONDS } from "../app/art/explosion";
 import { addGib } from "../app/art/gibs";
 import { gamePicture } from "../app/art/model";
 import { useEditor } from "../app/store";
 import { gibRectPx } from "../canvas/artHitTest";
+import { fanGeometry, pointAt } from "../canvas/directionFan";
+import { useExplosion } from "../canvas/useExplosion";
 import { en } from "../text/en";
 import { openArtShip } from "../testing/artFixtures";
 import { createFakePlatform, type FakePlatform } from "../testing/fakePlatform";
@@ -267,6 +278,123 @@ describe("Hull: a gib gone from under the pointer", () => {
     act(() => state().undo());
     expect(screen.queryByTestId("gib-3")).toBeNull();
     expect(screen.getByRole("button", { name: en.art.playExplosion })).toBeInTheDocument();
+  });
+});
+
+describe("Hull: the explosion's speed", () => {
+  it("offers speeds next to Play explosion, remembered for the session", () => {
+    const speeds = screen.getByRole("group", { name: en.art.explosionSpeed });
+    const options = within(speeds).getAllByRole("button");
+    expect(options.map((b) => b.textContent)).toEqual(["×0.25", "×0.5", "×1", "×2"]);
+    expect(within(speeds).getByRole("button", { name: en.art.speedNamed(1) })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    fireEvent.click(within(speeds).getByRole("button", { name: en.art.speedNamed(0.25) }));
+    expect(state().explosionSpeed).toBe(0.25);
+    expect(within(speeds).getByRole("button", { name: en.art.speedNamed(0.25) })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    const { ship, art } = snap();
+    act(() => state().closeDocument());
+    act(() => state().openDocument({ ship, art, saved: true }));
+    press("Digit3");
+    expect(
+      within(screen.getByRole("group", { name: en.art.explosionSpeed })).getByRole("button", {
+        name: en.art.speedNamed(0.25),
+      })
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("scales the motion by the speed and plays for the same time on the clock", () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((frame) => {
+      frames.push(frame);
+      return frames.length;
+    });
+    vi.spyOn(performance, "now").mockReturnValue(1000);
+    const { result } = renderHook(() => useExplosion());
+    const secondsAt = (clock: number) => {
+      act(() => frames.shift()!(clock));
+      return result.current.seconds;
+    };
+    for (const speed of [0.25, 2] as const) {
+      act(() => state().setExplosionSpeed(speed));
+      act(() => result.current.play());
+      expect(secondsAt(1000)).toBe(0);
+      expect(secondsAt(2000)).toBe(speed);
+      expect(secondsAt(1000 + 1000 * EXPLOSION_SECONDS)).toBeUndefined();
+      expect(frames).toHaveLength(0);
+    }
+  });
+});
+
+describe("Hull: the direction fan", () => {
+  const fan = () => screen.queryByTestId("gib-fan");
+  const handle = (end: "min" | "max") => {
+    const circle = screen.getByTestId(`gib-fan-${end}`);
+    return { x: Number(circle.getAttribute("cx")), y: Number(circle.getAttribute("cy")) };
+  };
+  /** A ship pixel in a direction from the selected gib's centre. */
+  const towards = (degrees: number) => {
+    const { selection, view } = state();
+    const index = selection.gibs[0];
+    const gib = snap().ship.layoutXml.gibs[index];
+    const geometry = fanGeometry(snap().ship, snap().art, index, gib.direction, view.camera.scale)!;
+    return pointAt(geometry.centre, degrees, geometry.outer + 20);
+  };
+  const turn = (from: Point, to: Point, shift = false) => {
+    fireEvent.pointerDown(canvas(), { button: 0, shiftKey: shift, ...screenAt(from) });
+    fireEvent.pointerMove(canvas(), {
+      shiftKey: shift,
+      ...screenAt({ x: from.x + 20, y: from.y }),
+    });
+    fireEvent.pointerMove(canvas(), { shiftKey: shift, ...screenAt(to) });
+    fireEvent.pointerUp(canvas(), { button: 0, shiftKey: shift, ...screenAt(to) });
+  };
+
+  beforeEach(async () => {
+    press("KeyG");
+    await screen.findByTestId("gib-2");
+  });
+
+  it("is drawn for the selected gib with any tool, but not during the explosion", async () => {
+    expect(fan()).toBeNull();
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.art.selectGib(2) }));
+    expect(fan()).toHaveAttribute("data-gib", "2");
+    expect(fan()).toHaveAttribute("data-min", "180");
+    expect(fan()).toHaveAttribute("data-max", "270");
+    press("KeyH");
+    expect(fan()).toBeInTheDocument();
+    press("KeyQ");
+    expect(fan()).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: en.art.playExplosion }));
+    await waitFor(() => expect(fan()).toBeNull());
+    press("Digit2");
+    expect(fan()).toBeNull();
+  });
+
+  it("turns the max end by dragging its handle, as one step", () => {
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.art.selectGib(2) }));
+    const before = steps();
+    turn(handle("max"), towards(300));
+    expect(snap().ship.layoutXml.gibs[1].direction).toEqual({ min: 180, max: 300 });
+    expect(steps()).toBe(before + 1);
+    expect(state().selection.gibs).toEqual([1]);
+    expect(fan()).toHaveAttribute("data-max", "300");
+    const direction = within(inspector()).getByRole("group", { name: en.art.direction });
+    expect(within(direction).getByLabelText(en.art.max)).toHaveValue(300);
+  });
+
+  it("turns the min end, snapping to 15° with Shift", () => {
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.art.selectGib(2) }));
+    turn(handle("min"), towards(197), true);
+    expect(snap().ship.layoutXml.gibs[1].direction).toEqual({ min: 195, max: 270 });
+    turn(handle("min"), towards(163));
+    expect(snap().ship.layoutXml.gibs[1].direction).toEqual({ min: 163, max: 270 });
+    act(() => state().undo());
+    expect(snap().ship.layoutXml.gibs[1].direction).toEqual({ min: 195, max: 270 });
   });
 });
 

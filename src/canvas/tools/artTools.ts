@@ -1,16 +1,19 @@
 /**
  * The Hull tools: Move picture drags a picture; Mount adds mounts and
  * drags them; Gib selects and drags gibs; Select picks mounts (and gibs when
- * they are shown). Drags move by whole pixels and are one undo step.
+ * they are shown). Drags move by whole pixels and are one undo step. With
+ * any of them, the handles of the selected gib's direction fan turn its
+ * direction range.
  */
-import { mountPositionPx, type Point, type Ship } from "../../core";
-import { addMountAtPoint, moveSelectedArt, moveShipPicture } from "../../app/artActions";
+import { mountPositionPx, type Point, type Range, type Ship } from "../../core";
+import { addMountAtPoint, changeGib, moveSelectedArt, moveShipPicture } from "../../app/artActions";
 import type { ShipArt } from "../../app/art/model";
 import type { MovablePicture } from "../../app/art/pictures";
 import {
   EMPTY_SELECTION,
   isSelected,
   selectionOf,
+  singleTarget,
   toggleTarget,
   type Target,
 } from "../../app/selection";
@@ -23,6 +26,7 @@ import {
   pictureAt,
   pictureRectPx,
 } from "../artHitTest";
+import { draggedDirection, fanGeometry, fanHandleAt, type FanEnd } from "../directionFan";
 import { draggedFar, type CanvasTool, type ToolContext, type ToolPointer } from "./types";
 
 /** The pictures shown in Hull: all but the cloak, which follows its layer. */
@@ -206,4 +210,92 @@ export function createArtSelectTool(context: ToolContext): CanvasTool {
       (useEditor.getState().view.layers.gibs ? findGib(ship, art, pointer) : undefined),
     clear
   );
+}
+
+/** The selected gib (when exactly one thing, a gib, is selected) and its fan. */
+function selectedFan(scale: number) {
+  const snap = current();
+  const target = singleTarget(useEditor.getState().selection);
+  if (!snap || target?.kind !== "gib") return undefined;
+  const gib = snap.ship.layoutXml.gibs[target.index];
+  if (!gib) return undefined;
+  const fan = fanGeometry(snap.ship, snap.art, target.index, gib.direction, scale);
+  return fan && { index: target.index, fan };
+}
+
+/**
+ * Gives a Hull tool the handles of the selected gib's direction fan: a
+ * press on a handle drags that end of the direction range (whole degrees,
+ * Shift snaps to 15°) and the change is one undo step; any other press goes
+ * to the tool.
+ */
+export function withGibDirection(tool: CanvasTool, context: ToolContext): CanvasTool {
+  let drag: {
+    index: number;
+    end: FanEnd;
+    start: Point;
+    centre: Point;
+    direction: Range;
+    moving: boolean;
+  } | null = null;
+  const stop = () => {
+    drag = null;
+    context.setOverlay(null);
+    context.setGesture(null);
+  };
+
+  return {
+    down(pointer) {
+      const selected = selectedFan(pointer.scale);
+      const end = selected && fanHandleAt(selected.fan, pointer.p, pointer.scale);
+      if (!selected || !end) {
+        tool.down(pointer);
+        return;
+      }
+      const { index, fan } = selected;
+      drag = {
+        index,
+        end,
+        start: pointer.p,
+        centre: fan.centre,
+        direction: fan.direction,
+        moving: false,
+      };
+      context.setOverlay({ kind: "direction", gib: index, direction: fan.direction });
+      context.setGesture(stop);
+    },
+    move(pointer) {
+      if (!drag) {
+        tool.move(pointer);
+        return;
+      }
+      if (!drag.moving && !draggedFar(drag.start, pointer.p, pointer.scale)) return;
+      const value = draggedDirection(
+        drag.centre,
+        pointer.p,
+        drag.direction[drag.end],
+        pointer.shift
+      );
+      drag = { ...drag, moving: true, direction: { ...drag.direction, [drag.end]: value } };
+      context.setOverlay({ kind: "direction", gib: drag.index, direction: drag.direction });
+    },
+    up(pointer) {
+      const d = drag;
+      if (!d) {
+        tool.up(pointer);
+        return;
+      }
+      stop();
+      const before = current()?.ship.layoutXml.gibs[d.index]?.direction;
+      if (before && (before.min !== d.direction.min || before.max !== d.direction.max))
+        changeGib(d.index, { direction: d.direction });
+    },
+    leave() {
+      if (!drag) tool.leave();
+    },
+    cancel() {
+      if (drag) stop();
+      tool.cancel();
+    },
+  };
 }

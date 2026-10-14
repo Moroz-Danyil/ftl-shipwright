@@ -385,7 +385,10 @@ export const en = {
     selectGib: (n: number) => `Select gib ${n} on the ship`,
     playExplosion: "Play explosion",
     explosionApprox:
-      "The explosion preview is approximate; the game's units for speed and turning are not confirmed yet.",
+      "The explosion preview is approximate; the game's units for speed and turning are not confirmed yet. Pick the speed that matches the game.",
+    explosionSpeed: "Explosion speed",
+    speed: (speed: number) => `×${speed}`,
+    speedNamed: (speed: number) => `Play the explosion at ×${speed}`,
     several: (mounts: number, gibs: number) =>
       [
         mounts > 0 ? plural(mounts, "mount", "mounts") : "",

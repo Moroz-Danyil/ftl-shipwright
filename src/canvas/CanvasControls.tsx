@@ -1,9 +1,10 @@
 /**
- * The buttons in the canvas corner: Play explosion (Hull), the Layers
+ * The buttons in the canvas corner: Play explosion with its speed (Hull), the Layers
  * menu and Preview in hangar, which opens the hangar screen over the editor.
  * In Hull the menu notes that the Gib tool shows only the hull and the gibs.
  */
 import { useEffect, useRef, useState } from "react";
+import { EXPLOSION_SPEEDS } from "../app/art/explosion";
 import { LAYERS, useEditor } from "../app/store";
 import { useTexts } from "../text";
 
@@ -30,7 +31,31 @@ function LayersMenu({ onClose }: { onClose: () => void }) {
   );
 }
 
-/** `onPlayExplosion`: shows the Play explosion button (Hull). */
+/** The speed the explosion preview plays at, remembered for the session. */
+function SpeedChoice() {
+  const texts = useTexts();
+  const speed = useEditor((s) => s.explosionSpeed);
+  const setSpeed = useEditor((s) => s.setExplosionSpeed);
+  return (
+    <div className="cv-speed" role="group" aria-label={texts.art.explosionSpeed}>
+      {EXPLOSION_SPEEDS.map((option) => (
+        <button
+          key={option}
+          type="button"
+          className="cv-speed-option"
+          aria-pressed={option === speed}
+          aria-label={texts.art.speedNamed(option)}
+          title={texts.art.speedNamed(option)}
+          onClick={() => setSpeed(option)}
+        >
+          {texts.art.speed(option)}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/** `onPlayExplosion`: shows the Play explosion button and its speed (Hull). */
 export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => void }) {
   const texts = useTexts();
   const setPreview = useEditor((s) => s.setHangarPreview);
@@ -50,14 +75,17 @@ export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => vo
     <div className="cv-controls" ref={box} onPointerDown={(e) => e.stopPropagation()}>
       {open && <LayersMenu onClose={() => setOpen(false)} />}
       {onPlayExplosion && (
-        <button
-          type="button"
-          className="btn btn--small btn--panel"
-          title={texts.art.explosionApprox}
-          onClick={onPlayExplosion}
-        >
-          {texts.art.playExplosion}
-        </button>
+        <div className="cv-explosion">
+          <button
+            type="button"
+            className="btn btn--small btn--panel"
+            title={texts.art.explosionApprox}
+            onClick={onPlayExplosion}
+          >
+            {texts.art.playExplosion}
+          </button>
+          <SpeedChoice />
+        </div>
       )}
       <button
         type="button"

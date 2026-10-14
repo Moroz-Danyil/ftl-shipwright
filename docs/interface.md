@@ -100,7 +100,8 @@ Rooms, doors, the systems in the rooms and the crew stations.
 - Pictures (hull, floor, cloak, shield, ship icon) are chosen from the game or from a PNG file.
 - **Weapon mounts** lists the mounts (at most 8) with the weapon drawn on each; a click selects a mount on the ship, the cross removes it. The Mount tool adds mounts.
 - A selected mount shows its number (the weapon slot drawn on it), buttons to move it earlier or later, **Rotate** and **Mirror** (also `[` and `]`), the direction the weapon slides out, the explosion piece it flies off with, and whether it moves together with the hull picture.
-- The explosion pieces are listed with their pictures; the explosion can be played on the canvas.
+- The explosion pieces are listed with their pictures; the explosion can be played on the canvas. The preview is approximate (the game's units for speed and turning are not confirmed), so it plays at a chosen speed, ×0.25, ×0.5, ×1 or ×2 next to **Play explosion**, to match the game by eye; the choice is kept until the app is closed.
+- A selected gib shows its direction on the canvas with any Hull tool: a translucent amber fan from its centre between its direction min and max (0 up, clockwise), with an arrow along each edge from where its slowest to where its fastest piece would be at the end of the preview at ×1. Dragging the handle at an arrow's tip turns that end of the range in whole degrees (Shift snaps to 15°), one undo step per drag. The fan is hidden during the explosion and in the hangar preview.
 - While the Gib tool is chosen the canvas shows only the hull picture and the gibs (with their selection); the rooms, doors, interiors, icons, crew, mounts, shield, floor, cloak, grid and frame come back with any other tool. The Layers menu keeps its choices and says so in a short note.
 
 ## Ship overview

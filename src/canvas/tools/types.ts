@@ -2,7 +2,7 @@
  * What the canvas tools share: the pointer as they see it, what they draw
  * over the ship while working, and their common shape.
  */
-import type { Point, Rect } from "../../core";
+import type { Point, Range, Rect } from "../../core";
 import type { WallSegment } from "../../app/layout/doors";
 import type { Target } from "../../app/selection";
 import type { Texts } from "../../text";
@@ -23,7 +23,9 @@ export type Overlay =
   | { kind: "wall"; wall: WallSegment; exists: boolean }
   | { kind: "cell"; cell: Point; ok: boolean }
   | { kind: "outline"; rect: Rect }
-  | { kind: "artGhost"; mounts: Point[]; gibs: Rect[] };
+  | { kind: "artGhost"; mounts: Point[]; gibs: Rect[] }
+  /** The direction range of a gib (by index) while an end of its fan is dragged. */
+  | { kind: "direction"; gib: number; direction: Range };
 
 export interface CanvasTool {
   down(pointer: ToolPointer): void;

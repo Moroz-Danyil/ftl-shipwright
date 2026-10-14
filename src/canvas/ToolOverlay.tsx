@@ -2,6 +2,7 @@
  * What the current tool draws over the ship: the hover outline, the
  * selection box, ghost rooms (red when refused), the wall under the Door tool
  * the cell under the Station tool, picture outlines and dragged mounts and gibs.
+ * A gib's direction being dragged is drawn by its fan instead.
  */
 import { CELL_SIZE, cellToPx, mountPositionPx, roomRectPx, type Rect, type Ship } from "../core";
 import type { ShipArt } from "../app/art/model";
@@ -83,6 +84,8 @@ export function ToolOverlay({ ship, art, overlay }: Props) {
   switch (overlay.kind) {
     case "hover":
       return <Hover ship={ship} art={art} target={overlay.target} />;
+    case "direction":
+      return null;
     case "outline":
       return (
         <rect
