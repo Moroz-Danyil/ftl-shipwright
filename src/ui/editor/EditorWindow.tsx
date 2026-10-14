@@ -14,6 +14,7 @@ import { StatusBar } from "./StatusBar";
 import { DragChip } from "./systems/DragChip";
 import { TopBar } from "./TopBar";
 import { Tour } from "./Tour";
+import { TourOffer } from "./TourOffer";
 
 export function EditorWindow() {
   const dialog = useEditor((s) => s.dialog);
@@ -31,6 +32,7 @@ export function EditorWindow() {
         {dialog === "save" && <SaveDialog />}
         {dialog === "overview" && <OverviewDialog />}
         {dialog === "picture" && <PicturePicker />}
+        {dialog === "tourOffer" && <TourOffer />}
         <DragChip />
         {preview && <HangarPreview />}
       </div>

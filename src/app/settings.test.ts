@@ -9,6 +9,7 @@ import {
   loadKeyMap,
   loadLanguage,
   loadMod,
+  loadOfferTour,
   loadOpenSections,
   loadRecent,
   loadTheme,
@@ -17,6 +18,7 @@ import {
   saveKeyMap,
   saveLanguage,
   saveMod,
+  saveOfferTour,
   saveRecent,
   saveSectionOpen,
   saveTheme,
@@ -145,5 +147,21 @@ describe("the look of the interface", () => {
     expect(loadKeyMap(store)).toEqual({ ...DEFAULT_KEYS, "tool.gib": "K" });
     store.data.set("shipwright.shortcuts", "{broken");
     expect(loadKeyMap(store)).toEqual(DEFAULT_KEYS);
+  });
+});
+
+describe("the offer of a tour", () => {
+  it("offers it until told not to; anything but false reads as yes", () => {
+    const store = memoryStore();
+    expect(loadOfferTour(store)).toBe(true);
+    saveOfferTour(false, store);
+    expect(loadOfferTour(store)).toBe(false);
+    saveOfferTour(true, store);
+    expect(store.data.has("shipwright.offerTour")).toBe(false);
+    expect(loadOfferTour(store)).toBe(true);
+    for (const raw of ["{broken", "0", '"no"', "null"]) {
+      store.data.set("shipwright.offerTour", raw);
+      expect(loadOfferTour(store)).toBe(true);
+    }
   });
 });

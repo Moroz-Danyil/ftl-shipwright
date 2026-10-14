@@ -5,7 +5,8 @@
  * 2 an airlock on the left of room 0, 3 an airlock below room 1.
  */
 import { addDoor, addRoom, createShip, memorySource, type Ship, type ShipSystem } from "../core";
-import { resetEditorStore, useEditor } from "../app/store";
+import { useEditor } from "../app/store";
+import { freshEditorStore } from "./editorFixtures";
 
 export function testShip(systems: ShipSystem[] = []): Ship {
   let ship = createShip({ name: "PLAYER_SHIP_T", layout: "t", img: "t" });
@@ -31,7 +32,7 @@ export const shields: ShipSystem = { system: "shields", power: 2, room: 0 };
 
 /** A fresh store with the test ship open (as saved), in the Rooms workspace. */
 export function openTestShip(systems: ShipSystem[] = []): Ship {
-  resetEditorStore();
+  freshEditorStore();
   const ship = testShip(systems);
   useEditor.getState().openDocument({
     ship,

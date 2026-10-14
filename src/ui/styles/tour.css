@@ -70,3 +70,8 @@
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+
+/* The offer of a tour: "Don't offer this again" stands apart from Skip and Start. */
+.tour-never {
+  margin-right: auto;
+}

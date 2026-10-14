@@ -174,6 +174,14 @@ export const en = {
 
   /** The guided tour of the editor. */
   tour: {
+    offer: {
+      title: "Take a quick tour first?",
+      message:
+        "A short walk through the editor: the workspaces, the inspector, the tools and canvas, the slot bar, the overview and saving. You can take it any time later with the Tutorial button in the top bar.",
+      start: "Start the tour",
+      skip: "Skip",
+      never: "Don't offer this again",
+    },
     label: "Editor tour",
     stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
     back: "Back",

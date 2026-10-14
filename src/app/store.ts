@@ -17,11 +17,13 @@ import {
   loadKeyMap,
   loadLanguage,
   loadMod,
+  loadOfferTour,
   loadRecent,
   loadTheme,
   loadUiScale,
   saveKeyMap,
   saveLanguage,
+  saveOfferTour,
   saveTheme,
   saveUiScale,
   type RecentShip,
@@ -127,7 +129,8 @@ export interface ViewState {
   panHeld: boolean;
 }
 
-export type DialogId = "newShip" | "openShip" | "save" | "overview" | "picture" | "settings";
+export type DialogId =
+  "newShip" | "openShip" | "save" | "overview" | "picture" | "settings" | "tourOffer";
 
 /** What the picture picker chooses a picture for. */
 export type PictureTarget = { slot: PictureSlot } | { gib: number } | { newGib: true };
@@ -215,6 +218,8 @@ export interface EditorState {
   confirmation: Confirmation | null;
   /** The guided tour, while it runs. */
   tour: TourState | null;
+  /** The tour was offered in this run of the app (it is offered once a run at most). */
+  tourOffered: boolean;
   notice?: Notice;
 
   setGame(game: Partial<GameState>): void;
@@ -267,8 +272,16 @@ export interface EditorState {
    */
   startTour(): void;
   setTourStep(step: number): void;
-  /** Ends the tour and puts the workspace and selection back. */
+  /**
+   * Ends the tour and puts the workspace and selection back. A tour seen to
+   * its end or skipped is not offered again.
+   */
   endTour(): void;
+  /**
+   * Answers the offer of a tour: start it, skip it (it is offered again in
+   * the next run of the app) or never offer it again.
+   */
+  answerTourOffer(answer: "start" | "skip" | "never"): void;
   setLanguage(language: string): void;
   setTheme(theme: Theme): void;
   setUiScale(scale: number): void;
@@ -321,6 +334,7 @@ export function initialEditorState() {
     explosionSpeed: DEFAULT_EXPLOSION_SPEED as ExplosionSpeed,
     confirmation: null as Confirmation | null,
     tour: null as TourState | null,
+    tourOffered: false,
     notice: undefined,
   };
 }
@@ -353,6 +367,8 @@ export const useEditor = create<EditorState>()((set, get) => {
 
     openDocument: ({ ship, art, origin, saved, saveTarget }) => {
       const snapshot: ShipSnapshot = { ship, art };
+      // The first ship opened in a run of the app comes with the offer of a tour.
+      const offerTour = !get().tourOffered && loadOfferTour();
       set({
         doc: {
           id: nextDocumentId++,
@@ -370,8 +386,9 @@ export const useEditor = create<EditorState>()((set, get) => {
         workspace: "ship",
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
-        dialog: null,
+        dialog: offerTour ? "tourOffer" : null,
         tour: null,
+        tourOffered: get().tourOffered || offerTour,
       });
     },
 
@@ -455,8 +472,14 @@ export const useEditor = create<EditorState>()((set, get) => {
     endTour: () => {
       const tour = get().tour;
       if (!tour) return;
+      saveOfferTour(false);
       set({ tour: null, workspace: tour.before.workspace });
       get().select(tour.before.selection);
+    },
+    answerTourOffer: (answer) => {
+      if (get().dialog === "tourOffer") set({ dialog: null });
+      if (answer === "start") get().startTour();
+      else if (answer === "never") saveOfferTour(false);
     },
 
     setLanguage: (language) => {

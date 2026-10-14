@@ -62,6 +62,8 @@ Shown when no ship is open.
 
 The steps: the workspace tabs and their keys; the Ship, Rooms and Hull inspectors; the tool bar with the current keys; the canvas (select, move, zoom, pan); the weapon and drone slot bar; Layers and Preview in hangar; Undo and Redo with their keys; the Overview; Settings and Save mod. Every key named is the one currently chosen in Settings. A step about another workspace opens it (the slot bar, for example, opens Ship); a step whose part is not on screen even then shows its card in the middle of the dimmed window. The tour starts with nothing selected and, when it ends, puts back the workspace and the selection it started with.
 
+The first ship opened in a run of the app comes with an offer: "Take a quick tour first?", with what it covers and that the Tutorial button runs it any time. **Start the tour** starts it; **Skip** (or Esc, or a click outside) closes the offer, which comes again in the next run of the app; **Don't offer this again** is remembered. Once the tour has been taken to its end or skipped, it is not offered again either.
+
 ## Workspaces
 
 A ship opens in Ship.

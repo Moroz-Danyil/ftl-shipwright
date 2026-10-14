@@ -14,7 +14,8 @@ import {
 } from "../core";
 import { NEW_GIB } from "../app/art/gibs";
 import { gamePicture, type ShipArt } from "../app/art/model";
-import { resetEditorStore, useEditor } from "../app/store";
+import { useEditor } from "../app/store";
+import { freshEditorStore } from "./editorFixtures";
 import { testShip } from "./layoutFixtures";
 
 const mount = (x: number): Mount => ({ x, y: 0, rotate: false, mirror: false, gib: 1 });
@@ -62,6 +63,6 @@ export function fullArt(): ShipArt {
 
 /** A fresh store (without game data) with the complete ship open, or a changed copy of it. */
 export function openCompleteShip(ship: Ship = completeShip(), art: ShipArt = fullArt()): void {
-  resetEditorStore();
+  freshEditorStore();
   useEditor.getState().openDocument({ ship, art, saved: true });
 }

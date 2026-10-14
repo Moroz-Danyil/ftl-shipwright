@@ -11,9 +11,18 @@ import { createFakePlatform, type FakePlatform } from "./fakePlatform";
 
 export const DAT_PATH = "games/ftl/ftl.dat";
 
-/** A fresh store with the mini game loaded. */
-export async function withMiniGame(): Promise<FakePlatform> {
+/**
+ * A fresh store in which the tour counts as offered already, so a ship opens
+ * without the offer over it.
+ */
+export function freshEditorStore(): void {
   resetEditorStore();
+  useEditor.setState({ tourOffered: true });
+}
+
+/** A fresh store (see `freshEditorStore`) with the mini game loaded. */
+export async function withMiniGame(): Promise<FakePlatform> {
+  freshEditorStore();
   const platform = createFakePlatform({ [DAT_PATH]: miniGame() });
   const ok = await loadGameIntoStore(platform, en, DAT_PATH, undefined);
   if (!ok) throw new Error(useEditor.getState().game.error);
