@@ -182,7 +182,17 @@ export function ShortcutsPanel() {
           </ul>
         </section>
       ))}
-      <p className="set-hint">{texts.shortcuts.fixedKeys}</p>
+      <section className="set-key-group" aria-label={texts.shortcuts.fixedTitle}>
+        <span className="set-label">{texts.shortcuts.fixedTitle}</span>
+        <ul className="set-keys">
+          {texts.shortcuts.fixedKeys.map(([what, keys]) => (
+            <li key={what} className="set-key-row set-key-row--fixed">
+              <span className="set-key-name">{what}</span>
+              <span className="set-key-fixed">{keys}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
       <div>
         <button
           type="button"

@@ -283,21 +283,37 @@
 .set-key-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
+/* Each group is a framed list with a line between its rows */
 .set-keys {
   margin: 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  overflow: hidden;
 }
 .set-key-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 8px;
+  padding: 8px 10px 8px 14px;
+}
+.set-key-row + .set-key-row {
+  border-top: 1px solid var(--line);
+}
+.set-key-row--fixed {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.set-key-fixed {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
 }
 .set-key-name {
   font-size: 13px;

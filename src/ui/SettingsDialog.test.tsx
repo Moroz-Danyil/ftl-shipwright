@@ -110,14 +110,16 @@ describe("settings shortcuts", () => {
     expect(tabs[1]).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", tabs[1].id);
     expect(screen.getByRole("tabpanel")).toHaveTextContent(en.shortcuts.hint);
-    expect(screen.getByRole("tabpanel")).toHaveTextContent(en.shortcuts.fixedKeys);
+    expect(screen.getByRole("tabpanel")).toHaveTextContent(en.shortcuts.fixedKeys[0][1]);
     fireEvent.keyDown(tabs[1], { key: "Home" });
     expect(screen.getByRole("radio", { name: en.settings.dark })).toBeInTheDocument();
   });
 
   it("lists the tools, Undo, Redo and Delete selected with their keys", async () => {
     const dialog = await openShortcuts();
-    const rows = within(dialog).getAllByRole("listitem");
+    const rows = within(dialog)
+      .getAllByRole("listitem")
+      .filter((r) => r.querySelector(".set-key"));
     expect(rows.map((r) => r.querySelector(".set-key-name")?.textContent)).toEqual([
       names["tool.select"],
       names["tool.room"],

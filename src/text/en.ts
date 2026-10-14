@@ -801,8 +801,18 @@ export const en = {
       workspace: "opens a workspace",
       mount: "turns the selected mount",
     },
-    fixedKeys:
-      "Fixed keys: Del and Backspace delete · Ctrl+Shift+Z redoes · arrows move the selection (with Shift by 10) · Esc cancels · Space pans · Ctrl+S saves · 1–3 pick the workspace · [ and ] turn the selected mount.",
+    fixedTitle: "Fixed keys",
+    fixedKeys: [
+      ["Delete selected", "Del · Backspace"],
+      ["Redo", "Ctrl+Shift+Z"],
+      ["Move the selection", "Arrows"],
+      ["Move the selection by 10", "Shift+Arrows"],
+      ["Cancel", "Esc"],
+      ["Pan the view", "Space"],
+      ["Save", "Ctrl+S"],
+      ["Pick a workspace", "1 · 2 · 3"],
+      ["Rotate / mirror the selected mount", "[ · ]"],
+    ] as Array<[string, string]>,
   },
 
   errors: {
