@@ -424,11 +424,12 @@ describe("Ship workspace: info, stats and crew", () => {
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 
-  it("is opened by the crew check", () => {
+  it("is opened from the crew item of the overview", () => {
     act(() => state().edit((s) => ({ ...s, blueprint: { ...s.blueprint, crew: [] } })));
     press("Digit3");
-    fireEvent.click(screen.getByRole("button", { name: /to check$/ }));
-    fireEvent.click(screen.getByRole("button", { name: en.checks.messages["no-crew"]() }));
+    fireEvent.click(screen.getByRole("button", { name: /^Overview/ }));
+    const item = en.overview.items.crew.title;
+    fireEvent.click(screen.getByRole("button", { name: en.overview.goThereLabel(item) }));
     expect(state().workspace).toBe("ship");
     expect(within(inspector()).getByText(en.crew.noCrew)).toBeInTheDocument();
   });

@@ -216,7 +216,7 @@ describe("Rooms: the system cards", () => {
     expect(systems()[0].img).toBe("room_cloaking_2");
     expect(await within(card).findByText(en.systems.cloakMismatch)).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: en.topBar.checks(12) })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: /^Overview: 2 problems$/ })).toBeInTheDocument()
     );
 
     fireEvent.click(within(card).getByRole("radio", { name: /^room_cloaking70/ }));
@@ -241,16 +241,17 @@ describe("Rooms: the system cards", () => {
     expect(within(select).queryByText("LASER_BURST_1")).toBeNull();
   });
 
-  it("opens Rooms from a system check", async () => {
+  it("opens Rooms from a system item of the overview", async () => {
     await setUp([
       { system: "medbay", power: 1, room: 1, start: true },
       { system: "clonebay", power: 1, room: 1, start: true },
     ]);
     act(() => state().setWorkspace("hull"));
-    fireEvent.click(screen.getByRole("button", { name: en.topBar.checks(12) }));
-    fireEvent.click(
-      screen.getByRole("button", { name: en.checks.messages["several-installed"]({ rooms: [1] }) })
-    );
+    fireEvent.click(screen.getByRole("button", { name: /^Overview/ }));
+    const dialog = screen.getByRole("dialog", { name: en.overview.title });
+    expect(dialog).toHaveTextContent(en.checks.messages["several-installed"]({ rooms: [1] }));
+    const item = en.overview.items.oneSystem.title;
+    fireEvent.click(within(dialog).getByRole("button", { name: en.overview.goThereLabel(item) }));
     expect(state().workspace).toBe("rooms");
     expect(state().selection.rooms).toEqual([1]);
   });

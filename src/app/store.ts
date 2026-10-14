@@ -126,7 +126,7 @@ export interface ViewState {
   panHeld: boolean;
 }
 
-export type DialogId = "newShip" | "openShip" | "save" | "checks" | "picture" | "settings";
+export type DialogId = "newShip" | "openShip" | "save" | "overview" | "picture" | "settings";
 
 /** What the picture picker chooses a picture for. */
 export type PictureTarget = { slot: PictureSlot } | { gib: number } | { newGib: true };
@@ -198,6 +198,8 @@ export interface EditorState {
   tools: Record<WorkspaceId, ToolId>;
   view: ViewState;
   dialog: DialogId | null;
+  /** The ship overview shows only the items that need a look (for the session). */
+  overviewNeedsOnly: boolean;
   /** The yes/no question on screen, if any. */
   confirmation: Confirmation | null;
   notice?: Notice;
@@ -236,6 +238,7 @@ export interface EditorState {
   setCamera(camera: Camera): void;
   setPanHeld(held: boolean): void;
   openDialog(dialog: DialogId | null): void;
+  setOverviewNeedsOnly(on: boolean): void;
   /**
    * Asks a yes/no question in the app's own dialog and resolves with the
    * answer. A question still open is answered no.
@@ -292,6 +295,7 @@ export function initialEditorState() {
       panHeld: false,
     },
     dialog: null,
+    overviewNeedsOnly: false,
     confirmation: null as Confirmation | null,
     notice: undefined,
   };
@@ -391,6 +395,7 @@ export const useEditor = create<EditorState>()((set, get) => {
     },
 
     openDialog: (dialog) => set({ dialog }),
+    setOverviewNeedsOnly: (overviewNeedsOnly) => set({ overviewNeedsOnly }),
     askConfirm: (request) =>
       new Promise<boolean>((resolve) => {
         get().confirmation?.resolve(false);

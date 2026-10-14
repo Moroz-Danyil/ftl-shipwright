@@ -36,7 +36,7 @@ Shown when no ship is open.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ ship name · status   [1 Ship][2 Rooms][3 Hull]   undo redo  checks  settings  [Save mod] │
+│ ship name · status   [1 Ship][2 Rooms][3 Hull]   undo redo overview settings  [Save mod] │
 ├───────────────┬──────────────────────────────────────────────────────┤
 │               │ [tool bar: icon name key · icon name key · …]        │
 │   inspector   │                    canvas                            │
@@ -46,7 +46,7 @@ Shown when no ship is open.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Top bar**: the ship's name with an "unsaved changes" mark, the three workspace tabs (keys `1`–`3`), undo and redo, the **checks** button with the number of things to look at, settings, and **Save mod**.
+- **Top bar**: the ship's name with an "unsaved changes" mark, the three workspace tabs (keys `1`–`3`), undo and redo, the **Overview** button (with a red badge counting the problems, else an amber one counting what to check), settings, and **Save mod**.
 - **Inspector** (left): settings of the current workspace and the selection.
 - **Tool bar** (top of the canvas): the tools of the current workspace side by side in one low row, each with a small line icon, its name and its current key in a key chip, the chosen one amber. Hovering or focusing a tool shows what it does in a panel below the bar. The Ship workspace has only Select, and still shows it.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** opens the game's hangar screen over the whole window (see below).
@@ -101,9 +101,15 @@ Rooms, doors, the systems in the rooms and the crew stations.
 - A selected mount shows its number (the weapon slot drawn on it), buttons to move it earlier or later, **Rotate** and **Mirror** (also `[` and `]`), the direction the weapon slides out, the explosion piece it flies off with, and whether it moves together with the hull picture.
 - The explosion pieces are listed with their pictures; the explosion can be played on the canvas.
 
-## Checks
+## Ship overview
 
-The checks button opens a list of everything about the ship that is unfinished or may not work in the game, sorted into problems, things to look at and tips. Clicking an item opens the workspace and selection it is about. Saving shows the same list first when something is wrong; the ship can still be saved.
+The **Overview** button opens a checklist of the whole ship, in sections in the order of the workspaces:
+
+- **Ship**: name, class, description, save name (and the file base name), hull and reactor, crew, weapon and drone slots, weapons and drones the game knows.
+- **Rooms**: rooms, no overlaps, room sizes and ids, doors attached to rooms, crew can walk everywhere (doors join every room; airlocks do not count), airlocks on small rooms, every room inside the view-limit frame, crew stations inside their rooms, systems in existing rooms, one system per room at the start, usual system pairs, the core systems (piloting, engines, oxygen, shields), interior pictures that fit.
+- **Hull**: hull, floor, shield and cloak pictures, ship icon, explosion pieces with pictures, enough weapon mounts, mounts linked to existing gibs.
+
+An item that is fine is a row with a green check mark and a short value (for example "Rooms: 17" or "30 hull, 8 reactor bars"). An item that needs a look is a card: a red mark for a **problem** (the game will not work or may crash: no rooms, no hull picture, 0 hull points, a cloaking interior picture that does not fit its room) or an amber one for something **to check**, what is wrong, the rooms, doors, mounts or items involved, and **Go there ›**, which closes the dialog, opens the workspace and selects what the item is about. A summary at the top says "Everything looks complete." or counts the problems and the items to check; **Only what needs a look** hides the rows that are fine (remembered until the app is closed). Name, description and ship icon are asked of player ships only, and so is the frame. The Save mod dialog repeats the counts when something needs a look; the ship can still be saved.
 
 ## Saving
 

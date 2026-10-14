@@ -6,8 +6,8 @@ import { useEditor } from "../../app/store";
 import { HangarPreview } from "../../canvas/hangar/HangarPreview";
 import { ShipCanvas } from "../../canvas/ShipCanvas";
 import { PicturePicker } from "./art/PicturePicker";
-import { ChecksDialog } from "./ChecksButton";
 import { Inspector } from "./Inspector";
+import { OverviewDialog } from "./Overview";
 import { SaveDialog } from "./SaveDialog";
 import { StatusBar } from "./StatusBar";
 import { DragChip } from "./systems/DragChip";
@@ -25,7 +25,7 @@ export function EditorWindow() {
       </div>
       <StatusBar />
       {dialog === "save" && <SaveDialog />}
-      {dialog === "checks" && <ChecksDialog />}
+      {dialog === "overview" && <OverviewDialog />}
       {dialog === "picture" && <PicturePicker />}
       <DragChip />
       {preview && <HangarPreview />}

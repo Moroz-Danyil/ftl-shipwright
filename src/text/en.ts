@@ -165,7 +165,6 @@ export const en = {
     saved: "saved",
     undo: "Undo",
     redo: "Redo",
-    checks: (n: number) => (n === 0 ? "No checks" : `${n} to check`),
     settings: "Settings",
     saveMod: "Save mod",
   },
@@ -719,8 +718,7 @@ export const en = {
   },
 
   checks: {
-    title: "Checks",
-    empty: "Nothing to look at.",
+    /** One line per check, under the overview item it belongs to. */
     messages: {
       "no-name": () => "The ship has no name for the hangar.",
       "no-class": () => "The ship has no class.",
@@ -766,6 +764,24 @@ export const en = {
   },
 
   overview: {
+    button: "Overview",
+    /** The accessible name of the top bar button, with what its badge shows. */
+    buttonLabel: (problems: number, checks: number) =>
+      problems > 0
+        ? `Overview: ${plural(problems, "problem", "problems")}`
+        : checks > 0
+          ? `Overview: ${checks} to check`
+          : "Overview",
+    title: "Ship overview",
+    intro: "Everything about the ship in one list; click an item to go and fix it.",
+    allGood: "Everything looks complete.",
+    problems: (n: number) => plural(n, "problem", "problems"),
+    toCheck: (n: number) => `${n} to check`,
+    needsOnly: "Only what needs a look",
+    goThere: "Go there ›",
+    /** The accessible name of an item's link. */
+    goThereLabel: (title: string) => `Go there: ${title}`,
+    status: { ok: "OK", check: "To check", problem: "Problem" },
     /** The items of the overview: a title, what to do when the item needs a look, and the value shown while it is ok. */
     items: {
       name: {
@@ -927,8 +943,13 @@ export const en = {
     folder: "Mod folder",
     folderHint:
       "Writes the files into a folder. A mod already in it keeps its other ships and files.",
-    checksWarning: (n: number) =>
-      `${plural(n, "thing", "things")} to check (see Checks). The ship can still be saved.`,
+    overviewWarning: (problems: number, checks: number) => {
+      const found = [
+        ...(problems > 0 ? [plural(problems, "problem", "problems")] : []),
+        ...(checks > 0 ? [plural(checks, "item to check", "items to check")] : []),
+      ];
+      return `The Overview lists ${found.join(" and ")}. The ship can still be saved.`;
+    },
     saving: "Saving…",
     savedTo: (path: string) => `Saved to ${path}`,
     failed: (reason: string) => `Could not save: ${reason}`,

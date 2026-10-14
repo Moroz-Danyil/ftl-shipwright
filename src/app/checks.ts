@@ -3,7 +3,6 @@
  * the texts, rooms, systems, pictures and equipment, each with the workspace
  * and selection it is about.
  */
-import { useMemo } from "react";
 import {
   doorSides,
   resolveText,
@@ -17,9 +16,8 @@ import {
 import { isPlayerShip, viewLimitCells } from "../canvas/viewLimit";
 import type { ShipArt } from "./art/model";
 import { crewTotal } from "./details/rules";
-import { useEditor } from "./store";
 import { EMPTY_SELECTION, selectionOf, type Selection } from "./selection";
-import { useInteriorSizes, type PictureSize } from "./systems/interiors";
+import type { PictureSize } from "./systems/interiors";
 import {
   interiorFits,
   isInstalled,
@@ -272,17 +270,6 @@ export function allChecks(
     ...loadoutChecks(ship, catalogs),
     ...textChecks(ship, texts),
   ];
-}
-
-/** The checks of a ship with its pictures (interior sizes are read from the pictures' source). */
-export function useChecks(ship: Ship | undefined, art?: ShipArt): CheckIssue[] {
-  const sizes = useInteriorSizes(art?.source, ship);
-  const catalogs = useEditor((s) => s.game.data?.catalogs);
-  const texts = useEditor((s) => s.game.data?.texts);
-  return useMemo(
-    () => (ship ? allChecks(ship, sizes, art, catalogs, texts) : []),
-    [ship, sizes, art, catalogs, texts]
-  );
 }
 
 /** What a check is about, to select it on the canvas. */

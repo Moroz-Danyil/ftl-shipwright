@@ -1,6 +1,6 @@
 /** Save mod: as one `.ftl` file or into a mod folder. */
 import { useState } from "react";
-import { useChecks } from "../../app/checks";
+import { overviewCounts, useOverview } from "../../app/overview";
 import { saveShipMod } from "../../app/saveMod";
 import { useEditor, type SaveTarget } from "../../app/store";
 import { usePlatform } from "../../platform/PlatformContext";
@@ -11,7 +11,7 @@ export function SaveDialog() {
   const texts = useTexts();
   const platform = usePlatform();
   const doc = useEditor((s) => s.doc);
-  const issues = useChecks(doc?.history.present.ship, doc?.history.present.art);
+  const { problems, checks } = overviewCounts(useOverview());
   const [busy, setBusy] = useState(false);
   const close = () => useEditor.getState().openDialog(null);
   if (!doc) return null;
@@ -45,8 +45,8 @@ export function SaveDialog() {
         </button>
       }
     >
-      {issues.length > 0 && (
-        <div className="dlg-warning">{texts.save.checksWarning(issues.length)}</div>
+      {problems + checks > 0 && (
+        <div className="dlg-warning">{texts.save.overviewWarning(problems, checks)}</div>
       )}
       <div className="choice-row">
         <button type="button" className="choice" disabled={busy} onClick={() => void save("ftl")}>

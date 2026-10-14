@@ -221,15 +221,14 @@ describe("Hull: picture zoom", () => {
 });
 
 describe("Hull checks", () => {
-  it("opens Hull with the mount selected from a mount check", () => {
+  it("opens Hull with the mount selected from the overview", () => {
     act(() =>
       state().edit((s) => addMount(s, { x: 40, y: 40, rotate: false, mirror: false, gib: 9 }))
     );
     press("Digit2");
-    fireEvent.click(screen.getByRole("button", { name: /to check$/ }));
-    fireEvent.click(
-      screen.getByRole("button", { name: en.checks.messages["mount-gib-missing"]({ mount: 0 }) })
-    );
+    fireEvent.click(screen.getByRole("button", { name: /^Overview/ }));
+    const item = en.overview.items.mountGibs.title;
+    fireEvent.click(screen.getByRole("button", { name: en.overview.goThereLabel(item) }));
     expect(state().workspace).toBe("hull");
     expect(state().selection.mounts).toEqual([0]);
     expect(within(inspector()).getByText(en.art.selectedMount)).toBeInTheDocument();

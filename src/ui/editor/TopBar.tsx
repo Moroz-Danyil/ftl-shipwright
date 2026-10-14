@@ -1,13 +1,13 @@
 /**
  * The editor's top bar: the ship's name, the workspace tabs, undo and redo,
- * checks, settings and Save mod.
+ * the overview, settings and Save mod.
  */
 import { shipDisplayName } from "../../app/ships";
 import { hasUnsavedChanges, keyOf, redoAvailable, undoAvailable, useEditor } from "../../app/store";
 import { WORKSPACES, workspaceKey } from "../../app/workspaces";
 import { useTexts } from "../../text";
 import { LogoMark, RedoIcon, SettingsIcon, UndoIcon } from "../common/icons";
-import { ChecksButton } from "./ChecksButton";
+import { OverviewButton } from "./Overview";
 
 function ShipTitle() {
   const texts = useTexts();
@@ -103,7 +103,7 @@ export function TopBar() {
         >
           <RedoIcon />
         </button>
-        <ChecksButton />
+        <OverviewButton />
         <button
           type="button"
           className="btn btn--icon"
