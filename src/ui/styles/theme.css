@@ -30,6 +30,8 @@
   --room-selected-tint: rgba(242, 169, 59, 0.22);
   --room-ink: #4a525e;
   --icon-bg: #20252d;
+  --row-shade: rgba(255, 255, 255, 0.035);
+  --row-hover: rgba(255, 255, 255, 0.07);
   --icon-ink: #dfe3e9;
   --info: #8fc1f2;
   --grid: #1c222b;
@@ -77,6 +79,8 @@
   --room-selected-tint: rgba(242, 169, 59, 0.28);
   --room-ink: #4a525e;
   --icon-bg: #3a414c;
+  --row-shade: rgba(0, 0, 0, 0.035);
+  --row-hover: rgba(0, 0, 0, 0.07);
   --icon-ink: #eef0f3;
   --info: #2d6aa3;
   --grid: #b7bec8;

@@ -1053,18 +1053,41 @@
   font-size: 13px;
   line-height: 1.5;
 }
+/* Stats read like a table of contents: a dotted leader runs from each name to
+   its value, and every other row is shaded so a row is easy to follow */
 .lo-stats {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
   font-size: 12px;
 }
+.lo-stats > div {
+  align-items: baseline;
+  gap: 0;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.lo-stats > div:nth-child(odd) {
+  background: var(--row-shade);
+}
 .lo-stats dt {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
   color: var(--muted);
+}
+.lo-stats dt::after {
+  content: "";
+  flex: 1;
+  min-width: 12px;
+  margin: 0 6px;
+  border-bottom: 1px dotted var(--line-strong);
 }
 .lo-stats dd {
   margin: 0;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 .item-pic {
   display: inline-flex;
@@ -1256,12 +1279,22 @@ textarea.input {
   flex-direction: column;
   gap: 2px;
 }
+/* A row: mark, name, and the value close by in its own column; every other
+   row is shaded and the row under the pointer lights up */
 .ov-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 18em) minmax(0, 1fr);
   align-items: center;
   gap: 10px;
   padding: 5px 10px;
+  border-radius: 6px;
   font-size: 13px;
+}
+.ov-row:nth-child(even) {
+  background: var(--row-shade);
+}
+.ov-row:hover {
+  background: var(--row-hover);
 }
 .ov-mark {
   flex-shrink: 0;
@@ -1282,9 +1315,7 @@ textarea.input {
   color: var(--text);
 }
 .ov-value {
-  max-width: 60%;
-  color: var(--muted);
-  text-align: right;
+  color: var(--text-soft);
   overflow-wrap: anywhere;
   user-select: text;
 }
