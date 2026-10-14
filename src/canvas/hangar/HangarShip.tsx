@@ -35,7 +35,7 @@ export function HangarShip() {
       data-testid="hangar-ship"
       transform={`translate(${offset.x} ${offset.y})`}
     >
-      <ShipPictures ship={shown} art={snapshot.art} layers={PICTURE_LAYERS} showGibs={false} />
+      <ShipPictures ship={shown} art={snapshot.art} layers={PICTURE_LAYERS} />
       <Rooms layout={layout} selected={EMPTY_SELECTION.rooms} ids="none" />
       <Interiors ship={shown} source={snapshot.art.source} />
       <Doors layout={layout} selected={EMPTY_SELECTION.doors} plain />

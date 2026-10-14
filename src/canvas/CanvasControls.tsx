@@ -1,6 +1,7 @@
 /**
  * The buttons in the canvas corner: Play explosion (Hull), the Layers
  * menu and Preview in hangar, which opens the hangar screen over the editor.
+ * In Hull the menu notes that the Gib tool shows only the hull and the gibs.
  */
 import { useEffect, useRef, useState } from "react";
 import { LAYERS, useEditor } from "../app/store";
@@ -10,6 +11,7 @@ function LayersMenu({ onClose }: { onClose: () => void }) {
   const texts = useTexts();
   const layers = useEditor((s) => s.view.layers);
   const setLayer = useEditor((s) => s.setLayer);
+  const hull = useEditor((s) => s.workspace === "hull");
   return (
     <div className="cv-layers-menu" role="group" aria-label={texts.canvas.layers}>
       {LAYERS.map((layer) => (
@@ -23,6 +25,7 @@ function LayersMenu({ onClose }: { onClose: () => void }) {
           {texts.canvas.layerNames[layer]}
         </label>
       ))}
+      {hull && <p className="cv-layers-note">{texts.canvas.gibToolLayers}</p>}
     </div>
   );
 }

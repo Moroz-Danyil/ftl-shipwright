@@ -101,6 +101,7 @@ Rooms, doors, the systems in the rooms and the crew stations.
 - **Weapon mounts** lists the mounts (at most 8) with the weapon drawn on each; a click selects a mount on the ship, the cross removes it. The Mount tool adds mounts.
 - A selected mount shows its number (the weapon slot drawn on it), buttons to move it earlier or later, **Rotate** and **Mirror** (also `[` and `]`), the direction the weapon slides out, the explosion piece it flies off with, and whether it moves together with the hull picture.
 - The explosion pieces are listed with their pictures; the explosion can be played on the canvas.
+- While the Gib tool is chosen the canvas shows only the hull picture and the gibs (with their selection); the rooms, doors, interiors, icons, crew, mounts, shield, floor, cloak, grid and frame come back with any other tool. The Layers menu keeps its choices and says so in a short note.
 
 ## Ship overview
 

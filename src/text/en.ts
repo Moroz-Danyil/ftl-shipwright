@@ -239,6 +239,7 @@ export const en = {
     previewOff: "Back to editing",
     previewOffKey: "Esc",
     hangarMoreCrew: (n: number) => `+${n} more`,
+    gibToolLayers: "The Gib tool shows only the hull and the gibs while it is chosen.",
     layerNames: {
       hull: "Hull",
       floor: "Floor",

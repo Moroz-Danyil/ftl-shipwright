@@ -360,6 +360,15 @@
 .cv-layers-item:hover {
   background: var(--raised);
 }
+.cv-layers-note {
+  max-width: 200px;
+  margin: 4px 6px 2px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
 
 /* Canvas drawing */
 .cv-grid {

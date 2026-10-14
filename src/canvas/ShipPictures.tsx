@@ -105,19 +105,11 @@ interface Props {
   ship: Ship;
   art: ShipArt;
   layers: Record<LayerId, boolean>;
-  /** Show the gibs whatever the layer says (Gib tool). */
-  showGibs: boolean;
   /** Seconds into the explosion preview, when it plays. */
   explosion?: number;
 }
 
-export const ShipPictures = memo(function ShipPictures({
-  ship,
-  art,
-  layers,
-  showGibs,
-  explosion,
-}: Props) {
+export const ShipPictures = memo(function ShipPictures({ ship, art, layers, explosion }: Props) {
   if (explosion !== undefined) return <Gibs ship={ship} art={art} seconds={explosion} />;
   const { layout, layoutXml } = ship;
   return (
@@ -148,7 +140,7 @@ export const ShipPictures = memo(function ShipPictures({
           className="cv-cloak"
         />
       )}
-      {(layers.gibs || showGibs) && <Gibs ship={ship} art={art} />}
+      {layers.gibs && <Gibs ship={ship} art={art} />}
     </g>
   );
 });

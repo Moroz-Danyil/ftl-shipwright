@@ -2,9 +2,9 @@
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
  * interiors, doors, system icons, crew, mounts and the current tool's
  * overlay.
- * In Hull the hull, floor and shield are always shown (the cloak
- * follows its layer), and the gibs with the Gib tool; during the explosion
- * preview only the gibs are drawn.
+ * In Hull the hull, floor, shield and mounts are always shown (the cloak
+ * follows its layer); the Gib tool shows only the hull and the gibs, and
+ * during the explosion preview only the gibs are drawn.
  */
 import { useMemo } from "react";
 import type { Rect } from "../core";
@@ -13,6 +13,7 @@ import { gibRectPx } from "./artHitTest";
 import { CellZeroEdge, GridLines, ViewLimitFrame } from "./GridLayer";
 import { MountsLayer } from "./MountsLayer";
 import { ShipPictures } from "./ShipPictures";
+import { shownLayers } from "./shownLayers";
 import { Doors, Rooms } from "./ShipShapes";
 import { Stations } from "./Stations";
 import { Interiors, LaterTint, SystemDropTarget, SystemIcons } from "./RoomContents";
@@ -39,11 +40,11 @@ export function ShipScene({ area, overlay, explosion }: Props) {
   const equipment = workspace === "ship";
   const hoverWeapon = useEditor((s) => s.hoverWeapon);
   const setHoverWeapon = useEditor((s) => s.setHoverWeapon);
-  const { layers } = view;
-  const pictureLayers = useMemo(
-    () => (art ? { ...layers, hull: true, floor: true, shield: true } : layers),
-    [art, layers]
+  const layers = useMemo(
+    () => shownLayers(view.layers, workspace, tool),
+    [view.layers, workspace, tool]
   );
+  const gibView = art && tool === "gib";
   const weaponItems = snapshot?.ship.blueprint.weaponList?.items;
   const weapons = useMemo(() => equippedWeaponFrames(data, weaponItems), [data, weaponItems]);
   if (!snapshot) return null;
@@ -56,13 +57,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
       <defs>
         <LaterTint />
       </defs>
-      <ShipPictures
-        ship={ship}
-        art={snapshot.art}
-        layers={pictureLayers}
-        showGibs={art && tool === "gib"}
-        explosion={explosion}
-      />
+      <ShipPictures ship={ship} art={snapshot.art} layers={layers} explosion={explosion} />
       {!playing && (
         <>
           {layers.grid && area.w > 0 && (
@@ -98,7 +93,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
               />
             );
           })}
-          {(layers.mounts || art || equipment) && (
+          {(layers.mounts || equipment) && (
             <MountsLayer
               layout={ship.layout}
               layoutXml={ship.layoutXml}
@@ -108,7 +103,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
               weapons={weapons}
             />
           )}
-          <ViewLimitFrame ship={ship} />
+          {!gibView && <ViewLimitFrame ship={ship} />}
           <ToolOverlay ship={ship} art={snapshot.art} overlay={overlay} />
           <SystemDropTarget ship={ship} />
         </>

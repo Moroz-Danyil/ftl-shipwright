@@ -167,6 +167,76 @@ describe("Hull: mounts and gibs", () => {
   });
 });
 
+describe("Hull: the Gib tool's view", () => {
+  it("shows only the hull and the gibs while the Gib tool is chosen", async () => {
+    act(() =>
+      state().edit((s) => addMount(s, { x: 40, y: 40, rotate: false, mirror: false, gib: 0 }))
+    );
+    const svg = screen.getByTestId("ship-svg");
+    await screen.findByTestId("hull-picture");
+    await waitFor(() => expect(svg.querySelector(".cv-floor")).not.toBeNull());
+    const drawn = () => ({
+      rooms: svg.querySelector(".cv-room") !== null,
+      doors: screen.queryByTestId("door-0") !== null,
+      grid: svg.querySelector(".cv-grid") !== null,
+      floor: svg.querySelector(".cv-floor") !== null,
+      mounts: screen.queryByTestId("mount-1") !== null,
+      hull: screen.queryByTestId("hull-picture") !== null,
+      gibs: screen.queryByTestId("gib-1") !== null,
+    });
+    const layers = state().view.layers;
+    expect(drawn()).toEqual({
+      rooms: true,
+      doors: true,
+      grid: true,
+      floor: true,
+      mounts: true,
+      hull: true,
+      gibs: false,
+    });
+
+    press("KeyG");
+    await screen.findByTestId("gib-1");
+    expect(drawn()).toEqual({
+      rooms: false,
+      doors: false,
+      grid: false,
+      floor: false,
+      mounts: false,
+      hull: true,
+      gibs: true,
+    });
+    expect(screen.queryByTestId("shield-ellipse")).toBeNull();
+    expect(state().view.layers).toBe(layers);
+
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt({ x: 150, y: 40 }) });
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt({ x: 150, y: 40 }) });
+    expect(screen.getByTestId("gib-selected-2")).toBeInTheDocument();
+
+    press("KeyQ");
+    await waitFor(() => expect(svg.querySelector(".cv-floor")).not.toBeNull());
+    expect(drawn()).toEqual({
+      rooms: true,
+      doors: true,
+      grid: true,
+      floor: true,
+      mounts: true,
+      hull: true,
+      gibs: false,
+    });
+  });
+
+  it("says so in the Layers menu, which keeps the choices", () => {
+    press("KeyG");
+    fireEvent.click(screen.getByRole("button", { name: en.canvas.layers }));
+    const menu = screen.getByRole("group", { name: en.canvas.layers });
+    expect(within(menu).getByText(en.canvas.gibToolLayers)).toBeInTheDocument();
+    expect(within(menu).getByRole("checkbox", { name: en.canvas.layerNames.rooms })).toBeChecked();
+    press("Digit2");
+    expect(within(menu).queryByText(en.canvas.gibToolLayers)).toBeNull();
+  });
+});
+
 describe("Hull: a gib gone from under the pointer", () => {
   const hoverGib = (index: number) => {
     const r = gibRectPx(snap().ship, snap().art, index);
