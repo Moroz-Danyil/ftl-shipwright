@@ -4,7 +4,7 @@
  */
 import { stationSystemIndices } from "../../../app/layout/stations";
 import { systemName } from "../../../app/names";
-import { currentTool, useEditor } from "../../../app/store";
+import { currentTool, keyOf, useEditor } from "../../../app/store";
 import type { Ship } from "../../../core";
 import { useTexts } from "../../../text";
 import { Section } from "../../common/Section";
@@ -15,7 +15,8 @@ export function ToolHelp() {
   const texts = useTexts();
   const tool = useEditor(currentTool);
   const workspace = useEditor((s) => s.workspace);
-  const help = toolHelpOf(texts, workspace, tool);
+  const key = useEditor(keyOf(`tool.${tool}`));
+  const help = toolHelpOf(texts, workspace, tool, key);
   if (!help) return null;
   return (
     <Section id="tool-help" title={help.title} icon={tool} defaultOpen={false}>

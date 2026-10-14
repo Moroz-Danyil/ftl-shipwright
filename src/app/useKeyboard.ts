@@ -1,17 +1,20 @@
 /**
  * Listens to the keyboard for the whole window and runs the bound commands
- * (not while a dialog or the hangar preview is open).
+ * (not while a dialog or the hangar preview is open). The keys are the ones
+ * chosen in Settings, so a change there takes effect at once.
  */
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { usePlatform } from "../platform/PlatformContext";
 import { useTexts } from "../text";
 import { runCommand } from "./commands";
-import { DEFAULT_BINDINGS, commandForEvent, isTextField, type KeyBinding } from "./keys";
+import { bindingsOf, commandForEvent, isTextField } from "./keys";
 import { useEditor } from "./store";
 
-export function useKeyboard(bindings: KeyBinding[] = DEFAULT_BINDINGS): void {
+export function useKeyboard(): void {
   const platform = usePlatform();
   const texts = useTexts();
+  const keys = useEditor((s) => s.keys);
+  const bindings = useMemo(() => bindingsOf(keys), [keys]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {

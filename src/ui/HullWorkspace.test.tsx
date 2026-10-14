@@ -116,7 +116,7 @@ describe("Hull: pictures", () => {
 
 describe("Hull: mounts and gibs", () => {
   it("adds a mount with the Mount tool and edits it", () => {
-    press("KeyM");
+    press("KeyT");
     fireEvent.pointerDown(canvas(), { button: 0, ...screenAt({ x: 75, y: 95 }) });
     fireEvent.pointerUp(canvas(), { button: 0, ...screenAt({ x: 75, y: 95 }) });
     expect(snap().ship.layoutXml.mounts).toEqual([
@@ -197,7 +197,7 @@ describe("Hull: pictograms", () => {
       en.sections.pictures,
       en.sections.mounts,
       en.sections.gibs,
-      en.toolHelp.hull.movePicture.title,
+      en.common.withKey(en.toolHelp.hull.movePicture.title, "H"),
     ]);
   });
 });
@@ -250,7 +250,7 @@ describe("Hull: the mount list", () => {
     );
     const list = within(inspector()).getByRole("region", { name: en.sections.mounts });
     expect(list).toHaveTextContent(en.sections.count(2, 8));
-    expect(within(list).getByText(en.sections.mountsHint)).toBeInTheDocument();
+    expect(within(list).getByText(en.sections.mountsHint("T"))).toBeInTheDocument();
     const first = within(list).getByRole("button", { name: en.art.selectMount(1) });
     expect(first).toHaveTextContent(en.art.mount(1));
     expect(first).toHaveTextContent("ARTILLERY_FED");

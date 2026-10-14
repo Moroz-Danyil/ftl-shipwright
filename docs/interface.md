@@ -76,10 +76,10 @@ Rooms, doors, the systems in the rooms and the crew stations.
 
 | Tool    | Key | What it does                                                                                |
 | ------- | --- | ------------------------------------------------------------------------------------------- |
-| Select  | `V` | click to select, Shift-click to add, drag to move (snaps to cells), arrows move by one cell |
-| Room    | `R` | drag on the grid to draw a room                                                             |
-| Door    | `D` | click a wall; a door on the outer wall opens to space and is drawn blue                     |
-| Station | `T` | click a cell of a room with a system to put that system's crew station there                |
+| Select  | `Q` | click to select, Shift-click to add, drag to move (snaps to cells), arrows move by one cell |
+| Room    | `W` | drag on the grid to draw a room                                                             |
+| Door    | `E` | click a wall; a door on the outer wall opens to space and is drawn blue                     |
+| Station | `R` | click a cell of a room with a system to put that system's crew station there                |
 
 - With nothing selected the inspector shows **Add a system**: a palette of the game's systems in three groups (core, subsystems, special), coloured by their state (installed at the start, on the ship but bought later, not on the ship), with the room each one is in.
 - Drag a system onto a room to place it; drop it outside or back on the palette to remove it. With a room selected, a click on a system puts it in that room.
@@ -91,9 +91,9 @@ Rooms, doors, the systems in the rooms and the crew stations.
 
 | Tool         | Key | What it does                                                                                |
 | ------------ | --- | ------------------------------------------------------------------------------------------- |
-| Select       | `V` | click a mount to select it, drag it to move it                                              |
+| Select       | `Q` | click a mount to select it, drag it to move it                                              |
 | Move picture | `H` | drag the hull, floor, cloak or shield picture; arrows move by 1 px, Shift + arrows by 10 px |
-| Mount        | `M` | click the hull to add a weapon mount (at most 8)                                            |
+| Mount        | `T` | click the hull to add a weapon mount (at most 8)                                            |
 | Gib          | `G` | select and drag the explosion pieces                                                        |
 
 - Pictures (hull, floor, cloak, shield, ship icon) are chosen from the game or from a PNG file.
@@ -111,19 +111,23 @@ The checks button opens a list of everything about the ship that is unfinished o
 
 ## Settings
 
-Interface scale (the whole window zooms, so the canvas stays exact), dark or light theme, language, and keyboard shortcuts (every tool key can be changed). The choices are remembered.
+Two tabs. **General**: interface scale (the whole window zooms, so the canvas stays exact), dark or light theme, language. **Shortcuts**: the keys of the tools, Undo, Redo and Delete selected. Clicking a key waits for the new key or combination (Ctrl, Shift, Alt + key); Esc cancels. Keys are read by their place on the keyboard, so they work with any keyboard layout. A key another action has is offered as a swap; a fixed key is refused. Each key has a reset arrow, and **Reset all to default** puts every key back. The choices are remembered and take effect at once; wherever the interface names a tool key, it shows the current one.
 
 ## Keys
 
-| Key                                | Action                          |
-| ---------------------------------- | ------------------------------- |
-| `1`–`3`                            | workspaces                      |
-| `V`, `R`, `D`, `T`, `H`, `M`, `G`  | tools                           |
-| arrows, Shift + arrows             | move the selection              |
-| `Delete`, `Backspace`              | delete the selection            |
-| `[`, `]`                           | rotate, mirror a mount          |
-| `Ctrl+Z`, `Ctrl+Shift+Z`, `Ctrl+Y` | undo, redo                      |
-| `Ctrl+S`                           | save                            |
-| `Esc`                              | cancel the current drag or tool |
+The default keys; the ones marked with a star can be changed in Settings › Shortcuts.
+
+| Key                                 | Action                          |
+| ----------------------------------- | ------------------------------- |
+| `1`–`3`                             | workspaces                      |
+| `Q`, `W`, `E`, `R`, `T`, `H`, `G` * | tools                           |
+| arrows, Shift + arrows              | move the selection              |
+| `D` *, `Delete`, `Backspace`        | delete the selection            |
+| `[`, `]`                            | rotate, mirror a mount          |
+| `Ctrl+Z` *                          | undo                            |
+| `Ctrl+Y` *, `Ctrl+Shift+Z`          | redo                            |
+| `Ctrl+S`                            | save                            |
+| `Space` held                        | pan                             |
+| `Esc`                               | cancel the current drag or tool |
 
 Every change can be undone.

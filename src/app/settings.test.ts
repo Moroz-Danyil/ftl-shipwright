@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { KeyValueStore } from "../platform/storage";
+import { DEFAULT_KEYS } from "./keys";
 import {
   DEFAULT_UI_SCALE,
   RECENT_LIMIT,
   addRecent,
   loadDatPath,
+  loadKeyMap,
   loadLanguage,
   loadMod,
   loadOpenSections,
@@ -12,6 +14,7 @@ import {
   loadTheme,
   loadUiScale,
   saveDatPath,
+  saveKeyMap,
   saveLanguage,
   saveMod,
   saveRecent,
@@ -124,5 +127,23 @@ describe("the look of the interface", () => {
     expect(loadOpenSections(store)).toEqual({ hull: true });
     store.setItem("shipwright.sections", JSON.stringify([true]));
     expect(loadOpenSections(store)).toEqual({});
+  });
+
+  it("remembers the changed shortcuts only, ignoring bad entries", () => {
+    const store = memoryStore();
+    expect(loadKeyMap(store)).toEqual(DEFAULT_KEYS);
+    saveKeyMap({ ...DEFAULT_KEYS, "tool.select": "W", "tool.room": "Q" }, store);
+    expect(JSON.parse(store.data.get("shipwright.shortcuts")!)).toEqual({
+      "tool.select": "W",
+      "tool.room": "Q",
+    });
+    expect(loadKeyMap(store)).toEqual({ ...DEFAULT_KEYS, "tool.select": "W", "tool.room": "Q" });
+    store.setItem(
+      "shipwright.shortcuts",
+      JSON.stringify({ "tool.gib": "K", "tool.door": "Ctrl+S", nothing: "J", undo: 7 })
+    );
+    expect(loadKeyMap(store)).toEqual({ ...DEFAULT_KEYS, "tool.gib": "K" });
+    store.data.set("shipwright.shortcuts", "{broken");
+    expect(loadKeyMap(store)).toEqual(DEFAULT_KEYS);
   });
 });

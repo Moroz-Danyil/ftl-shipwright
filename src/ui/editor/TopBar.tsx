@@ -3,7 +3,7 @@
  * checks, settings and Save mod.
  */
 import { shipDisplayName } from "../../app/ships";
-import { hasUnsavedChanges, redoAvailable, undoAvailable, useEditor } from "../../app/store";
+import { hasUnsavedChanges, keyOf, redoAvailable, undoAvailable, useEditor } from "../../app/store";
 import { WORKSPACES, workspaceKey } from "../../app/workspaces";
 import { useTexts } from "../../text";
 import { LogoMark, RedoIcon, SettingsIcon, UndoIcon } from "../common/icons";
@@ -75,6 +75,8 @@ export function TopBar() {
   const texts = useTexts();
   const canUndo = useEditor(undoAvailable);
   const canRedo = useEditor(redoAvailable);
+  const undoKey = useEditor(keyOf("undo"));
+  const redoKey = useEditor(keyOf("redo"));
   const { undo, redo, openDialog } = useEditor.getState();
   return (
     <header className="ed-top">
@@ -85,7 +87,7 @@ export function TopBar() {
           type="button"
           className="btn btn--icon"
           aria-label={texts.topBar.undo}
-          title={texts.topBar.undo}
+          title={texts.common.withKey(texts.topBar.undo, undoKey)}
           disabled={!canUndo}
           onClick={undo}
         >
@@ -95,7 +97,7 @@ export function TopBar() {
           type="button"
           className="btn btn--icon"
           aria-label={texts.topBar.redo}
-          title={texts.topBar.redo}
+          title={texts.common.withKey(texts.topBar.redo, redoKey)}
           disabled={!canRedo}
           onClick={redo}
         >

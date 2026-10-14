@@ -1,7 +1,7 @@
 /**
  * The one store of the app: game data, the open ship with its undo history,
- * the selection, the workspace and tool, the view settings, and the look of
- * the interface.
+ * the selection, the workspace and tool, the view settings, the look of the
+ * interface and the keyboard shortcuts.
  */
 import { create } from "zustand";
 import type { Animations, Catalogs, FileSource, GameTexts, GameView, Ship } from "../core";
@@ -13,11 +13,13 @@ import { EMPTY_SELECTION, validSelection, type Selection } from "./selection";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "../text";
 import {
   loadDatPath,
+  loadKeyMap,
   loadLanguage,
   loadMod,
   loadRecent,
   loadTheme,
   loadUiScale,
+  saveKeyMap,
   saveLanguage,
   saveTheme,
   saveUiScale,
@@ -25,6 +27,7 @@ import {
   type ShipOrigin,
   type Theme,
 } from "./settings";
+import { DEFAULT_KEYS, keyLabel, rebind, type KeyMap, type RebindableCommand } from "./keys";
 import { WORKSPACE_TOOLS, hasTool, type ToolId, type WorkspaceId } from "./workspaces";
 
 // ---------------------------------------------------------------------------
@@ -177,6 +180,8 @@ export interface EditorState {
   theme: Theme;
   /** The interface scale in percent. */
   uiScale: number;
+  /** The chosen keys of the commands whose key can be changed. */
+  keys: KeyMap;
   game: GameState;
   recent: RecentShip[];
   doc?: ShipDocument;
@@ -242,6 +247,14 @@ export interface EditorState {
   setLanguage(language: string): void;
   setTheme(theme: Theme): void;
   setUiScale(scale: number): void;
+  /**
+   * Gives keys to a command; a command that had them gets its old keys in
+   * exchange. Fixed keys are refused.
+   */
+  setKey(command: RebindableCommand, keys: string): void;
+  /** Gives a command its default keys back (swapping as `setKey` does). */
+  resetKey(command: RebindableCommand): void;
+  resetAllKeys(): void;
 }
 
 let nextDocumentId = 1;
@@ -260,6 +273,7 @@ export function initialEditorState() {
     language: language && LANGUAGES[language] ? language : DEFAULT_LANGUAGE,
     theme: loadTheme(),
     uiScale: loadUiScale(),
+    keys: loadKeyMap(),
     game: { datPath, mod: datPath ? loadMod() : undefined, status: "none" } as GameState,
     recent: loadRecent(),
     doc: undefined,
@@ -402,6 +416,17 @@ export const useEditor = create<EditorState>()((set, get) => {
       saveUiScale(uiScale);
       set({ uiScale });
     },
+    setKey: (command, keys) => {
+      const next = rebind(get().keys, command, keys);
+      if (next === get().keys) return;
+      saveKeyMap(next);
+      set({ keys: next });
+    },
+    resetKey: (command) => get().setKey(command, DEFAULT_KEYS[command]),
+    resetAllKeys: () => {
+      saveKeyMap(DEFAULT_KEYS);
+      set({ keys: { ...DEFAULT_KEYS } });
+    },
   };
 });
 
@@ -422,6 +447,12 @@ export const currentTool = (s: EditorState): ToolId => {
   const tool = s.tools[s.workspace];
   return WORKSPACE_TOOLS[s.workspace].includes(tool) ? tool : "select";
 };
+
+/** A selector of how the key of a command is shown, e.g. `Q` or `Ctrl+Z`. */
+export const keyOf =
+  (command: RebindableCommand) =>
+  (s: EditorState): string =>
+    keyLabel(s.keys[command]);
 
 /** True when the ship differs from the one last saved (or was never saved). */
 export const hasUnsavedChanges = (s: EditorState): boolean => {

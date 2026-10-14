@@ -110,12 +110,12 @@ describe("editor window", () => {
     const room = screen.getByRole("button", { name: en.tools.room });
     fireEvent.click(room);
     expect(room).toHaveAttribute("aria-pressed", "true");
-    press("KeyV");
+    press("KeyQ");
     expect(screen.getByRole("button", { name: en.tools.select })).toHaveAttribute(
       "aria-pressed",
       "true"
     );
-    press("KeyM");
+    press("KeyT");
     expect(screen.getByRole("button", { name: en.tools.select })).toHaveAttribute(
       "aria-pressed",
       "true"
@@ -126,17 +126,17 @@ describe("editor window", () => {
     const rail = screen.getByRole("complementary", { name: en.toolRail.label });
     const tools = within(rail).getAllByRole("button");
     expect(tools.map((t) => t.textContent)).toEqual([
-      en.tools.select + "V",
-      en.tools.room + "R",
-      en.tools.door + "D",
-      en.tools.station + "T",
+      en.tools.select + "Q",
+      en.tools.room + "W",
+      en.tools.door + "E",
+      en.tools.station + "R",
     ]);
     expect(tools.every((t) => t.querySelector("svg") !== null)).toBe(true);
     expect(tools[0]).not.toHaveAttribute("title");
 
     fireEvent.pointerEnter(tools[2]);
     const help = within(screen.getByRole("tooltip")).getByRole("region", {
-      name: en.toolHelp.rooms.door.title,
+      name: en.common.withKey(en.toolHelp.rooms.door.title, "E"),
     });
     expect(help).toHaveTextContent(en.toolHelp.rooms.door.body);
     expect(rail).not.toContainElement(screen.getByRole("tooltip"));
@@ -145,7 +145,7 @@ describe("editor window", () => {
 
     press("Digit3");
     const mount = within(rail).getByRole("button", { name: en.tools.mount });
-    expect(mount).toHaveTextContent(en.tools.mount + "M");
+    expect(mount).toHaveTextContent(en.tools.mount + "T");
     fireEvent.focus(mount);
     expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.hull.mount.body);
     fireEvent.blur(mount);
@@ -177,7 +177,7 @@ describe("editor window", () => {
   });
 
   it("selects nothing with other tools", () => {
-    press("KeyR");
+    press("KeyW");
     clickShip({ x: 50, y: 50 });
     expect(state().selection).toEqual(EMPTY_SELECTION);
   });

@@ -89,14 +89,14 @@ describe("Rooms on the canvas", () => {
   });
 
   it("draws rooms with the Room tool and doors with the Door tool", () => {
-    press("KeyR");
+    press("KeyW");
     expect(canvas()).toHaveAttribute("data-tool", "room");
     fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(0.5, 1.5) });
     fireEvent.pointerMove(canvas(), screenAt(1.5, 1.5));
     fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(1.5, 1.5) });
     expect(ship().layout.rooms[3]).toEqual({ id: 3, x: 0, y: 1, w: 2, h: 1 });
 
-    press("KeyD");
+    press("KeyE");
     fireEvent.pointerMove(canvas(), screenAt(1.5, 0.95));
     expect(screen.getByTestId("wall")).toBeInTheDocument();
     click(1.5, 0.95);
@@ -139,7 +139,9 @@ describe("Rooms inspector", () => {
     const add = within(panel).getByRole("region", { name: en.sections.addSystem });
     expect(within(add).getByRole("group", { name: en.systems.groups.core })).toBeInTheDocument();
     expect(within(add).getByText(en.systems.help)).toBeInTheDocument();
-    const help = within(panel).getByRole("button", { name: en.toolHelp.rooms.select.title });
+    const help = within(panel).getByRole("button", {
+      name: en.common.withKey(en.toolHelp.rooms.select.title, "Q"),
+    });
     expect(help).toHaveAttribute("aria-expanded", "false");
   });
 
@@ -179,7 +181,7 @@ describe("Rooms inspector", () => {
     expect(
       within(inspector()).getByRole("button", { name: en.sections.position })
     ).toBeInTheDocument();
-    press("KeyT");
+    press("KeyR");
     expect(inspector().querySelector('.sec-head [data-pictogram="station"]')).not.toBeNull();
   });
 
@@ -251,7 +253,7 @@ describe("Rooms inspector", () => {
   });
 
   it("chooses which system the Station tool places", () => {
-    press("KeyT");
+    press("KeyR");
     const chooser = within(inspector()).getByRole("group", { name: en.inspector.stationFor });
     fireEvent.click(within(chooser).getByRole("radio", { name: /shields/ }));
     expect(state().stationSystem).toBe(1);
@@ -260,8 +262,12 @@ describe("Rooms inspector", () => {
   });
 
   it("shows help for the current tool", () => {
-    expect(within(inspector()).getByText(en.toolHelp.rooms.select.title)).toBeInTheDocument();
-    press("KeyD");
-    expect(within(inspector()).getByText(en.toolHelp.rooms.door.title)).toBeInTheDocument();
+    expect(
+      within(inspector()).getByText(en.common.withKey(en.toolHelp.rooms.select.title, "Q"))
+    ).toBeInTheDocument();
+    press("KeyE");
+    expect(
+      within(inspector()).getByText(en.common.withKey(en.toolHelp.rooms.door.title, "E"))
+    ).toBeInTheDocument();
   });
 });

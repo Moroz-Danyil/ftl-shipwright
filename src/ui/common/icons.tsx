@@ -41,6 +41,22 @@ export function RedoIcon() {
   );
 }
 
+/** A circular arrow: back to the default. */
+export function ResetIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+      <path
+        d="M2.5 3 V6.5 H6 M2.9 6.3 A5.5 5.5 0 1 1 2.6 10"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function WarningIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">

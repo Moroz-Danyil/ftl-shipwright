@@ -2,8 +2,9 @@
  * The tools of the current workspace: each with its icon, name and key.
  * Hovering or focusing a tool shows what it does left of the rail.
  */
+import { keyLabel } from "../../app/keys";
 import { currentTool, useEditor } from "../../app/store";
-import { TOOL_KEYS, WORKSPACE_TOOLS, type ToolId } from "../../app/workspaces";
+import { WORKSPACE_TOOLS, type ToolId } from "../../app/workspaces";
 import { useTexts } from "../../text";
 import { HoverPanel } from "../common/HoverPanel";
 import { ToolIcon } from "../common/icons";
@@ -15,8 +16,11 @@ export function ToolRail() {
   const workspace = useEditor((s) => s.workspace);
   const tool = useEditor(currentTool);
   const setTool = useEditor((s) => s.setTool);
+  const keys = useEditor((s) => s.keys);
   const panel = useHoverPanel<ToolId>();
-  const help = panel.shown && toolHelpOf(texts, workspace, panel.shown.value);
+  const keyOfTool = (id: ToolId) => keyLabel(keys[`tool.${id}`]);
+  const help =
+    panel.shown && toolHelpOf(texts, workspace, panel.shown.value, keyOfTool(panel.shown.value));
   return (
     <aside className="ed-rail" aria-label={texts.toolRail.label}>
       {WORKSPACE_TOOLS[workspace].map((id) => (
@@ -34,7 +38,7 @@ export function ToolRail() {
         >
           <ToolIcon tool={id} />
           <span className="ed-tool-name">{texts.tools[id]}</span>
-          <span className="ed-tool-key">{TOOL_KEYS[id]}</span>
+          <span className="ed-tool-key">{keyOfTool(id)}</span>
         </button>
       ))}
       {panel.shown && help && (

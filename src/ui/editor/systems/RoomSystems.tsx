@@ -23,7 +23,7 @@ import {
   showsUpgradeLimit,
   systemsInRoom,
 } from "../../../app/systems/rules";
-import { useEditor } from "../../../app/store";
+import { keyOf, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
 import { Section } from "../../common/Section";
@@ -60,8 +60,9 @@ function ArtilleryWeapon({ index, weapon }: { index: number; weapon: string | un
 /** The facing of a system's crew station, turned with the same action as the station panel's. */
 function StationFacing({ ship, index }: { ship: Ship; index: number }) {
   const texts = useTexts();
+  const stationKey = useEditor(keyOf("tool.station"));
   const station = stationOf(ship, index);
-  if (!station) return <span className="muted">{texts.systems.noStation}</span>;
+  if (!station) return <span className="muted">{texts.systems.noStation(stationKey)}</span>;
   return (
     <Help topic="stationFacing">
       <div className="sy-station">

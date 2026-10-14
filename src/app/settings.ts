@@ -1,10 +1,11 @@
 /**
  * What the app remembers between runs: the game archive, the mod, the
- * recently used ships, the look of the interface (theme, scale, language) and
- * which inspector sections are folded.
+ * recently used ships, the look of the interface (theme, scale, language), the
+ * keyboard shortcuts and which inspector sections are folded.
  */
 import type { ModRef } from "../platform/types";
 import { readStored, writeStored, type KeyValueStore } from "../platform/storage";
+import { changedKeys, keyMapFrom, type KeyMap } from "./keys";
 
 const KEYS = {
   datPath: "shipwright.datPath",
@@ -14,6 +15,7 @@ const KEYS = {
   scale: "shipwright.scale",
   language: "shipwright.language",
   sections: "shipwright.sections",
+  shortcuts: "shipwright.shortcuts",
 } as const;
 
 export type Theme = "dark" | "light";
@@ -48,6 +50,18 @@ export function loadLanguage(store?: KeyValueStore): string | undefined {
 
 export function saveLanguage(language: string, store?: KeyValueStore): void {
   writeStored(KEYS.language, language, store);
+}
+
+/**
+ * The chosen keyboard shortcuts. Only the keys that differ from the default
+ * ones are stored; unknown or invalid entries are ignored.
+ */
+export function loadKeyMap(store?: KeyValueStore): KeyMap {
+  return keyMapFrom(readStored<unknown>(KEYS.shortcuts, store));
+}
+
+export function saveKeyMap(map: KeyMap, store?: KeyValueStore): void {
+  writeStored(KEYS.shortcuts, changedKeys(map), store);
 }
 
 /** Which inspector sections were opened or folded, by section id. */

@@ -3,6 +3,7 @@
  * comes from here; other languages are objects of the same type.
  */
 import type { CheckCode } from "../app/checks";
+import type { RebindableCommand } from "../app/keys";
 import type { ToolId, WorkspaceId } from "../app/workspaces";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -34,6 +35,8 @@ export const en = {
     cancel: "Cancel",
     close: "Close",
     search: "Search",
+    /** A name with its key, e.g. `Undo (Ctrl+Z)`. */
+    withKey: (name: string, key: string) => `${name} (${key})`,
   },
 
   start: {
@@ -154,47 +157,50 @@ export const en = {
     saveMod: "Save mod",
   },
 
-  /** What each tool of each workspace does, shown beside the tool rail and in the inspector. */
+  /**
+   * What each tool of each workspace does, shown beside the tool rail and in the inspector.
+   * The title is shown with the tool's current key (`common.withKey`).
+   */
   toolHelp: {
     ship: {
       select: {
-        title: "Select tool (V)",
+        title: "Select tool",
         body: "Click a slot in the bar under the ship to select it; Delete removes its weapon or drone. Hover a slot to see its mount on the hull. Preview in hangar shows the ship as the game's hangar does.",
       },
     },
     rooms: {
       select: {
-        title: "Select tool (V)",
+        title: "Select tool",
         body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell; Delete removes the selection.",
       },
       room: {
-        title: "Room tool (R)",
+        title: "Room tool",
         body: "Drag on the grid to draw a room. Rooms snap to cells and never cross the solid edge at 0 or overlap. Right-click or Esc cancels.",
       },
       door: {
-        title: "Door tool (D)",
+        title: "Door tool",
         body: "Click a wall next to a room. Doors to space are blue (airlocks).",
       },
       station: {
-        title: "Station tool (T)",
+        title: "Station tool",
         body: "Click a cell of a room with a system to put that system's crew station there. Turn a station in its system's card, or select the station.",
       },
     },
     hull: {
       select: {
-        title: "Select tool (V)",
+        title: "Select tool",
         body: "Click a mount to select it, drag it to move it. Arrows move the selection by 1 px, Shift + arrows by 10 px.",
       },
       movePicture: {
-        title: "Move picture tool (H)",
+        title: "Move picture tool",
         body: "Drag the hull, floor, cloak or shield picture. Arrows move the picture by 1 px, Shift + arrows by 10 px.",
       },
       mount: {
-        title: "Mount tool (M)",
+        title: "Mount tool",
         body: "Click the hull picture to add a weapon mount (at most 8); drag a mount to move it. [ rotates and ] mirrors the selected mount.",
       },
       gib: {
-        title: "Gib tool (G)",
+        title: "Gib tool",
         body: "Click an explosion piece to select it, drag it to move it.",
       },
     },
@@ -289,7 +295,7 @@ export const en = {
     noInteriors: "The game has no interior picture for this system.",
     artilleryWeapon: "Weapon",
     station: (cell: number) => `Crew station · cell ${cell}`,
-    noStation: "No crew station yet; place it with the Station tool (T).",
+    noStation: (key: string) => `No crew station yet; place it with the Station tool (${key}).`,
     unusualMix:
       "The game's own ships never put these systems in one room; the game may not handle it.",
   },
@@ -495,8 +501,8 @@ export const en = {
     drones: "Drones",
     augments: "Augments",
     count: (n: number, max: number) => `${n} / ${max}`,
-    mountsHint:
-      "The Mount tool (M) adds mounts on the hull. Weapons take the mounts in the order of their numbers.",
+    mountsHint: (key: string) =>
+      `The Mount tool (${key}) adds mounts on the hull. Weapons take the mounts in the order of their numbers.`,
   },
 
   /** Hover help for the fields: a title (the field's label) and what it means in the game. */
@@ -527,7 +533,7 @@ export const en = {
     },
     stationFacing: {
       title: "Crew station",
-      body: "The cell where a crew member mans the system, and the way they face there. The Station tool (T) moves the station to another cell.",
+      body: "The cell where a crew member mans the system, and the way they face there. The Station tool moves the station to another cell.",
     },
     interior: {
       title: "Interior picture",
@@ -754,6 +760,9 @@ export const en = {
 
   settings: {
     title: "Settings",
+    sections: "Settings sections",
+    general: "General",
+    shortcuts: "Shortcuts",
     scale: "Interface scale",
     scaleHint: "Makes every button, icon and text bigger or smaller.",
     scaleValue: (percent: number) => `${percent}%`,
@@ -761,6 +770,45 @@ export const en = {
     dark: "Dark",
     light: "Light",
     language: "Language",
+  },
+
+  shortcuts: {
+    hint: "Keys are read by their place on the keyboard, so they work with any keyboard layout.",
+    tools: "Tools",
+    editing: "Editing",
+    names: {
+      "tool.select": "Select tool",
+      "tool.room": "Room tool",
+      "tool.door": "Door tool",
+      "tool.station": "Station tool",
+      "tool.movePicture": "Move picture tool",
+      "tool.mount": "Mount tool",
+      "tool.gib": "Gib tool",
+      undo: "Undo",
+      redo: "Redo",
+      delete: "Delete selected",
+    } satisfies Record<RebindableCommand, string>,
+    change: (name: string, key: string) => `${name}: ${key}. Change the key`,
+    pressKey: "Press a key…",
+    capturing: (name: string) => `Press the new key for ${name}, or Esc to cancel`,
+    reset: (name: string, key: string) => `Reset ${name} to ${key}`,
+    resetAll: "Reset all to default",
+    taken: (key: string, other: string, otherNew: string) =>
+      `${key} is already used by ${other}. Swap them, so that ${other} gets ${otherNew}?`,
+    swap: "Swap",
+    fixed: (key: string, what: string) => `${key} is a fixed key: it ${what}. Choose another key.`,
+    fixedActions: {
+      redo: "redoes",
+      save: "saves",
+      cancel: "cancels",
+      pan: "pans the view",
+      delete: "deletes the selection",
+      move: "moves the selection",
+      workspace: "opens a workspace",
+      mount: "turns the selected mount",
+    },
+    fixedKeys:
+      "Fixed keys: Del and Backspace delete · Ctrl+Shift+Z redoes · arrows move the selection (with Shift by 10) · Esc cancels · Space pans · Ctrl+S saves · 1–3 pick the workspace · [ and ] turn the selected mount.",
   },
 
   errors: {

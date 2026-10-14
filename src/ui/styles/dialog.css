@@ -243,3 +243,112 @@
 .set-field select {
   max-width: 260px;
 }
+
+/* Settings tabs */
+.set-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.set-tab {
+  height: 34px;
+  padding: 0 14px;
+  margin-bottom: -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.set-tab:hover {
+  color: var(--text);
+}
+.set-tab[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--accent-soft);
+  font-weight: 600;
+}
+.set-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Shortcuts */
+.set-key-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.set-keys {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.set-key-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+}
+.set-key-name {
+  font-size: 13px;
+  color: var(--text-soft);
+}
+.set-key {
+  min-width: 96px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+}
+.set-key:hover {
+  border-color: var(--line-strong);
+}
+.set-key--capturing,
+.set-key--capturing:hover {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-soft);
+  font-family: var(--font-sans);
+}
+.set-key-reset {
+  width: 30px;
+  height: 30px;
+}
+.set-key-reset:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.set-key-conflict {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-line);
+  color: var(--accent-soft);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.set-key-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}

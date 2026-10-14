@@ -6,7 +6,7 @@
 import { removeMountAt } from "../../../app/artActions";
 import { findItem, itemTitle } from "../../../app/loadout/catalog";
 import { selectionOf } from "../../../app/selection";
-import { useEditor } from "../../../app/store";
+import { keyOf, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { CrossIcon } from "../../common/icons";
 import { WeaponPicture } from "../../common/ItemPictures";
@@ -48,6 +48,7 @@ function MountRow({ index }: { index: number }) {
 export function MountList() {
   const texts = useTexts();
   const count = useEditor((s) => s.doc?.history.present.ship.layoutXml.mounts.length ?? 0);
+  const mountKey = useEditor(keyOf("tool.mount"));
   return (
     <Section
       id="art-mounts"
@@ -58,7 +59,7 @@ export function MountList() {
       {Array.from({ length: count }, (_, i) => (
         <MountRow key={i} index={i} />
       ))}
-      <span className="ed-help">{texts.sections.mountsHint}</span>
+      <span className="ed-help">{texts.sections.mountsHint(mountKey)}</span>
     </Section>
   );
 }

@@ -8,17 +8,6 @@ export type WorkspaceId = (typeof WORKSPACES)[number];
 
 export type ToolId = "select" | "room" | "door" | "station" | "movePicture" | "mount" | "gib";
 
-/** The default key of each tool (also its shortcut). */
-export const TOOL_KEYS: Record<ToolId, string> = {
-  select: "V",
-  room: "R",
-  door: "D",
-  station: "T",
-  movePicture: "H",
-  mount: "M",
-  gib: "G",
-};
-
 export const WORKSPACE_TOOLS: Record<WorkspaceId, ToolId[]> = {
   ship: ["select"],
   rooms: ["select", "room", "door", "station"],

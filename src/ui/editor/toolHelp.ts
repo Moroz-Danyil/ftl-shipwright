@@ -7,12 +7,14 @@ export interface ToolHelpText {
   body: string;
 }
 
-/** What a tool of a workspace does, if the texts say. */
+/** What a tool of a workspace does, if the texts say; the title names the tool's current key. */
 export function toolHelpOf(
   texts: Texts,
   workspace: WorkspaceId,
-  tool: ToolId
+  tool: ToolId,
+  key: string
 ): ToolHelpText | undefined {
   const table: Partial<Record<ToolId, ToolHelpText>> = texts.toolHelp[workspace];
-  return table[tool];
+  const help = table[tool];
+  return help && { title: texts.common.withKey(help.title, key), body: help.body };
 }
