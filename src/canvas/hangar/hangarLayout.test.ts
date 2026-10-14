@@ -3,11 +3,18 @@ import { createShip, type ShipSystem } from "../../core";
 import { viewLimitPx } from "../viewLimit";
 import {
   HANGAR_FRAME,
+  ITEM_SLOT,
   SCREEN,
+  SYSTEM_BAR,
+  crewCardAt,
   hangarScale,
   hangarScreenPoint,
   hangarShip,
   hangarShipOffset,
+  hangarSystemIconPath,
+  itemSlotsX,
+  powerBars,
+  systemColumns,
 } from "./hangarLayout";
 
 const system = (name: string, power: number, start?: boolean): ShipSystem => ({
@@ -52,6 +59,66 @@ describe("the ship on the hangar screen", () => {
     expect(hangarShip(ship).blueprint.systems.map((s) => s.system)).toEqual(["shields", "pilot"]);
     const all = shipWith([system("shields", 2)]);
     expect(hangarShip(all)).toBe(all);
+  });
+});
+
+describe("the systems bar", () => {
+  it("has a column per starting system, in the hangar's order", () => {
+    const ship = shipWith([
+      system("pilot", 1),
+      system("doors", 1),
+      system("medbay", 1),
+      system("clonebay", 1, false),
+      system("oxygen", 1),
+      system("shields", 2),
+      system("weapons", 3),
+      system("engines", 2),
+      system("drones", 2, false),
+    ]);
+    const columns = systemColumns(ship);
+    expect(columns.map((c) => c.system)).toEqual([
+      "shields",
+      "engines",
+      "oxygen",
+      "weapons",
+      "medbay",
+      "pilot",
+      "doors",
+    ]);
+    expect(columns.map((c) => c.x)).toEqual([373, 411, 449, 487, 525, 563, 601]);
+    expect(columns[3].bars).toHaveLength(3);
+    expect(hangarSystemIconPath("oxygen")).toBe("img/icons/s_oxygen_green1.png");
+  });
+
+  it("stacks the power bars up from the bottom, closer above level 4", () => {
+    expect(powerBars(0)).toEqual([]);
+    expect(powerBars(2)).toEqual([
+      { y: 434, height: 6 },
+      { y: 426, height: 6 },
+    ]);
+    const eight = powerBars(8);
+    expect(eight).toHaveLength(8);
+    expect(eight[7].y).toBeGreaterThanOrEqual(SYSTEM_BAR.barsTop);
+    expect(eight[0].y + eight[0].height).toBe(SYSTEM_BAR.barsBottom);
+  });
+});
+
+describe("the equipment panel", () => {
+  it("places the Kestrel's four weapon slots as measured, and more slots closer", () => {
+    expect(itemSlotsX(4)).toEqual([435, 552, 669, 786]);
+    expect(itemSlotsX(0)).toEqual([]);
+    expect(itemSlotsX(1)).toEqual([Math.round(ITEM_SLOT.centreX - ITEM_SLOT.width / 2)]);
+    const eight = itemSlotsX(8);
+    expect(eight[7] + ITEM_SLOT.width - eight[0]).toBeLessThanOrEqual(560);
+  });
+
+  it("lays the crew cards out row by row", () => {
+    expect([0, 1, 2, 3].map(crewCardAt)).toEqual([
+      { x: 70, y: 519 },
+      { x: 230, y: 519 },
+      { x: 70, y: 612 },
+      { x: 230, y: 612 },
+    ]);
   });
 });
 

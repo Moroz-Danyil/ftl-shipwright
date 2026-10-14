@@ -14,6 +14,12 @@ const hangar = () => within(screen.getByTestId("hangar-svg"));
 const GAME_TEXTS: Record<string, string> = {
   ship_T_name: "The Tee",
   ship_rename_button: "RENAME",
+  hangar_frame_crew: "CREW",
+  equipment_frame_weapons: "WEAPONS",
+  equipment_frame_drones: "DRONES",
+  equipment_frame_augments: "AUGMENTATIONS",
+  equipment_no_system: "SYSTEM NOT INSTALLED",
+  crewbox_customize: "CUSTOMIZE",
 };
 
 const systems: ShipSystem[] = [
@@ -91,10 +97,74 @@ describe("the hangar preview", () => {
     expect(state().selection.rooms).toEqual([0]);
   });
 
-  it("shows the ship's name with the game's label", () => {
+  it("shows the ship's name and the game's frame titles", () => {
     open();
     expect(within(screen.getByTestId("hangar-name")).getByText("The Tee")).toBeInTheDocument();
-    expect(hangar().getByText("RENAME")).toBeInTheDocument();
+    for (const title of ["RENAME", "CREW", "WEAPONS", "DRONES", "AUGMENTATIONS"])
+      expect(hangar().getByText(title)).toBeInTheDocument();
     expect(hangar().getByTestId("hangar-ship")).toBeInTheDocument();
+  });
+
+  it("has a systems column for each system installed at the start, in the hangar's order", () => {
+    open();
+    const columns = within(hangar().getByTestId("hangar-systems"))
+      .getAllByTestId(/^hangar-system-/)
+      .map((g) => [g.dataset.testid, g.querySelectorAll(".hg-power").length]);
+    expect(columns).toEqual([
+      ["hangar-system-shields", 2],
+      ["hangar-system-weapons", 3],
+      ["hangar-system-pilot", 1],
+    ]);
+  });
+
+  it("shows the crew as cards with their race titles, and empty cards after them", () => {
+    open();
+    const crew = within(hangar().getByTestId("hangar-crew"));
+    expect(crew.getByTestId("hangar-crew-1")).toHaveAttribute("data-race", "engi");
+    expect(within(crew.getByTestId("hangar-crew-1")).getByText("Engi")).toBeInTheDocument();
+    expect(within(crew.getByTestId("hangar-crew-2")).getByText("Human")).toBeInTheDocument();
+    expect(crew.getAllByText("CUSTOMIZE")).toHaveLength(2);
+    expect(crew.queryByTestId("hangar-crew-3")).not.toBeInTheDocument();
+    expect(crew.queryByTestId("hangar-more-crew")).not.toBeInTheDocument();
+    act(() =>
+      state().edit((s) => ({
+        ...s,
+        blueprint: { ...s.blueprint, crew: [{ race: "human", amount: 6 }] },
+      }))
+    );
+    expect(hangar().getByTestId("hangar-more-crew")).toHaveTextContent(en.canvas.hangarMoreCrew(2));
+  });
+
+  it("puts the weapons in their slots, and says when the drone system is missing", () => {
+    open();
+    const weapons = hangar().getByTestId("hangar-weapon-slots");
+    expect(weapons).toHaveAttribute("data-slots", "2");
+    expect(
+      within(within(weapons).getByTestId("hangar-weapon-LASER_BURST_1")).getByText("Burst I")
+    ).toBeInTheDocument();
+    expect(hangar().getByTestId("hangar-drone-not-installed")).toHaveTextContent(
+      "SYSTEM NOT INSTALLED"
+    );
+    expect(hangar().queryByTestId("hangar-drone-slots")).not.toBeInTheDocument();
+  });
+
+  it("shows drone slots once the drone system is installed, and the augments", () => {
+    open();
+    act(() =>
+      state().edit((s) => ({
+        ...s,
+        blueprint: {
+          ...s.blueprint,
+          systems: s.blueprint.systems.map((x) =>
+            x.system === "drones" ? { ...x, start: true } : x
+          ),
+        },
+      }))
+    );
+    expect(hangar().getByTestId("hangar-drone-slots")).toHaveAttribute("data-slots", "1");
+    expect(hangar().queryByTestId("hangar-drone-not-installed")).not.toBeInTheDocument();
+    expect(hangar().getByTestId("hangar-system-drones")).toBeInTheDocument();
+    const augment = hangar().getByTestId("hangar-augment-SCRAP_COLLECTOR");
+    expect(within(augment).getByText("Scrap Recovery Arm")).toBeInTheDocument();
   });
 });

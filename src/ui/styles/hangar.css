@@ -84,9 +84,30 @@
   dominant-baseline: central;
   pointer-events: none;
 }
+.hg-text--title {
+  font-size: 16px;
+  fill: #262a2a;
+  text-anchor: start;
+}
 .hg-text--name {
   font-size: 20px;
 }
-.hg-text--label {
+.hg-text--label,
+.hg-text--button {
   font-size: 13px;
+}
+.hg-text--small {
+  font-size: 10px;
+}
+.hg-text--tiny {
+  font-size: 8px;
+}
+.hg-text--big {
+  font-size: 24px;
+}
+.hg-text--start {
+  font-size: 34px;
+}
+.hg-power {
+  fill: #64ff64;
 }

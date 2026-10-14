@@ -1,7 +1,7 @@
 /**
  * Preview in hangar: a full-window view of the game's hangar screen
  * (1280 × 720, scaled to fit, crisp where the size allows) with the ship
- * where the game puts it and its name, built from the game's own pictures. It only shows;
+ * where the game puts it, built from the game's own pictures. It only shows;
  * Esc or the close button leaves it.
  */
 import { useEffect, useRef } from "react";
@@ -11,9 +11,12 @@ import { useTexts } from "../../text";
 import { BackIcon } from "../../ui/common/icons";
 import { useElementSize } from "../useElementSize";
 import { HANGAR_BOXES, HANGAR_PICTURES, SCREEN, hangarScale } from "./hangarLayout";
+import { HangarDecorations } from "./HangarDecorations";
+import { EquipmentPanel } from "./EquipmentPanel";
 import { HangarShip } from "./HangarShip";
 import { ScreenPicture } from "./ScreenPicture";
 import { useGameText } from "./useGameText";
+import { SystemsBar } from "./SystemsBar";
 
 function ShipNameBox() {
   const ship = useEditor((s) => s.doc?.history.present.ship);
@@ -72,7 +75,10 @@ export function HangarPreview() {
       >
         <ScreenPicture path={HANGAR_PICTURES.background} x={0} y={0} />
         <HangarShip />
+        <HangarDecorations />
         <ShipNameBox />
+        <SystemsBar />
+        <EquipmentPanel />
       </svg>
       <button
         ref={close}

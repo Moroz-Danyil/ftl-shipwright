@@ -210,6 +210,7 @@ export const en = {
     preview: "Preview in hangar",
     previewOff: "Back to editing",
     previewOffKey: "Esc",
+    hangarMoreCrew: (n: number) => `+${n} more`,
     layerNames: {
       hull: "Hull",
       floor: "Floor",
