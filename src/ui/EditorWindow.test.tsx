@@ -202,10 +202,13 @@ describe("editor window", () => {
     fireEvent.click(numbers);
     expect(svg.querySelectorAll(".cv-room-id")).toHaveLength(2);
     fireEvent.click(screen.getByRole("button", { name: en.canvas.preview }));
-    expect(svg.querySelector(".cv-grid")).toBeNull();
-    expect(svg.querySelector(".cv-room-id")).toBeNull();
-    expect(screen.queryByTestId("view-limit")).not.toBeInTheDocument();
+    const hangar = screen.getByTestId("hangar-svg");
+    expect(hangar.querySelector(".cv-room")).not.toBeNull();
+    expect(hangar.querySelector(".cv-grid")).toBeNull();
+    expect(hangar.querySelector(".cv-room-id")).toBeNull();
+    expect(within(hangar).queryByTestId("view-limit")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: en.canvas.previewOff }));
+    expect(screen.queryByTestId("hangar-svg")).not.toBeInTheDocument();
     expect(screen.getByTestId("view-limit")).toBeInTheDocument();
   });
 

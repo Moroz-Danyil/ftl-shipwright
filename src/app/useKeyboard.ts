@@ -1,5 +1,6 @@
 /**
- * Listens to the keyboard for the whole window and runs the bound commands.
+ * Listens to the keyboard for the whole window and runs the bound commands
+ * (not while a dialog or the hangar preview is open).
  */
 import { useEffect } from "react";
 import { usePlatform } from "../platform/PlatformContext";
@@ -15,7 +16,7 @@ export function useKeyboard(bindings: KeyBinding[] = DEFAULT_BINDINGS): void {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const state = useEditor.getState();
-      if (!state.doc || state.dialog || state.confirmation) return;
+      if (!state.doc || state.dialog || state.confirmation || state.view.hangarPreview) return;
       const command = commandForEvent(event, bindings);
       if (!command) return;
       const typing = isTextField(event.target);

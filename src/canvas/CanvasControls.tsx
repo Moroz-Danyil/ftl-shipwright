@@ -1,6 +1,6 @@
 /**
  * The buttons in the canvas corner: Play explosion (Hull), the Layers
- * menu and Preview in hangar.
+ * menu and Preview in hangar, which opens the hangar screen over the editor.
  */
 import { useEffect, useRef, useState } from "react";
 import { LAYERS, useEditor } from "../app/store";
@@ -30,7 +30,6 @@ function LayersMenu({ onClose }: { onClose: () => void }) {
 /** `onPlayExplosion`: shows the Play explosion button (Hull). */
 export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => void }) {
   const texts = useTexts();
-  const preview = useEditor((s) => s.view.hangarPreview);
   const setPreview = useEditor((s) => s.setHangarPreview);
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -67,11 +66,11 @@ export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => vo
       </button>
       <button
         type="button"
-        className={preview ? "btn btn--small btn--panel btn--on" : "btn btn--small btn--panel"}
-        aria-pressed={preview}
-        onClick={() => setPreview(!preview)}
+        className="btn btn--small btn--panel"
+        aria-haspopup="dialog"
+        onClick={() => setPreview(true)}
       >
-        {preview ? texts.canvas.previewOff : texts.canvas.preview}
+        {texts.canvas.preview}
       </button>
     </div>
   );

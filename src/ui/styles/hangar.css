@@ -1,0 +1,92 @@
+/* Preview in hangar: the game's hangar screen over the whole window */
+.hg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+}
+.hg-screen {
+  display: block;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+.hg-screen image {
+  image-rendering: pixelated;
+}
+/*
+ * Back to editing: at the top, between the ship's name and the Start box.
+ * Large, outlined in the accent, on a dark backing of its own so it reads
+ * over the game's picture in either theme.
+ */
+.hg-close {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 46px;
+  padding: 0 14px 0 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  background: rgba(14, 12, 9, 0.9);
+  color: #f7f1e6;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+}
+.hg-close svg {
+  color: var(--accent);
+}
+.hg-close:hover,
+.hg-close:focus-visible {
+  background: var(--accent);
+  color: var(--accent-ink);
+  outline: none;
+}
+.hg-close:hover svg,
+.hg-close:focus-visible svg {
+  color: var(--accent-ink);
+}
+.hg-close-key {
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+/* The hull glows softly, as in the game's hangar. */
+.hg-ship .cv-hull {
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+}
+/* The hangar draws the room icons grey. */
+.hg-ship .cv-system-icon {
+  filter: brightness(0.49);
+}
+
+/* Texts, in the editor's fonts until the game's own fonts are drawn */
+.hg-text {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 11px;
+  fill: #f2f6f0;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.hg-text--name {
+  font-size: 20px;
+}
+.hg-text--label {
+  font-size: 13px;
+}

@@ -100,8 +100,13 @@ describe("the ship as the game draws it", () => {
 
     withStations([["mantis", 1]]);
     fireEvent.click(screen.getByRole("button", { name: en.canvas.preview }));
-    expect(races()).toEqual(["mantis", undefined, undefined]);
-    expect(svg().querySelector(".cv-station-empty")).toBeNull();
+    const hangar = within(screen.getByTestId("hangar-ship"));
+    expect(
+      ["station-0", "station-1", "station-2"].map((id) =>
+        hangar.queryByTestId(id)?.getAttribute("data-crew")
+      )
+    ).toEqual(["mantis", undefined, undefined]);
+    expect(screen.getByTestId("hangar-ship").querySelector(".cv-station-empty")).toBeNull();
   });
 
   it("toggles interiors, icons and crew with the Layers menu", async () => {
@@ -119,10 +124,12 @@ describe("the ship as the game draws it", () => {
     act(() => state().select({ ...state().selection, rooms: [0] }));
     expect(svg().querySelector(".cv-room-id")).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: en.canvas.preview }));
-    expect(svg().querySelector(".cv-room-id")).toBeNull();
-    expect(svg().querySelector(".cv-room-selected")).toBeNull();
-    expect(svg().querySelector(".cv-door-mark")).toBeNull();
-    expect(screen.getByTestId("system-icon-shields")).toBeInTheDocument();
+    const hangar = screen.getByTestId("hangar-ship");
+    expect(hangar.querySelector(".cv-room")).not.toBeNull();
+    expect(hangar.querySelector(".cv-room-id")).toBeNull();
+    expect(hangar.querySelector(".cv-room-selected")).toBeNull();
+    expect(hangar.querySelector(".cv-door-mark")).toBeNull();
+    expect(await within(hangar).findByTestId("system-icon-shields")).toBeInTheDocument();
   });
 });
 

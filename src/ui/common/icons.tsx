@@ -116,6 +116,22 @@ export function ArrowIcon({ direction }: { direction: "up" | "down" }) {
   );
 }
 
+/** An arrow pointing left: back to where the user came from. */
+export function BackIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 18 18" aria-hidden="true">
+      <path
+        d="M15.5 9 H3 M8 3.5 L2.5 9 L8 14.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function CrossIcon() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">

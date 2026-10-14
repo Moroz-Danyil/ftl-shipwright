@@ -209,6 +209,7 @@ export const en = {
     layers: "Layers",
     preview: "Preview in hangar",
     previewOff: "Back to editing",
+    previewOffKey: "Esc",
     layerNames: {
       hull: "Hull",
       floor: "Floor",
