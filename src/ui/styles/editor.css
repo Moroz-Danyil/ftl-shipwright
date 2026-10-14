@@ -452,6 +452,14 @@
 .cv-station-marker {
   fill: var(--station);
 }
+/* A station nobody mans: a faint outline of its cell. */
+.cv-station-empty {
+  fill: none;
+  stroke: var(--room-ink);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  opacity: 0.75;
+}
 
 /* Rooms inspector */
 .ed-directions {

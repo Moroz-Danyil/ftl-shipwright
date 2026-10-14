@@ -1,13 +1,15 @@
 /**
- * Crew at their stations, as the game draws them: the ship's first crew race
- * manning the console, facing the station's direction. Without the game's
- * pictures a small round marker stands in. A selected station gets an amber
- * ring.
+ * Crew at their stations, as the game draws them: the crew members in the
+ * order of the crew list man the stations in the ship's systems order, each
+ * facing its station's direction. Without the game's pictures a small round
+ * marker stands in. A station nobody is left for shows a faint outline of its
+ * cell (an empty seat); the hangar preview leaves it out. A selected station
+ * gets an amber ring.
  */
 import { memo } from "react";
 import { CELL_SIZE, type Animations, type Ship } from "../core";
-import { stationOf, stationSystemIndices } from "../app/layout/stations";
-import { crewRace, stationCrewFrame } from "./gameLook";
+import { stationOf } from "../app/layout/stations";
+import { stationCrew, stationCrewFrame } from "./gameLook";
 import { STATION_RADIUS, stationCentre } from "./hitTest";
 import { SheetSprite } from "./SheetSprite";
 
@@ -21,14 +23,16 @@ interface Props {
 }
 
 function StationsLayer({ ship, animations, selected, plain }: Props) {
-  const race = crewRace(ship);
   return (
     <g>
-      {stationSystemIndices(ship).map((system) => {
+      {stationCrew(ship).map(({ system, race }) => {
         const c = stationCentre(ship, system);
         const station = stationOf(ship, system);
-        if (!c || !station) return null;
-        const frame = animations && stationCrewFrame(animations, race, station.slot.direction);
+        if (!c || !station || (plain && race === null)) return null;
+        const frame =
+          race !== null && animations
+            ? stationCrewFrame(animations, race, station.slot.direction)
+            : undefined;
         const isSelected = selected.includes(system) && !plain;
         return (
           <g
@@ -36,9 +40,20 @@ function StationsLayer({ ship, animations, selected, plain }: Props) {
             className="cv-station"
             data-testid={`station-${system}`}
             data-direction={station.slot.direction}
+            data-crew={race ?? "none"}
             data-selected={isSelected || undefined}
           >
-            {frame ? (
+            {race === null ? (
+              <rect
+                className="cv-station-empty"
+                x={c.x - CELL_SIZE / 2 + 2}
+                y={c.y - CELL_SIZE / 2 + 2}
+                width={CELL_SIZE - 4}
+                height={CELL_SIZE - 4}
+                rx={3}
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : frame ? (
               <SheetSprite
                 path={frame.path}
                 frame={frame.rect}

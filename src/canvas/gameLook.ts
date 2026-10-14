@@ -14,6 +14,7 @@ import {
   type ShipLayout,
   type StationDirection,
 } from "../core";
+import { stationOf, stationSystemIndices } from "../app/layout/stations";
 import { isInstalled } from "../app/systems/rules";
 
 /** The door sprite sheet: 5 × 5 frames of 35 × 35; columns open the door, rows are door kinds. */
@@ -69,9 +70,32 @@ export function roomIcons(ship: Ship, roomId: number, roomRect: Rect): RoomIcon[
   }));
 }
 
-/** The race shown at the stations: the ship's first crew race, else human. */
-export function crewRace(ship: Ship): string {
-  return ship.blueprint.crew[0]?.race ?? "human";
+/** The ship's crew one by one, in the order of its crew list: 2 human, 1 engi → human, human, engi. */
+export function crewMembers(ship: Ship): string[] {
+  return ship.blueprint.crew.flatMap((c) =>
+    Array<string>(Math.max(0, Math.floor(c.amount) || 0)).fill(c.race)
+  );
+}
+
+/** A station on the canvas and the race of the crew member manning it. */
+export interface StationCrew {
+  /** Index of the station's system in the blueprint. */
+  system: number;
+  /** `null` when there is nobody left for this station. */
+  race: string | null;
+}
+
+/**
+ * Who mans each station: the crew members, in the order of the crew list, go
+ * to the stations in the ship's systems order; the first member mans the
+ * first station, and so on. Stations past the last member stay empty, crew
+ * past the last station has no station. Only stations placed on a room count.
+ */
+export function stationCrew(ship: Ship): StationCrew[] {
+  const crew = crewMembers(ship);
+  return stationSystemIndices(ship)
+    .filter((system) => stationOf(ship, system) !== undefined)
+    .map((system, i) => ({ system, race: crew[i] ?? null }));
 }
 
 /**

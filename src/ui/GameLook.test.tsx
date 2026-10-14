@@ -10,6 +10,7 @@ import { SystemIcon } from "./common/SystemIcon";
 import { App } from "./App";
 
 const state = () => useEditor.getState();
+const crew = (race: string, amount: number) => ({ race, amount });
 const svg = () => screen.getByTestId("ship-svg");
 
 function toggleLayer(name: string) {
@@ -46,9 +47,61 @@ describe("the ship as the game draws it", () => {
     await waitFor(() => expect(svg().querySelectorAll(".cv-door-sprite")).toHaveLength(4));
     expect(screen.getByTestId("door-2").querySelector(".cv-door-mark--airlock")).not.toBeNull();
     expect(screen.getByTestId("door-0").querySelector(".cv-door-mark")).toBeNull();
+    expect(screen.getByTestId("station-1")).toHaveAttribute("data-crew", "none");
+    act(() =>
+      state().edit((s) => ({ ...s, blueprint: { ...s.blueprint, crew: [crew("human", 1)] } }))
+    );
     await waitFor(() =>
       expect(screen.getByTestId("station-1").querySelector("svg")).not.toBeNull()
     );
+  });
+
+  it("mans the stations with the crew in the order of the crew list, and marks empty seats", async () => {
+    const withStations = (amounts: Array<[string, number]>) =>
+      act(() =>
+        state().edit((s) => ({
+          ...s,
+          blueprint: {
+            ...s.blueprint,
+            systems: [
+              { ...s.blueprint.systems[0], slot: { number: 0, direction: "right" } },
+              s.blueprint.systems[1],
+              { system: "weapons", power: 1, room: 2, slot: { number: 0, direction: "down" } },
+            ],
+            crew: amounts.map(([race, n]) => crew(race, n)),
+          },
+        }))
+      );
+    const races = () =>
+      ["station-0", "station-1", "station-2"].map((id) =>
+        screen.queryByTestId(id)?.getAttribute("data-crew")
+      );
+
+    withStations([
+      ["engi", 1],
+      ["human", 1],
+    ]);
+    expect(races()).toEqual(["engi", "human", "none"]);
+    expect(screen.getByTestId("station-2").querySelector(".cv-station-empty")).not.toBeNull();
+    // A race without animations falls back to human.
+    await waitFor(() =>
+      expect(screen.getByTestId("station-0").querySelector("svg")).not.toBeNull()
+    );
+    expect(screen.getByTestId("station-0").querySelector(".cv-station-empty")).toBeNull();
+
+    withStations([["human", 5]]);
+    expect(races()).toEqual(["human", "human", "human"]);
+    expect(svg().querySelector(".cv-station-empty")).toBeNull();
+
+    withStations([]);
+    expect(races()).toEqual(["none", "none", "none"]);
+    act(() => state().select({ ...state().selection, stations: [2] }));
+    expect(screen.getByTestId("station-2")).toHaveAttribute("data-selected", "true");
+
+    withStations([["mantis", 1]]);
+    fireEvent.click(screen.getByRole("button", { name: en.canvas.preview }));
+    expect(races()).toEqual(["mantis", undefined, undefined]);
+    expect(svg().querySelector(".cv-station-empty")).toBeNull();
   });
 
   it("toggles interiors, icons and crew with the Layers menu", async () => {

@@ -4,9 +4,10 @@ import { medbay, pilot, shields, testShip } from "../testing/layoutFixtures";
 import {
   CLOSED_DOOR_FRAME,
   ROOM_ICON_SIZE,
-  crewRace,
+  crewMembers,
   doorSpriteTransform,
   roomIcons,
+  stationCrew,
   stationCrewFrame,
   systemIconPath,
 } from "./gameLook";
@@ -87,14 +88,70 @@ describe("crew at stations", () => {
     expect(stationCrewFrame(animations, "rock", "up")?.sheet.name).toBe("human");
     expect(stationCrewFrame({ ...animations, anims: {} }, "human", "up")).toBeUndefined();
   });
+});
 
-  it("show the ship's first crew race, else human", () => {
-    const ship = testShip();
-    expect(crewRace(ship)).toBe("human");
+describe("who mans the stations", () => {
+  // Three stations in the ship's systems order: shields (room 0), pilot and weapons (room 1).
+  const ship = (crew: Array<{ amount: number; race: string }>) => {
+    const base = testShip([
+      { ...shields, slot: { number: 0, direction: "up" } },
+      pilot,
+      medbay,
+      { system: "weapons", power: 1, room: 2, slot: { number: 0, direction: "down" } },
+    ]);
+    return { ...base, blueprint: { ...base.blueprint, crew } };
+  };
+
+  it("expand the crew list into members in its order", () => {
+    expect(
+      crewMembers(
+        ship([
+          { amount: 2, race: "human" },
+          { amount: 1, race: "engi" },
+        ])
+      )
+    ).toEqual(["human", "human", "engi"]);
+    expect(crewMembers(ship([{ amount: 0, race: "rock" }]))).toEqual([]);
+  });
+
+  it("give the members to the stations in the ship's systems order", () => {
+    expect(
+      stationCrew(
+        ship([
+          { amount: 1, race: "engi" },
+          { amount: 2, race: "human" },
+        ])
+      )
+    ).toEqual([
+      { system: 0, race: "engi" },
+      { system: 1, race: "human" },
+      { system: 3, race: "human" },
+    ]);
+  });
+
+  it("leave stations empty when there are fewer members, or none", () => {
+    expect(stationCrew(ship([{ amount: 1, race: "mantis" }]))).toEqual([
+      { system: 0, race: "mantis" },
+      { system: 1, race: null },
+      { system: 3, race: null },
+    ]);
+    expect(stationCrew(ship([])).map((s) => s.race)).toEqual([null, null, null]);
+  });
+
+  it("leave members without a station when there are more of them", () => {
+    const crewed = ship([
+      { amount: 2, race: "human" },
+      { amount: 4, race: "slug" },
+    ]);
+    expect(stationCrew(crewed).map((s) => s.race)).toEqual(["human", "human", "slug"]);
+  });
+
+  it("count only stations placed on a room", () => {
+    const base = testShip([shields, pilot]);
     const crewed = {
-      ...ship,
-      blueprint: { ...ship.blueprint, crew: [{ amount: 1, race: "engi" }] },
+      ...base,
+      blueprint: { ...base.blueprint, crew: [{ amount: 2, race: "engi" }] },
     };
-    expect(crewRace(crewed)).toBe("engi");
+    expect(stationCrew(crewed)).toEqual([{ system: 1, race: "engi" }]);
   });
 });
