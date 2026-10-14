@@ -179,6 +179,7 @@ describe("unusual mixes and system checks", () => {
         system: 2,
         systemId: "cloaking",
         workspace: "rooms",
+        severity: "problem",
       },
     ]);
     expect(systemChecks(ship, { room_cloaking_3: { width: 70, height: 35 } })).toHaveLength(2);
@@ -188,7 +189,13 @@ describe("unusual mixes and system checks", () => {
     const ship = testShip([{ ...shields, room: 7 }]);
     expect(allChecks(ship).map((c) => [c.code, c.workspace])).toEqual([
       ["system-unknown-room", "rooms"],
+      ["missing-core-system", "rooms"],
+      ["missing-core-system", "rooms"],
+      ["missing-core-system", "rooms"],
       ["no-crew", "ship"],
+      ["no-name", "ship"],
+      ["no-class", "ship"],
+      ["no-description", "ship"],
     ]);
   });
 });

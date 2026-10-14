@@ -8,7 +8,11 @@ import { useEditor, type GameData } from "./store";
  * A system's title from the game (e.g. "Shields"); else the given fallback
  * (for systems the game has no blueprint for), else its id.
  */
-export function systemName(data: GameData | undefined, system: string, fallback?: string): string {
+export function systemName(
+  data: Pick<GameData, "catalogs" | "texts"> | undefined,
+  system: string,
+  fallback?: string
+): string {
   const entry = data?.catalogs.systems.find((s) => s.name === system);
   return (data && entry && resolveText(data.texts, entry.title)) || fallback || system;
 }

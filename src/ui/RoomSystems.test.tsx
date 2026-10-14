@@ -216,7 +216,7 @@ describe("Rooms: the system cards", () => {
     expect(systems()[0].img).toBe("room_cloaking_2");
     expect(await within(card).findByText(en.systems.cloakMismatch)).toBeInTheDocument();
     await waitFor(() =>
-      expect(screen.getByRole("button", { name: en.topBar.checks(3) })).toBeInTheDocument()
+      expect(screen.getByRole("button", { name: en.topBar.checks(12) })).toBeInTheDocument()
     );
 
     fireEvent.click(within(card).getByRole("radio", { name: /^room_cloaking70/ }));
@@ -247,7 +247,7 @@ describe("Rooms: the system cards", () => {
       { system: "clonebay", power: 1, room: 1, start: true },
     ]);
     act(() => state().setWorkspace("hull"));
-    fireEvent.click(screen.getByRole("button", { name: en.topBar.checks(3) }));
+    fireEvent.click(screen.getByRole("button", { name: en.topBar.checks(12) }));
     fireEvent.click(
       screen.getByRole("button", { name: en.checks.messages["several-installed"]({ rooms: [1] }) })
     );

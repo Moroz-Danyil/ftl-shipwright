@@ -67,7 +67,7 @@ describe("editor window", () => {
     const zoom = Math.round(state().view.camera.scale * 100);
     expect(screen.getByText(en.status.counts(2, 2, zoom))).toBeInTheDocument();
     expect(screen.getByText(/Game data: ftl\.dat/)).toHaveTextContent(en.status.noMod);
-    expect(screen.getByRole("button", { name: en.topBar.checks(2) })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: en.topBar.checks(5) })).toBeInTheDocument();
   });
 
   it("fits the ship into the canvas on open", () => {
@@ -312,7 +312,7 @@ describe("editor window", () => {
 
   it("counts the checks, lists them and shows what they are about", () => {
     act(() => state().edit((s) => addDoor(s, { x: 9, y: 9, vertical: true })));
-    const checks = screen.getByRole("button", { name: en.topBar.checks(3) });
+    const checks = screen.getByRole("button", { name: en.topBar.checks(6) });
     fireEvent.click(checks);
     const dialog = screen.getByRole("dialog", { name: en.checks.title });
     const message = en.checks.messages["door-no-room"]({ door: 2 });

@@ -3,11 +3,28 @@
  * comes from here; other languages are objects of the same type.
  */
 import type { CheckCode } from "../app/checks";
+import type { OverviewItemId } from "../app/overview";
 import type { RebindableCommand } from "../app/keys";
 import type { ToolId, WorkspaceId } from "../app/workspaces";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
-const list = (ids: number[] | undefined) => (ids && ids.length > 0 ? ids.join(" and ") : "?");
+const list = (ids: number[] | undefined) =>
+  !ids || ids.length === 0
+    ? "?"
+    : ids.length === 1
+      ? String(ids[0])
+      : `${ids.slice(0, -1).join(", ")} and ${ids[ids.length - 1]}`;
+/** "room 3" or "rooms 3 and 5". */
+const rooms = (ids: number[] | undefined) =>
+  `${ids && ids.length > 1 ? "rooms" : "room"} ${list(ids)}`;
+
+/** The texts of an overview item; some have more (the value it shows while ok). */
+interface ItemTexts {
+  title: string;
+  /** What is wrong and where to fix it (empty for items that are always ok). */
+  explain: string;
+  [more: string]: unknown;
+}
 
 /** What a check refers to: rooms by id, a door by its index. */
 interface IssueRefs {
@@ -16,6 +33,8 @@ interface IssueRefs {
   mount?: number;
   gib?: number;
   item?: string;
+  /** The name of the system involved. */
+  systemName?: string;
 }
 
 export const en = {
@@ -703,6 +722,14 @@ export const en = {
     title: "Checks",
     empty: "Nothing to look at.",
     messages: {
+      "no-name": () => "The ship has no name for the hangar.",
+      "no-class": () => "The ship has no class.",
+      "no-description": () => "The ship has no description.",
+      "no-rooms": () => "The ship has no rooms.",
+      "rooms-cut-off": (i: IssueRefs) => `Crew cannot walk to ${rooms(i.rooms)}.`,
+      "rooms-off-screen": (i: IssueRefs) =>
+        `Outside the part of the screen the game shows: ${rooms(i.rooms)}.`,
+      "missing-core-system": (i: IssueRefs) => `The ship starts without ${i.systemName ?? "?"}.`,
       "room-overlap": (i: IssueRefs) => `Rooms ${list(i.rooms)} overlap.`,
       "room-ids": (i: IssueRefs) =>
         `Room ${list(i.rooms)} is out of order; room ids must be 0, 1, 2… in order.`,
@@ -723,6 +750,8 @@ export const en = {
       "cloak-interior-size": (i: IssueRefs) =>
         `The cloaking interior picture of room ${list(i.rooms)} does not match the room size; such a picture made the game crash.`,
       "no-hull": () => "The ship has no hull picture; choose one in Hull.",
+      "no-shield": () => "The ship has no shield picture.",
+      "no-ship-icon": () => "The ship has no ship icon.",
       "few-mounts": () => "The ship has fewer weapon mounts than weapon slots.",
       "gib-no-picture": (i: IssueRefs) => `Gib ${(i.gib ?? 0) + 1} has no picture.`,
       "mount-gib-missing": (i: IssueRefs) =>
@@ -734,6 +763,161 @@ export const en = {
       "no-crew": () => "The ship starts without crew.",
       "no-hull-points": () => "The ship starts with 0 hull points.",
     } satisfies Record<CheckCode, (issue: IssueRefs) => string>,
+  },
+
+  overview: {
+    /** The items of the overview: a title, what to do when the item needs a look, and the value shown while it is ok. */
+    items: {
+      name: {
+        title: "Name",
+        explain: "The hangar shows the ship without a name. Type one under Info in Ship.",
+      },
+      class: {
+        title: "Class",
+        explain:
+          "The ship has no class, the line the hangar shows under its name. Type one under Info in Ship.",
+      },
+      description: {
+        title: "Description",
+        explain: "The hangar shows no description of the ship. Write one under Info in Ship.",
+        value: "Written",
+      },
+      saveName: {
+        title: "Save name",
+        explain: "",
+        value: (blueprint: string, base: string) => `${blueprint} · Files will be named ${base}`,
+      },
+      hullReactor: {
+        title: "Hull and reactor",
+        explain: "A ship with 0 hull points is destroyed at once. Set the hull in Ship.",
+        value: (hull: number, reactor: number) => `${hull} hull, ${reactor} reactor bars`,
+      },
+      crew: {
+        title: "Crew",
+        explain: "The ship starts without crew, so nobody can man its systems. Add crew in Ship.",
+        value: (n: number, max: number) => `${n} of ${max}`,
+      },
+      slots: {
+        title: "Weapon and drone slots",
+        explain:
+          "The ship carries more weapons or drones than it has slots for. Remove some in Ship, or add slots.",
+        value: (weapons: number, weaponSlots: number, drones: number, droneSlots: number) =>
+          `Weapons ${weapons}/${weaponSlots}, drones ${drones}/${droneSlots}`,
+      },
+      knownItems: {
+        title: "Weapons and drones the game knows",
+        explain:
+          "The game has no blueprint for these items; they may come from a mod that is not loaded. Replace them in Ship.",
+        value: "All known",
+        none: "None fitted",
+      },
+      rooms: {
+        title: "Rooms",
+        explain: "A ship needs rooms. Draw them with the Room tool in Rooms.",
+        value: (n: number) => `Rooms: ${n}`,
+      },
+      overlap: {
+        title: "Rooms don't overlap",
+        explain: "Rooms that share cells confuse the game. Move or resize them in Rooms.",
+      },
+      roomIds: {
+        title: "Room sizes and ids",
+        explain:
+          "Every room must be at least one cell, and the ids must run 0, 1, 2… in order. Fix the rooms in Rooms.",
+      },
+      doors: {
+        title: "Doors are attached to rooms",
+        explain:
+          "These doors touch no room, or name other rooms than the ones beside them. Move or remove them in Rooms.",
+        value: (n: number) => `Doors: ${n}`,
+      },
+      reach: {
+        title: "Crew can walk everywhere",
+        explain:
+          "No door leads to these rooms from the rest of the ship (airlocks do not count), so crew cannot go there to man, repair or fight. Add doors in Rooms.",
+      },
+      airlocks: {
+        title: "Airlocks",
+        explain: "An airlock on a room bigger than 2×2 vents it only partly. Move it in Rooms.",
+        value: (n: number) => `Airlocks: ${n}`,
+      },
+      onScreen: {
+        title: "Everything on screen",
+        explain:
+          "These rooms lie outside the red frame, the part of the screen the game shows. Move the rooms (or the ship's offsets) in Rooms.",
+        value: "Inside the frame",
+        notPlayer: "Only for player ships",
+      },
+      stations: {
+        title: "Crew stations are inside their rooms",
+        explain: "A crew station outside its room cannot be manned. Place it again in Rooms.",
+      },
+      systemRooms: {
+        title: "Systems are in existing rooms",
+        explain: "A system sits in a room that does not exist. Put it in a room in Rooms.",
+      },
+      oneSystem: {
+        title: "One system per room at the start",
+        explain:
+          "Only one system of a room can be installed at the start; the others must be bought later. Change them in Rooms.",
+      },
+      pairs: {
+        title: "Systems sharing a room are a usual pair",
+        explain:
+          "The game only puts the medbay with the clonebay, and mind control with the teleporter, in one room. Other pairs may not work. Check them in Rooms.",
+      },
+      coreSystems: {
+        title: "Core systems",
+        explain:
+          "A ship needs piloting and engines to dodge and jump, oxygen to keep its crew alive and shields against weapons; without one of them from the start it is hard to play (the game's stealth cruisers do without shields on purpose). Add the missing ones in Rooms.",
+        value: (n: number) => `Systems: ${n}`,
+      },
+      interiors: {
+        title: "Interior pictures fit their rooms",
+        explain:
+          "A cloaking interior picture that does not fit its room made the game crash. Choose another one in Rooms.",
+      },
+      hull: {
+        title: "Hull picture",
+        explain: "Without a hull picture the ship cannot be saved as a mod. Choose one in Hull.",
+      },
+      floor: { title: "Floor picture", explain: "" },
+      shield: {
+        title: "Shield picture",
+        explain: "The game draws the ship's shields with this picture. Choose one in Hull.",
+      },
+      cloak: { title: "Cloak picture", explain: "" },
+      shipIcon: {
+        title: "Ship icon",
+        explain: "The hangar's ship list shows this small picture. Choose one in Hull.",
+      },
+      gibs: {
+        title: "Explosion pieces",
+        explain:
+          "These pieces have no picture, so nothing flies off there when the ship explodes. Choose pictures in Hull.",
+        value: (n: number) => `Pieces: ${n}`,
+      },
+      mounts: {
+        title: "Weapon mounts",
+        explain:
+          "Each weapon slot draws its weapon on a mount; slots without a mount show no weapon. Add mounts with the Mount tool in Hull.",
+        value: (mounts: number, slots: number) => `Mounts ${mounts}, weapon slots ${slots}`,
+      },
+      mountGibs: {
+        title: "Mounts and their gibs",
+        explain:
+          "These mounts fly off with explosion pieces that do not exist. Choose another piece for them in Hull.",
+      },
+    } satisfies Record<OverviewItemId, ItemTexts>,
+    /** Names of the core systems when the game data has none. */
+    coreSystemNames: {
+      pilot: "Piloting",
+      engines: "Engines",
+      oxygen: "Oxygen",
+      shields: "Shields",
+    } as Record<string, string>,
+    pictureSet: "Set",
+    pictureNone: "None",
   },
 
   save: {

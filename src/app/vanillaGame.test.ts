@@ -10,9 +10,12 @@ import { nodeDatAccess, nodeFolderAccess } from "../core/testing/nodeAccess";
 import { en } from "../text/en";
 import { createFakePlatform, type FakePlatform } from "../testing/fakePlatform";
 import { loadGameData, loadGameIntoStore } from "./gameData";
+import { buildOverview } from "./overview";
 import { saveShipMod } from "./saveMod";
 import { createNewShip, openGameShip } from "./ships";
 import { resetEditorStore, useEditor } from "./store";
+import { interiorPath, type PictureSize } from "./systems/interiors";
+import { pngSize } from "../canvas/pictures";
 
 const DAT_PATH = process.env.FTL_DAT_PATH ?? "";
 const UNPACKED = "unpacked/ftl.dat";
@@ -54,6 +57,35 @@ describe.skipIf(!HAS_GAME_DATA)("the editor on the vanilla game", () => {
     const files = Object.keys(unzipSync(platform.disk.get("out/kestrel.ftl")!)).sort();
     expect(files).toEqual(["data/blueprints.xml.append", "data/kestral.txt", "data/kestral.xml"]);
   });
+
+  it("finds no problems in the overview of any player ship, and little to check", async () => {
+    const data = state().game.data!;
+    const problems: string[] = [];
+    const toCheck: string[] = [];
+    for (const entry of data.catalogs.ships.filter((s) => s.isPlayer)) {
+      expect(await openGameShip(en, entry.name)).toBe(true);
+      const { ship, art } = state().doc!.history.present;
+      const sizes: Record<string, PictureSize> = {};
+      for (const s of ship.blueprint.systems) {
+        const bytes = s.img && (await art.source.readBytes(interiorPath(s.img)));
+        const size = bytes && pngSize(bytes);
+        if (s.img && size) sizes[s.img] = size;
+      }
+      for (const item of buildOverview({ ship, art, data, sizes }, en).flatMap((s) => s.items)) {
+        if (item.status === "problem") problems.push(`${entry.name}: ${item.id}`);
+        if (item.status === "check") toCheck.push(`${entry.name}: ${item.id}`);
+      }
+    }
+    expect(problems).toEqual([]);
+    // The stealth cruisers start without shields; the easy and tutorial Kestrels have no description.
+    expect(toCheck.sort()).toEqual([
+      "PLAYER_SHIP_EASY: description",
+      "PLAYER_SHIP_STEALTH: coreSystems",
+      "PLAYER_SHIP_STEALTH_2: coreSystems",
+      "PLAYER_SHIP_STEALTH_3: coreSystems",
+      "PLAYER_SHIP_TUTORIAL: description",
+    ]);
+  }, 120_000);
 
   it("saves a copy with the pictures under its own name", async () => {
     expect(await createNewShip(en, { name: "Red Kestrel", copyOf: "PLAYER_SHIP_HARD" })).toBe(true);
