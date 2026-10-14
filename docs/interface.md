@@ -37,18 +37,18 @@ Shown when no ship is open.
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │ ship name · status   [1 Ship][2 Rooms][3 Hull]   undo redo  checks  settings  [Save mod] │
-├───────────────┬─────────────────────────────────────────────────┬────┤
-│               │                                                 │tool│
-│   inspector   │                    canvas                       │rail│
-│               │                                                 │    │
-├───────────────┴─────────────────────────────────────────────────┴────┤
+├───────────────┬──────────────────────────────────────────────────────┤
+│               │ [tool bar: icon name key · icon name key · …]        │
+│   inspector   │                    canvas                            │
+│               │                                    [Layers][Preview] │
+├───────────────┴──────────────────────────────────────────────────────┤
 │ game data · ship counts · zoom                                        │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 - **Top bar**: the ship's name with an "unsaved changes" mark, the three workspace tabs (keys `1`–`3`), undo and redo, the **checks** button with the number of things to look at, settings, and **Save mod**.
 - **Inspector** (left): settings of the current workspace and the selection.
-- **Tool rail** (right): the tools of the current workspace, each with a small line icon, its name and its key underneath. Hovering or focusing a tool shows what it does in a panel left of the rail.
+- **Tool bar** (top of the canvas): the tools of the current workspace side by side in one low row, each with a small line icon, its name and its current key in a key chip, the chosen one amber. Hovering or focusing a tool shows what it does in a panel below the bar. The Ship workspace has only Select, and still shows it.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** opens the game's hangar screen over the whole window (see below).
 - **Crew at the stations**: the crew list is taken member by member in its order (2 human, 1 engi → human, human, engi), and the members man the stations in the order of the ship's systems, each facing its station's direction (a race without its own pictures is drawn as a human). A station nobody is left for shows a faint dashed outline of its cell, an empty seat; the hangar preview shows only the manned stations.
 - **Preview in hangar**: a full-window view of the game's hangar (ship select) screen, 1280 × 720 scaled to fit the window (at whole device pixels when that loses little), built from the game's own pictures, a mod's pictures first. The ship sits where the game puts it: its view-limit frame lands on the game's ship area. Drawn on it: the background, the ship (hull, floor, rooms, doors, and the interiors, icons and manned stations of the systems installed at the start, weapons on their mounts), the name box, the systems bar (a box per starting system with its power bars and icon), and the equipment panel with the crew as cards (race picture, race title as the name), the weapons and drones in their slots ("system not installed" when the ship lacks that system) and the augments. The ship, layout, achievements, Start and Advanced Edition boxes are drawn for the look only. Frame titles and button texts are the game's own texts; the game's bitmap fonts are not drawn yet. Nothing in it edits the ship. **Back to editing** (amber, at the top) or Esc closes it; the editor's other keys are off while it is open.

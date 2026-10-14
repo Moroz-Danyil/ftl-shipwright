@@ -1,6 +1,6 @@
 /**
- * The editor: top bar, inspector on the left, canvas, tool rail on the right,
- * status bar; the hangar preview over all of it while it is open.
+ * The editor: top bar, inspector on the left, the canvas (with the tool bar
+ * over it), status bar; the hangar preview over all of it while it is open.
  */
 import { useEditor } from "../../app/store";
 import { HangarPreview } from "../../canvas/hangar/HangarPreview";
@@ -11,7 +11,6 @@ import { Inspector } from "./Inspector";
 import { SaveDialog } from "./SaveDialog";
 import { StatusBar } from "./StatusBar";
 import { DragChip } from "./systems/DragChip";
-import { ToolRail } from "./ToolRail";
 import { TopBar } from "./TopBar";
 
 export function EditorWindow() {
@@ -23,7 +22,6 @@ export function EditorWindow() {
       <div className="ed-body">
         <Inspector />
         <ShipCanvas />
-        <ToolRail />
       </div>
       <StatusBar />
       {dialog === "save" && <SaveDialog />}

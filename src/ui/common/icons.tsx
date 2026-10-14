@@ -167,7 +167,7 @@ const TOOL_PATHS: Record<ToolId, string> = {
   gib: "M3 6 L8.5 3.5 L9.5 9 L4 10.5 Z M11.5 10.5 L17 9 L17.5 15.5 L12 16.5 Z M5 15 L7 13 M14 4 L15.5 6",
 };
 
-/** The line icon of a tool on the tool rail. */
+/** The line icon of a tool in the tool bar. */
 export function ToolIcon({ tool }: { tool: ToolId }) {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">

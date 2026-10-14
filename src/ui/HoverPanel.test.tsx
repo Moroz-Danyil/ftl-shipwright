@@ -28,13 +28,13 @@ describe("hover panel anchor", () => {
     expect(anchorFor(entry)).toEqual({ left: 352, top: 200, side: "right" });
   });
 
-  it("goes left of the tool rail for its tools", () => {
-    const rail = document.createElement("aside");
-    rail.className = "ed-rail";
+  it("goes below the tool bar, from the left edge of the tool", () => {
+    const bar = document.createElement("div");
+    bar.className = "cv-toolbar";
     const tool = document.createElement("button");
-    rail.append(tool);
-    box(rail, 1200, 40, 80, 700);
-    box(tool, 1207, 120, 66, 62);
-    expect(anchorFor(tool)).toEqual({ left: 1188, top: 120, side: "left" });
+    bar.append(tool);
+    box(bar, 352, 52, 420, 40);
+    box(tool, 450, 57, 110, 30);
+    expect(anchorFor(tool)).toEqual({ left: 450, top: 104, side: "below" });
   });
 });

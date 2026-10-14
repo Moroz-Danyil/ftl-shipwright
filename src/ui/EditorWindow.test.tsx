@@ -100,13 +100,13 @@ describe("editor window", () => {
       press(`Digit${i + 1}`);
       expect(state().workspace).toBe(id);
       expect(tabs[i]).toHaveAttribute("aria-selected", "true");
-      expect(screen.getByText(en.workspaces[id].hint)).toBeInTheDocument();
+      expect(screen.getByRole("group", { name: en.toolBar.label })).toBeInTheDocument();
     }
     press("Digit4");
     expect(state().workspace).toBe("ship");
   });
 
-  it("picks tools with the rail and their keys", () => {
+  it("picks tools with the tool bar and their keys", () => {
     const room = screen.getByRole("button", { name: en.tools.room });
     fireEvent.click(room);
     expect(room).toHaveAttribute("aria-pressed", "true");
@@ -115,43 +115,100 @@ describe("editor window", () => {
       "aria-pressed",
       "true"
     );
+    press("KeyE");
+    expect(state().tools.rooms).toBe("door");
+    press("KeyR");
+    expect(state().tools.rooms).toBe("station");
+    press("KeyW");
+    expect(state().tools.rooms).toBe("room");
     press("KeyT");
-    expect(screen.getByRole("button", { name: en.tools.select })).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
+    expect(state().tools.rooms).toBe("room");
+    press("Digit3");
+    press("KeyT");
+    expect(state().tools.hull).toBe("mount");
+    press("KeyH");
+    expect(state().tools.hull).toBe("movePicture");
+    press("KeyG");
+    expect(state().tools.hull).toBe("gib");
   });
 
-  it("labels each tool with its icon, name and key, and explains it beside the rail", () => {
-    const rail = screen.getByRole("complementary", { name: en.toolRail.label });
-    const tools = within(rail).getAllByRole("button");
+  it("shows the tools in a row over the canvas: icon, name and key; no tool rail", () => {
+    expect(screen.queryByRole("complementary", { name: en.toolBar.label })).not.toBeInTheDocument();
+    const canvas = screen.getByRole("main", { name: en.canvas.label });
+    const bar = within(canvas).getByRole("group", { name: en.toolBar.label });
+    const tools = within(bar).getAllByRole("button");
     expect(tools.map((t) => t.textContent)).toEqual([
       en.tools.select + "Q",
       en.tools.room + "W",
       en.tools.door + "E",
       en.tools.station + "R",
     ]);
-    expect(tools.every((t) => t.querySelector("svg") !== null)).toBe(true);
+    for (const tool of tools) {
+      const parts = [...tool.children].map((c) => c.tagName.toLowerCase());
+      expect(parts).toEqual(["svg", "span", "kbd"]);
+    }
+    expect(tools[0]).toHaveAttribute("aria-pressed", "true");
     expect(tools[0]).not.toHaveAttribute("title");
 
-    fireEvent.pointerEnter(tools[2]);
+    press("Digit3");
+    expect(
+      within(bar)
+        .getAllByRole("button")
+        .map((t) => t.textContent)
+    ).toEqual([
+      en.tools.select + "Q",
+      en.tools.movePicture + "H",
+      en.tools.mount + "T",
+      en.tools.gib + "G",
+    ]);
+    press("Digit1");
+    expect(
+      within(bar)
+        .getAllByRole("button")
+        .map((t) => t.textContent)
+    ).toEqual([en.tools.select + "Q"]);
+  });
+
+  it("explains a tool below the bar on hover or focus, with its current key", () => {
+    const bar = screen.getByRole("group", { name: en.toolBar.label });
+    const door = within(bar).getByRole("button", { name: en.tools.door });
+    fireEvent.pointerEnter(door);
     const help = within(screen.getByRole("tooltip")).getByRole("region", {
       name: en.common.withKey(en.toolHelp.rooms.door.title, "E"),
     });
     expect(help).toHaveTextContent(en.toolHelp.rooms.door.body);
-    expect(rail).not.toContainElement(screen.getByRole("tooltip"));
-    fireEvent.pointerLeave(tools[2]);
+    expect(bar).not.toContainElement(screen.getByRole("tooltip"));
+    // Below the bar: the panel's top is under the bar's bottom (600 in this test's boxes).
+    expect(parseFloat(screen.getByRole("tooltip").style.top)).toBeGreaterThan(600);
+    fireEvent.pointerLeave(door);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
 
+    act(() => state().setKey("tool.door", "Shift+J"));
+    expect(door).toHaveTextContent(en.tools.door + "Shift+J");
+    fireEvent.focus(door);
+    expect(screen.getByRole("tooltip")).toHaveTextContent(
+      en.common.withKey(en.toolHelp.rooms.door.title, "Shift+J")
+    );
+    fireEvent.blur(door);
+
     press("Digit3");
-    const mount = within(rail).getByRole("button", { name: en.tools.mount });
-    expect(mount).toHaveTextContent(en.tools.mount + "T");
+    const mount = within(bar).getByRole("button", { name: en.tools.mount });
     fireEvent.focus(mount);
     expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.hull.mount.body);
     fireEvent.blur(mount);
     press("Digit1");
-    fireEvent.pointerEnter(within(rail).getByRole("button", { name: en.tools.select }));
+    fireEvent.pointerEnter(within(bar).getByRole("button", { name: en.tools.select }));
     expect(screen.getByRole("tooltip")).toHaveTextContent(en.toolHelp.ship.select.body);
+  });
+
+  it("keeps a click on the tool bar away from the canvas tools", () => {
+    press("KeyW");
+    const rooms = state().doc!.history.present.ship.layout.rooms.length;
+    const bar = screen.getByRole("group", { name: en.toolBar.label });
+    fireEvent.pointerDown(bar, { button: 0, clientX: 300, clientY: 300 });
+    fireEvent.pointerMove(bar, { clientX: 400, clientY: 400 });
+    fireEvent.pointerUp(bar, { button: 0, clientX: 400, clientY: 400 });
+    expect(state().doc!.history.present.ship.layout.rooms).toHaveLength(rooms);
   });
 
   it("selects a room or a door with a click and shows its values; Esc clears", () => {

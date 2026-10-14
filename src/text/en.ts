@@ -119,15 +119,9 @@ export const en = {
   },
 
   workspaces: {
-    ship: {
-      label: "Ship",
-      hint: "Ship — info, stats, crew and equipment; weapons and drones fill the slots in order",
-    },
-    rooms: {
-      label: "Rooms",
-      hint: "Rooms — draw rooms and doors, drag systems onto them, place crew stations",
-    },
-    hull: { label: "Hull", hint: "Hull — pictures, weapon mounts and explosion pieces" },
+    ship: { label: "Ship" },
+    rooms: { label: "Rooms" },
+    hull: { label: "Hull" },
   },
 
   tools: {
@@ -158,7 +152,7 @@ export const en = {
   },
 
   /**
-   * What each tool of each workspace does, shown beside the tool rail and in the inspector.
+   * What each tool of each workspace does, shown under the tool bar and in the inspector.
    * The title is shown with the tool's current key (`common.withKey`).
    */
   toolHelp: {
@@ -206,7 +200,7 @@ export const en = {
     },
   } satisfies Record<WorkspaceId, Partial<Record<ToolId, { title: string; body: string }>>>,
 
-  toolRail: {
+  toolBar: {
     label: "Tools",
   },
 

@@ -113,55 +113,6 @@
   min-height: 0;
 }
 
-/* Tool rail */
-.ed-rail {
-  width: 80px;
-  flex-shrink: 0;
-  background: var(--panel);
-  border-left: 1px solid var(--line);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 12px 0;
-}
-.ed-tool {
-  width: 66px;
-  min-height: 62px;
-  padding: 7px 2px 5px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: transparent;
-  color: var(--text-soft);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font: inherit;
-}
-.ed-tool:hover {
-  background: var(--raised);
-}
-.ed-tool[aria-pressed="true"] {
-  border-color: var(--accent);
-  background: var(--accent-bg);
-  color: var(--accent-soft);
-}
-.ed-tool-name {
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.15;
-  text-align: center;
-}
-.ed-tool-key {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1;
-  opacity: 0.7;
-}
-
 /* Inspector */
 .ed-inspector {
   width: 340px;
@@ -265,6 +216,7 @@
 .cv-canvas {
   flex: 1;
   position: relative;
+  container-type: inline-size;
   overflow: hidden;
   min-width: 0;
   background-color: var(--canvas);
@@ -276,17 +228,79 @@
   inset: 0;
   display: block;
 }
-.cv-hint {
+/* Tool bar: the workspace tools in one low row at the top of the canvas */
+.cv-toolbar {
   position: absolute;
-  left: 16px;
-  top: 14px;
-  padding: 4px 10px;
-  border-radius: 999px;
+  left: 12px;
+  top: 12px;
+  max-width: calc(100% - 24px);
+  display: flex;
+  flex-wrap: wrap;
+  width: max-content;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
   background: var(--panel);
   border: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 12px;
-  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+.cv-tool {
+  height: 30px;
+  padding: 0 6px 0 8px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-soft);
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font: inherit;
+  font-size: 13px;
+}
+.cv-tool svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.cv-tool:hover {
+  background: var(--raised);
+  color: var(--text);
+}
+.cv-tool:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.cv-tool[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-soft);
+}
+.cv-tool-name {
+  font-weight: 500;
+}
+.cv-tool-key {
+  min-width: 18px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+  opacity: 0.85;
+}
+.cv-tool[aria-pressed="true"] .cv-tool-key {
+  border-color: var(--accent-line);
+}
+/* On a very narrow canvas (a large interface scale in a small window) the bar keeps to one row:
+   the names give way, and the hover help still names each tool. */
+@container (max-width: 480px) {
+  .cv-tool-name {
+    display: none;
+  }
 }
 .cv-controls {
   position: absolute;

@@ -1,4 +1,4 @@
-/** What each tool does, by workspace: shown beside the tool rail and in the inspector. */
+/** What each tool does, by workspace: shown under the tool bar and in the inspector. */
 import type { ToolId, WorkspaceId } from "../../app/workspaces";
 import type { Texts } from "../../text";
 

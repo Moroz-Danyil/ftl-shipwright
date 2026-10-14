@@ -1,5 +1,6 @@
 /**
- * The ship on the game's grid, with zoom, pan and the current tool.
+ * The ship on the game's grid, with zoom, pan and the current tool, and the
+ * workspace's tools in a bar at the top.
  */
 import { useEffect, useRef } from "react";
 import { currentTool, useEditor } from "../app/store";
@@ -9,6 +10,7 @@ import { setCanvasElement } from "./canvasElement";
 import { shipBounds } from "./fit";
 import { ShipScene } from "./ShipScene";
 import { SlotBar } from "./SlotBar";
+import { ToolBar } from "./ToolBar";
 import { useCanvasTool } from "./tools/useCanvasTool";
 import { useCanvasInput } from "./useCanvasInput";
 import { useElementSize } from "./useElementSize";
@@ -68,7 +70,7 @@ export function ShipCanvas() {
           <ShipScene area={area} overlay={overlay} explosion={explosion.seconds} />
         </g>
       </svg>
-      <div className="cv-hint">{texts.workspaces[workspace].hint}</div>
+      <ToolBar />
       {workspace === "ship" && <SlotBar />}
       <CanvasControls onPlayExplosion={workspace === "hull" ? explosion.play : undefined} />
     </main>
