@@ -196,7 +196,7 @@ export function SlotBar() {
       }}
     >
       {picking && <Picker key={picking.kind} picking={picking} onClose={() => close(false)} />}
-      <div className="lo-bar" role="group" aria-label={texts.loadout.bar}>
+      <div className="lo-bar" role="group" aria-label={texts.loadout.bar} data-tour="slots">
         <Group kind="weapon" picking={picking} onPick={setPicking} />
         <div className="lo-divider" />
         <Group kind="drone" picking={picking} onPick={setPicking} />

@@ -36,7 +36,7 @@ Shown when no ship is open.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ ship name · status   [1 Ship][2 Rooms][3 Hull]   undo redo overview settings  [Save mod] │
+│ ship name · status   [1 Ship][2 Rooms][3 Hull]   undo redo tutorial overview settings  [Save mod] │
 ├───────────────┬──────────────────────────────────────────────────────┤
 │               │ [tool bar: icon name key · icon name key · …]        │
 │   inspector   │                    canvas                            │
@@ -46,7 +46,7 @@ Shown when no ship is open.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Top bar**: the ship's name with an "unsaved changes" mark, the three workspace tabs (keys `1`–`3`), undo and redo, the **Overview** button (with a red badge counting the problems, else an amber one counting what to check), settings, and **Save mod**.
+- **Top bar**: the ship's name with an "unsaved changes" mark, the three workspace tabs (keys `1`–`3`), undo and redo, **Tutorial** (starts the tour, see below), the **Overview** button (with a red badge counting the problems, else an amber one counting what to check), settings, and **Save mod**.
 - **Inspector** (left): settings of the current workspace and the selection.
 - **Tool bar** (top of the canvas): the tools of the current workspace side by side in one low row, each with a small line icon, its name and its current key in a key chip, the chosen one amber. Hovering or focusing a tool shows what it does in a panel below the bar. The Ship workspace has only Select, and still shows it.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** opens the game's hangar screen over the whole window (see below).
@@ -55,6 +55,12 @@ Shown when no ship is open.
 - **Status bar**: which game data and mod are loaded, counts of rooms and doors, zoom.
 - **Questions** open in the app's own small dialog, never the system's: a title, the message, Cancel and a button named by what it does. Closing a ship with unsaved changes ("Close ship") and deleting rooms that hold systems ("Delete") lose something, so their button is red and the focus starts on Cancel; giving a game ship a new save name ("Rename") starts on Rename. Esc, Cancel and a click outside answer no; Enter presses the focused button.
 - **Crash screen**: should drawing the editor fail, the window shows, in place of the editor, that something went wrong and the error text (selectable, to copy into a report), and logs the error to the console. **Undo and continue** undoes the last step and shows the editor again; **Back to the start screen** closes the ship as the logo does (asking first when there are unsaved changes).
+
+## Tour
+
+**Tutorial** in the top bar starts a step-by-step tour of the editor. The window is dimmed except the part a step is about, which is outlined in amber and followed as the window is resized, scrolled or scaled. A card next to it (inside the window, never over the part) gives the step's title, a short explanation, "Step N of M", and **Skip tour**, **Back** and **Next** (**Done** on the last step). → or Enter goes on, ← back, Esc ends the tour; the focus is on the card, and the editor under it takes no clicks or keys while the tour runs, so nothing in the ship changes.
+
+The steps: the workspace tabs and their keys; the Ship, Rooms and Hull inspectors; the tool bar with the current keys; the canvas (select, move, zoom, pan); the weapon and drone slot bar; Layers and Preview in hangar; Undo and Redo with their keys; the Overview; Settings and Save mod. Every key named is the one currently chosen in Settings. A step about another workspace opens it (the slot bar, for example, opens Ship); a step whose part is not on screen even then shows its card in the middle of the dimmed window. The tour starts with nothing selected and, when it ends, puts back the workspace and the selection it started with.
 
 ## Workspaces
 

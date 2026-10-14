@@ -1,6 +1,6 @@
 /**
  * The editor's top bar: the ship's name, the workspace tabs, undo and redo,
- * the overview, settings and Save mod.
+ * the tutorial, the overview, settings and Save mod.
  */
 import { shipDisplayName } from "../../app/ships";
 import { hasUnsavedChanges, keyOf, redoAvailable, undoAvailable, useEditor } from "../../app/store";
@@ -61,6 +61,7 @@ function WorkspaceTabs() {
           role="tab"
           aria-selected={id === workspace}
           className="ed-tab"
+          data-tour="workspaces"
           onClick={() => setWorkspace(id)}
         >
           <span className="ed-key">{workspaceKey(id)}</span>
@@ -77,7 +78,7 @@ export function TopBar() {
   const canRedo = useEditor(redoAvailable);
   const undoKey = useEditor(keyOf("undo"));
   const redoKey = useEditor(keyOf("redo"));
-  const { undo, redo, openDialog } = useEditor.getState();
+  const { undo, redo, openDialog, startTour } = useEditor.getState();
   return (
     <header className="ed-top">
       <ShipTitle />
@@ -87,6 +88,7 @@ export function TopBar() {
           type="button"
           className="btn btn--icon"
           aria-label={texts.topBar.undo}
+          data-tour="undo"
           title={texts.common.withKey(texts.topBar.undo, undoKey)}
           disabled={!canUndo}
           onClick={undo}
@@ -97,17 +99,27 @@ export function TopBar() {
           type="button"
           className="btn btn--icon"
           aria-label={texts.topBar.redo}
+          data-tour="undo"
           title={texts.common.withKey(texts.topBar.redo, redoKey)}
           disabled={!canRedo}
           onClick={redo}
         >
           <RedoIcon />
         </button>
+        <button
+          type="button"
+          className="btn btn--tall"
+          title={texts.topBar.tutorialHint}
+          onClick={startTour}
+        >
+          {texts.topBar.tutorial}
+        </button>
         <OverviewButton />
         <button
           type="button"
           className="btn btn--icon"
           aria-label={texts.topBar.settings}
+          data-tour="settings"
           title={texts.topBar.settings}
           onClick={() => useEditor.getState().openDialog("settings")}
         >
@@ -116,6 +128,7 @@ export function TopBar() {
         <button
           type="button"
           className="btn btn--primary btn--tall"
+          data-tour="settings"
           onClick={() => openDialog("save")}
         >
           {texts.topBar.saveMod}

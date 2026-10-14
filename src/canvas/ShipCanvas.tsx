@@ -63,6 +63,7 @@ export function ShipCanvas() {
       className={`cv-canvas ${cursor}`}
       aria-label={texts.canvas.label}
       data-tool={toolId}
+      data-tour="canvas"
       {...handlers}
     >
       <svg className="cv-svg" width={width} height={height} data-testid="ship-svg">

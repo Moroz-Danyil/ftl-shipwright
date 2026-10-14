@@ -5,6 +5,7 @@
 import type { CheckCode } from "../app/checks";
 import type { OverviewItemId } from "../app/overview";
 import type { RebindableCommand } from "../app/keys";
+import type { TourKeys, TourStepId } from "../app/tour";
 import type { ToolId, WorkspaceId } from "../app/workspaces";
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -167,6 +168,76 @@ export const en = {
     redo: "Redo",
     settings: "Settings",
     saveMod: "Save mod",
+    tutorial: "Tutorial",
+    tutorialHint: "A step-by-step tour of the editor",
+  },
+
+  /** The guided tour of the editor. */
+  tour: {
+    label: "Editor tour",
+    stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
+    back: "Back",
+    next: "Next",
+    skip: "Skip tour",
+    done: "Done",
+    keysHint: "→ or Enter: next · ←: back · Esc: end the tour",
+    steps: {
+      workspaces: {
+        title: "Three workspaces",
+        body: (k: TourKeys) =>
+          `A ship is made in three steps, one workspace each: Ship for its name, numbers and equipment, Rooms for the rooms, doors and systems, and Hull for the pictures, weapon mounts and explosion. Switch with these tabs or the keys ${k.workspace.ship}, ${k.workspace.rooms} and ${k.workspace.hull}.`,
+      },
+      shipInspector: {
+        title: "Ship: the ship itself",
+        body: () =>
+          "The inspector on the left shows the ship's info and save name, its stats, the crew, and its weapons, drones and augments. Hover a field to see what it means for the game.",
+      },
+      roomsInspector: {
+        title: "Rooms: systems and rooms",
+        body: () =>
+          "With nothing selected, Rooms lists the game's systems as tiles: green when installed at the start, amber when bought later, red when not on the ship. Drag a tile onto a room to put the system there. Click a room on the canvas to edit everything about it: its systems, crew station, position and size.",
+      },
+      hullInspector: {
+        title: "Hull: pictures, mounts and explosion",
+        body: () =>
+          "Hull holds the ship's pictures (hull, floor, cloak, shield and the ship icon, from the game or a PNG file), the weapon mounts and the explosion pieces the ship breaks into.",
+      },
+      tools: {
+        title: "Tools",
+        body: (k: TourKeys) =>
+          `The tools of the workspace, each with its key. Rooms: Select ${k.tool.select}, Room ${k.tool.room}, Door ${k.tool.door}, Station ${k.tool.station}. Hull: Select ${k.tool.select}, Move picture ${k.tool.movePicture}, Mount ${k.tool.mount}, Gib ${k.tool.gib}. Hover a tool to see what it does.`,
+      },
+      canvas: {
+        title: "The canvas",
+        body: (k: TourKeys) =>
+          `The ship on the game's grid. Click to select, drag to move. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
+      },
+      slots: {
+        title: "Weapon and drone slots",
+        body: (k: TourKeys) =>
+          `In Ship, the bar under the ship shows the weapon and drone slots as the game does. Click "+ weapon" or "+ drone" to pick one; right-click a slot to remove its item, or select it and press ${k.delete[0] ?? ""}.`,
+      },
+      view: {
+        title: "Layers and preview",
+        body: () =>
+          "Layers shows or hides parts of the drawing: pictures, grid, rooms, doors, crew, mounts and more. Preview in hangar shows the ship as the game's hangar screen does; Esc goes back to editing.",
+      },
+      undo: {
+        title: "Undo and redo",
+        body: (k: TourKeys) =>
+          `Every change can be undone. Undo: ${k.undo.join(" or ")}. Redo: ${k.redo.join(" or ")}.`,
+      },
+      overview: {
+        title: "Overview",
+        body: () =>
+          "A checklist of the whole ship. The badge counts what needs a look: red for problems the game may not handle, amber for things to check. Go there opens the right workspace and selects what an item is about.",
+      },
+      settings: {
+        title: "Settings and saving",
+        body: () =>
+          "Settings changes the interface scale, the light or dark theme and the keyboard shortcuts. Save mod writes the ship as an .ftl file for Slipstream Mod Manager or into a mod folder.",
+      },
+    } satisfies Record<TourStepId, { title: string; body: (keys: TourKeys) => string }>,
   },
 
   /** Shown in place of the editor when drawing it fails. */

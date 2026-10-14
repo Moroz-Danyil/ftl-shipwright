@@ -159,6 +159,14 @@ export interface Notice {
   text: string;
 }
 
+/** The guided tour while it runs. */
+export interface TourState {
+  /** The step shown, from 0. */
+  step: number;
+  /** What the tour changes and puts back when it ends. */
+  before: { workspace: WorkspaceId; selection: Selection };
+}
+
 /** A yes/no question asked in the app's own dialog. */
 export interface ConfirmRequest {
   title: string;
@@ -205,6 +213,8 @@ export interface EditorState {
   explosionSpeed: ExplosionSpeed;
   /** The yes/no question on screen, if any. */
   confirmation: Confirmation | null;
+  /** The guided tour, while it runs. */
+  tour: TourState | null;
   notice?: Notice;
 
   setGame(game: Partial<GameState>): void;
@@ -251,6 +261,14 @@ export interface EditorState {
   /** Answers the question on screen. */
   answerConfirm(yes: boolean): void;
   setNotice(notice: Notice | undefined): void;
+  /**
+   * Starts the guided tour: closes any dialog and clears the selection, which
+   * comes back with the workspace when the tour ends.
+   */
+  startTour(): void;
+  setTourStep(step: number): void;
+  /** Ends the tour and puts the workspace and selection back. */
+  endTour(): void;
   setLanguage(language: string): void;
   setTheme(theme: Theme): void;
   setUiScale(scale: number): void;
@@ -302,6 +320,7 @@ export function initialEditorState() {
     overviewNeedsOnly: false,
     explosionSpeed: DEFAULT_EXPLOSION_SPEED as ExplosionSpeed,
     confirmation: null as Confirmation | null,
+    tour: null as TourState | null,
     notice: undefined,
   };
 }
@@ -352,10 +371,12 @@ export const useEditor = create<EditorState>()((set, get) => {
         tools: initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
         dialog: null,
+        tour: null,
       });
     },
 
-    closeDocument: () => set({ doc: undefined, selection: EMPTY_SELECTION, dialog: null }),
+    closeDocument: () =>
+      set({ doc: undefined, selection: EMPTY_SELECTION, dialog: null, tour: null }),
 
     edit: (change, selection) =>
       changeHistory(
@@ -414,6 +435,29 @@ export const useEditor = create<EditorState>()((set, get) => {
       open.resolve(yes);
     },
     setNotice: (notice) => set({ notice }),
+
+    startTour: () => {
+      const { doc, workspace, selection, view } = get();
+      if (!doc) return;
+      set({
+        tour: { step: 0, before: { workspace, selection } },
+        selection: EMPTY_SELECTION,
+        dialog: null,
+        systemDrag: null,
+        hoverWeapon: null,
+        view: { ...view, hangarPreview: false, panHeld: false },
+      });
+    },
+    setTourStep: (step) => {
+      const tour = get().tour;
+      if (tour && tour.step !== step) set({ tour: { ...tour, step } });
+    },
+    endTour: () => {
+      const tour = get().tour;
+      if (!tour) return;
+      set({ tour: null, workspace: tour.before.workspace });
+      get().select(tour.before.selection);
+    },
 
     setLanguage: (language) => {
       saveLanguage(language);

@@ -27,6 +27,7 @@ export function ToolBar() {
       className="cv-toolbar"
       role="group"
       aria-label={texts.toolBar.label}
+      data-tour="tools"
       // The bar is not part of the drawing: a click on it must not reach the canvas tools.
       onPointerDown={(e) => e.stopPropagation()}
       onPointerMove={(e) => e.stopPropagation()}

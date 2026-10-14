@@ -29,6 +29,7 @@ export function OverviewButton() {
     <button
       type="button"
       className="btn btn--tall ed-overview"
+      data-tour="overview"
       aria-label={texts.overview.buttonLabel(problems, checks)}
       onClick={() => useEditor.getState().openDialog("overview")}
     >

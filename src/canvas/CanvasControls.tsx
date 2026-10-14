@@ -91,6 +91,7 @@ export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => vo
         type="button"
         className="btn btn--small btn--panel"
         aria-expanded={open}
+        data-tour="view"
         onClick={() => setOpen(!open)}
       >
         {texts.canvas.layers}
@@ -99,6 +100,7 @@ export function CanvasControls({ onPlayExplosion }: { onPlayExplosion?: () => vo
         type="button"
         className="btn btn--small btn--panel"
         aria-haspopup="dialog"
+        data-tour="view"
         onClick={() => setPreview(true)}
       >
         {texts.canvas.preview}

@@ -1,7 +1,7 @@
 /**
  * Listens to the keyboard for the whole window and runs the bound commands
- * (not while a dialog or the hangar preview is open). The keys are the ones
- * chosen in Settings, so a change there takes effect at once.
+ * (not while a dialog, the hangar preview or the tour is open). The keys are
+ * the ones chosen in Settings, so a change there takes effect at once.
  */
 import { useEffect, useMemo } from "react";
 import { usePlatform } from "../platform/PlatformContext";
@@ -19,7 +19,8 @@ export function useKeyboard(): void {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const state = useEditor.getState();
-      if (!state.doc || state.dialog || state.confirmation || state.view.hangarPreview) return;
+      const busy = state.dialog || state.confirmation || state.tour || state.view.hangarPreview;
+      if (!state.doc || busy) return;
       const command = commandForEvent(event, bindings);
       if (!command) return;
       const typing = isTextField(event.target);
