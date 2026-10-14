@@ -1,5 +1,5 @@
 /**
- * Mouse handling of the canvas: the wheel zooms around the cursor, the middle
+ * Mouse handling of the canvas: the wheel zooms smoothly around the cursor, the middle
  * button (or the left button while Space is held) pans, a right click cancels
  * the current drag, and everything else goes to the current tool.
  */
@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type PointerEvent, type RefObject } from "
 import type { Point } from "../core";
 import { useEditor } from "../app/store";
 import type { CanvasTool, ToolPointer } from "./tools/types";
-import { panBy, screenToShip, wheelFactor, zoomAt } from "./viewport";
+import { clampScale, easeScale, panBy, screenToShip, wheelFactor, zoomAt } from "./viewport";
 
 function localPoint(element: HTMLElement, clientX: number, clientY: number): Point {
   const rect = element.getBoundingClientRect();
@@ -28,15 +28,30 @@ export function useCanvasInput(ref: RefObject<HTMLElement | null>, tool: CanvasT
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
+    // The scale the wheel is heading for and the point it zooms around; each
+    // frame moves the camera part of the way there.
+    let target = 0;
+    let at: Point = { x: 0, y: 0 };
+    let frame = 0;
+    const step = () => {
+      const { view, setCamera } = useEditor.getState();
+      const scale = easeScale(view.camera.scale, target);
+      setCamera(zoomAt(view.camera, scale / view.camera.scale, at));
+      frame = scale === target ? 0 : requestAnimationFrame(step);
+    };
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
-      const { view, setCamera } = useEditor.getState();
-      const at = localPoint(element, event.clientX, event.clientY);
+      const { camera } = useEditor.getState().view;
       const delta = event.deltaMode === 1 ? event.deltaY * 33 : event.deltaY;
-      setCamera(zoomAt(view.camera, wheelFactor(delta), at));
+      target = clampScale((frame ? target : camera.scale) * wheelFactor(delta));
+      at = localPoint(element, event.clientX, event.clientY);
+      if (!frame) step();
     };
     element.addEventListener("wheel", onWheel, { passive: false });
-    return () => element.removeEventListener("wheel", onWheel);
+    return () => {
+      element.removeEventListener("wheel", onWheel);
+      cancelAnimationFrame(frame);
+    };
   }, [ref]);
 
   const onPointerDown = (event: PointerEvent<HTMLElement>) => {

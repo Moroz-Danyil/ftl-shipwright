@@ -26,9 +26,24 @@ export function zoomAt(camera: Camera, factor: number, at: Point): Camera {
   return { scale, x: at.x - ship.x * scale, y: at.y - ship.y * scale };
 }
 
+/** How much one notch of a mouse wheel (100 px of `deltaY`) zooms: 6 %. */
+export const WHEEL_NOTCH_ZOOM = 1.06;
+
 /** The zoom factor of one wheel event (`deltaY` in pixels; negative zooms in). */
 export function wheelFactor(deltaY: number): number {
-  return Math.pow(1.0015, -Math.max(-500, Math.min(500, deltaY)));
+  return Math.pow(WHEEL_NOTCH_ZOOM, -Math.max(-500, Math.min(500, deltaY)) / 100);
+}
+
+/**
+ * One frame of a smooth zoom: the scale moves this share of the way to its
+ * target, so a wheel notch eases in over a few frames.
+ */
+export const ZOOM_EASE = 0.3;
+
+/** The scale one frame closer to `target`; the target itself once it is within 0.1 %. */
+export function easeScale(scale: number, target: number): number {
+  const next = scale + (target - scale) * ZOOM_EASE;
+  return Math.abs(target - next) / target < 0.001 ? target : next;
 }
 
 export function panBy(camera: Camera, dx: number, dy: number): Camera {

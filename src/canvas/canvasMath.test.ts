@@ -23,6 +23,7 @@ import {
   shipToScreen,
   unionRects,
   wheelFactor,
+  easeScale,
   zoomAt,
 } from "./viewport";
 
@@ -50,6 +51,21 @@ describe("viewport", () => {
     expect(wheelFactor(-100)).toBeGreaterThan(1);
     expect(wheelFactor(100)).toBeLessThan(1);
     expect(wheelFactor(100) * wheelFactor(-100)).toBeCloseTo(1);
+  });
+
+  it("zooms 6 % per wheel notch, easing towards the target", () => {
+    expect(wheelFactor(-100)).toBeCloseTo(1.06);
+    expect(wheelFactor(-300)).toBeCloseTo(1.06 ** 3);
+    let scale = 1;
+    for (let i = 0; i < 4; i++) {
+      const next = easeScale(scale, 2);
+      expect(next).toBeGreaterThan(scale);
+      expect(next).toBeLessThanOrEqual(2);
+      scale = next;
+    }
+    expect(scale).toBeLessThan(2);
+    for (let i = 0; i < 40; i++) scale = easeScale(scale, 2);
+    expect(scale).toBe(2);
   });
 
   it("pans and fits", () => {
