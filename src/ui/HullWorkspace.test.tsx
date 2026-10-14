@@ -2,7 +2,10 @@
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { addMount, type Point } from "../core";
+import { addGib } from "../app/art/gibs";
+import { gamePicture } from "../app/art/model";
 import { useEditor } from "../app/store";
+import { gibRectPx } from "../canvas/artHitTest";
 import { en } from "../text/en";
 import { openArtShip } from "../testing/artFixtures";
 import { createFakePlatform, type FakePlatform } from "../testing/fakePlatform";
@@ -161,6 +164,39 @@ describe("Hull: mounts and gibs", () => {
     fireEvent.click(screen.getByRole("button", { name: en.art.playExplosion }));
     await waitFor(() => expect(screen.queryByTestId("hull-picture")).toBeNull());
     expect(await screen.findByTestId("gib-1")).toBeInTheDocument();
+  });
+});
+
+describe("Hull: a gib gone from under the pointer", () => {
+  const hoverGib = (index: number) => {
+    const r = gibRectPx(snap().ship, snap().art, index);
+    fireEvent.pointerMove(canvas(), screenAt({ x: r.x + r.w / 2, y: r.y + r.h / 2 }));
+    expect(screen.getByTestId("hover")).toBeInTheDocument();
+  };
+
+  it("keeps the editor when the hovered gib is deleted, undone and redone", async () => {
+    press("KeyG");
+    await screen.findByTestId("gib-2");
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt({ x: 150, y: 40 }) });
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt({ x: 150, y: 40 }) });
+    hoverGib(1);
+    press("Delete");
+    expect(snap().ship.layoutXml.gibs).toHaveLength(1);
+    expect(screen.queryByTestId("hover")).toBeNull();
+    act(() => state().undo());
+    expect(await screen.findByTestId("gib-2")).toBeInTheDocument();
+    act(() => state().redo());
+    expect(screen.getByTestId("ship-svg")).toBeInTheDocument();
+  });
+
+  it("keeps the editor when a new gib under the pointer is undone", async () => {
+    press("KeyG");
+    act(() => state().editSnapshot((s) => addGib(s, gamePicture("img/ship/t_gib1.png"))));
+    expect(await screen.findByTestId("gib-3")).toBeInTheDocument();
+    hoverGib(2);
+    act(() => state().undo());
+    expect(screen.queryByTestId("gib-3")).toBeNull();
+    expect(screen.getByRole("button", { name: en.art.playExplosion })).toBeInTheDocument();
   });
 });
 

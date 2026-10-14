@@ -22,7 +22,8 @@ function Hover({ ship, art, target }: { ship: Ship; art: ShipArt; target: Target
     const r = door && doorRectPx(layout, door);
     shape = r && { x: r.x - 3, y: r.y - 3, w: r.w + 6, h: r.h + 6 };
   } else if (target.kind === "gib") {
-    shape = gibRectPx(ship, art, target.index);
+    // The hovered gib can be gone: deleted or undone while the pointer rests on it.
+    shape = ship.layoutXml.gibs[target.index] && gibRectPx(ship, art, target.index);
   } else if (target.kind === "mount") {
     const m = ship.layoutXml.mounts[target.index];
     const c = m && mountPositionPx(layout, ship.layoutXml, m);

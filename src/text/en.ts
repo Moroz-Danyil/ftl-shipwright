@@ -169,6 +169,16 @@ export const en = {
     saveMod: "Save mod",
   },
 
+  /** Shown in place of the editor when drawing it fails. */
+  crash: {
+    title: "Something went wrong",
+    message:
+      "The editor stopped on an error. Your ship is still open as it was: undo the last step to carry on editing, or go back to the start screen.",
+    errorLabel: "The error",
+    undoAndContinue: "Undo and continue",
+    backToStart: "Back to the start screen",
+  },
+
   /**
    * What each tool of each workspace does, shown under the tool bar and in the inspector.
    * The title is shown with the tool's current key (`common.withKey`).

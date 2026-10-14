@@ -1,6 +1,7 @@
 /**
- * The root of the interface: the start screen or the editor, with the
- * platform, the texts, the keyboard, the theme and the scale set up.
+ * The root of the interface: the start screen or the editor (with a crash
+ * screen should drawing it fail), with the platform, the texts, the
+ * keyboard, the theme and the scale set up.
  */
 import { useEffect, useRef } from "react";
 import { loadGameIntoStore } from "../app/gameData";
@@ -13,6 +14,7 @@ import { TextsProvider } from "../text/TextsProvider";
 import { ConfirmDialog } from "./common/ConfirmDialog";
 import { LogoMark } from "./common/icons";
 import { NoticeBar } from "./common/NoticeBar";
+import { EditorErrorBoundary } from "./editor/EditorCrash";
 import { EditorWindow } from "./editor/EditorWindow";
 import { SettingsDialog } from "./settings/SettingsDialog";
 import { StartScreen } from "./start/StartScreen";
@@ -67,7 +69,13 @@ function Shell() {
   const settingsOpen = useEditor((s) => s.dialog === "settings");
   return (
     <>
-      {hasShip ? <EditorWindow /> : <StartScreen />}
+      {hasShip ? (
+        <EditorErrorBoundary>
+          <EditorWindow />
+        </EditorErrorBoundary>
+      ) : (
+        <StartScreen />
+      )}
       {settingsOpen && <SettingsDialog />}
       <ConfirmDialog />
       <NoticeBar />
