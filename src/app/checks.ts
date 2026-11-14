@@ -15,6 +15,7 @@ import {
 } from "../core";
 import { isPlayerShip, viewLimitCells } from "../canvas/viewLimit";
 import type { ShipArt } from "./art/model";
+import { isHangarSlot } from "./hangar";
 import { crewTotal } from "./details/rules";
 import { EMPTY_SELECTION, selectionOf, type Selection } from "./selection";
 import type { PictureSize } from "./systems/interiors";
@@ -27,6 +28,7 @@ import {
 import type { WorkspaceId } from "./workspaces";
 
 export type TextCheckCode = "no-name" | "no-class" | "no-description";
+export type HangarCheckCode = "not-in-hangar";
 export type LayoutCheckCode =
   "no-rooms" | "rooms-cut-off" | "rooms-off-screen" | "missing-core-system";
 export type SystemCheckCode = "several-installed" | "unusual-mix" | "cloak-interior-size";
@@ -42,6 +44,7 @@ export type LoadoutCheckCode =
 export type CheckCode =
   | ValidationCode
   | TextCheckCode
+  | HangarCheckCode
   | LayoutCheckCode
   | SystemCheckCode
   | ArtCheckCode
@@ -96,6 +99,16 @@ export function textChecks(ship: Ship, texts?: GameTexts): CheckIssue[] {
   if (!hasText(t.class, texts)) issues.push({ code: "no-class", workspace: "ship" });
   if (player && !hasText(t.desc, texts)) issues.push({ code: "no-description", workspace: "ship" });
   return issues;
+}
+
+/**
+ * The hangar: a ship whose blueprint name is none of the hangar's slots
+ * never shows there. (Every slot is a player ship's name, so the player ship
+ * checks of the texts, the ship icon and the screen frame apply to it.)
+ */
+export function hangarChecks(ship: Ship): CheckIssue[] {
+  const name = ship.blueprint.name;
+  return isHangarSlot(name) ? [] : [{ code: "not-in-hangar", item: name, workspace: "ship" }];
 }
 
 /**
@@ -269,6 +282,7 @@ export function allChecks(
     ...artChecks(ship, art),
     ...loadoutChecks(ship, catalogs),
     ...textChecks(ship, texts),
+    ...hangarChecks(ship),
   ];
 }
 

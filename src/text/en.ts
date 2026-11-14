@@ -3,6 +3,7 @@
  * comes from here; other languages are objects of the same type.
  */
 import type { CheckCode } from "../app/checks";
+import type { HangarTypeId } from "../app/hangar";
 import type { OverviewItemId } from "../app/overview";
 import type { RebindableCommand } from "../app/keys";
 import type { TourKeys, TourStepId } from "../app/tour";
@@ -128,8 +129,37 @@ export const en = {
     name: "Ship name",
     defaultName: "New ship",
     copyName: (name: string) => `${name} copy`,
-    savedAs: (id: string) => `Saved in the mod as ${id}`,
+    savedAs: (id: string, base: string) => `Saved in the mod as ${id} · file name ${base}`,
+    slotHint:
+      "The new ship takes this place in the game's hangar: while the mod is installed, the game's own ship there is replaced. Layouts B and C have to be unlocked in the game first.",
+    ownName: "Own blueprint name",
+    ownNameHint:
+      "For mods that add ships with other tools. The plain game's hangar does not show a ship under any other name.",
     create: "Create",
+  },
+
+  hangarSlot: {
+    label: "Hangar slot",
+    types: "Ship type",
+    layouts: "Layout",
+    layout: (letter: string) => `Layout ${letter}`,
+    /** The chosen slot, e.g. "Kestrel Cruiser · layout B · PLAYER_SHIP_HARD_2". */
+    summary: (type: string, letter: string, name: string) => `${type} · layout ${letter} · ${name}`,
+    ownName: (name: string) => `Own name: ${name}`,
+    ownNameHint: "Not shown in the plain game's hangar. Pick a ship type to give it a slot.",
+    /** Names of the ship types where the game's texts have none. */
+    typeNames: {
+      kestrel: "Kestrel",
+      engi: "Engi",
+      federation: "Federation",
+      zoltan: "Zoltan",
+      mantis: "Mantis",
+      slug: "Slug",
+      rock: "Rock",
+      stealth: "Stealth",
+      lanius: "Lanius",
+      crystal: "Crystal",
+    } satisfies Record<HangarTypeId, string>,
   },
 
   openShip: {
@@ -722,7 +752,11 @@ export const en = {
     },
     blueprintName: {
       title: "Blueprint name",
-      body: "The name the game's files use for this ship, such as PLAYER_SHIP_HARD for the Kestrel. Keep a game ship's name to replace that ship in the hangar.",
+      body: "The name the game's files use for this ship, such as PLAYER_SHIP_HARD for the Kestrel. The hangar shows only ships named after one of its slots; choose one with Hangar slot.",
+    },
+    hangarSlot: {
+      title: "Hangar slot",
+      body: "The game's hangar has ten ship types, each with layouts A, B and C (the Lanius and the Crystal only A and B), and shows only ships whose blueprint name is one of these slots. A slot gives the ship that name: while the mod is installed, it replaces the game's own ship there. Layouts B and C have to be unlocked in the game. An own name suits mods for other tools; the plain game does not show such a ship.",
     },
     baseName: {
       title: "File name",
@@ -814,6 +848,8 @@ export const en = {
     /** One line per check, under the overview item it belongs to. */
     messages: {
       "no-name": () => "The ship has no name for the hangar.",
+      "not-in-hangar": (i: IssueRefs) =>
+        `Not in the game's hangar: ${i.item ?? "?"} is none of its slots.`,
       "no-class": () => "The ship has no class.",
       "no-description": () => "The ship has no description.",
       "no-rooms": () => "The ship has no rooms.",
@@ -895,6 +931,12 @@ export const en = {
         title: "Save name",
         explain: "",
         value: (blueprint: string, base: string) => `${blueprint} · Files will be named ${base}`,
+      },
+      hangar: {
+        title: "In the game's hangar",
+        explain:
+          "The game's hangar shows only ships whose blueprint name is one of its slots, so the game never offers this ship. Choose a hangar slot under Info in Ship.",
+        value: (type: string, letter: string) => `${type}, layout ${letter}`,
       },
       hullReactor: {
         title: "Hull and reactor",

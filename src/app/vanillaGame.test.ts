@@ -10,6 +10,7 @@ import { nodeDatAccess, nodeFolderAccess } from "../core/testing/nodeAccess";
 import { en } from "../text/en";
 import { createFakePlatform, type FakePlatform } from "../testing/fakePlatform";
 import { loadGameData, loadGameIntoStore } from "./gameData";
+import { HANGAR_TYPES, hangarTypeName, slotImg } from "./hangar";
 import { buildOverview } from "./overview";
 import { saveShipMod } from "./saveMod";
 import { createNewShip, openGameShip } from "./ships";
@@ -52,6 +53,28 @@ describe.skipIf(!HAS_GAME_DATA)("the editor on the vanilla game", () => {
     expect(art.gibs).toHaveLength(6);
   }, 60_000);
 
+  it("names every hangar slot's type from the game and finds its ship and icon", async () => {
+    const catalogs = state().game.data!.catalogs;
+    expect(HANGAR_TYPES.map((t) => hangarTypeName(catalogs, t.id, "?"))).toEqual([
+      "Kestrel Cruiser",
+      "Engi Cruiser",
+      "Federation Cruiser",
+      "Zoltan Cruiser",
+      "Mantis Cruiser",
+      "Slug Cruiser",
+      "Rock Cruiser",
+      "Stealth Cruiser",
+      "Lanius Cruiser",
+      "Crystal Cruiser",
+    ]);
+    for (const type of HANGAR_TYPES)
+      for (let layout = 0; layout < type.layouts.length; layout++) {
+        const img = slotImg(catalogs, { type: type.id, layout });
+        expect(img, type.layouts[layout]).toBeDefined();
+        expect(await state().game.data!.view.has(`img/customizeUI/miniship_${img}.png`)).toBe(true);
+      }
+  });
+
   it("saves the unchanged Kestrel without copying the game's pictures", async () => {
     expect(await saveShipMod(platform, en, { kind: "ftl", path: "out/kestrel.ftl" })).toBe(true);
     const files = Object.keys(unzipSync(platform.disk.get("out/kestrel.ftl")!)).sort();
@@ -77,18 +100,28 @@ describe.skipIf(!HAS_GAME_DATA)("the editor on the vanilla game", () => {
       }
     }
     expect(problems).toEqual([]);
-    // The stealth cruisers start without shields; the easy and tutorial Kestrels have no description.
+    // The stealth cruisers start without shields; the easy and tutorial Kestrels have no
+    // description and take no hangar slot.
     expect(toCheck.sort()).toEqual([
       "PLAYER_SHIP_EASY: description",
+      "PLAYER_SHIP_EASY: hangar",
       "PLAYER_SHIP_STEALTH: coreSystems",
       "PLAYER_SHIP_STEALTH_2: coreSystems",
       "PLAYER_SHIP_STEALTH_3: coreSystems",
       "PLAYER_SHIP_TUTORIAL: description",
+      "PLAYER_SHIP_TUTORIAL: hangar",
     ]);
   }, 120_000);
 
   it("saves a copy with the pictures under its own name", async () => {
-    expect(await createNewShip(en, { name: "Red Kestrel", copyOf: "PLAYER_SHIP_HARD" })).toBe(true);
+    expect(
+      await createNewShip(en, {
+        name: "Red Kestrel",
+        copyOf: "PLAYER_SHIP_HARD",
+        blueprint: "PLAYER_SHIP_HARD_2",
+      })
+    ).toBe(true);
+    expect(state().doc!.history.present.ship.blueprint.name).toBe("PLAYER_SHIP_HARD_2");
     expect(await saveShipMod(platform, en, { kind: "ftl", path: "out/red.ftl" })).toBe(true);
     const files = Object.keys(unzipSync(platform.disk.get("out/red.ftl")!));
     expect(files).toEqual(

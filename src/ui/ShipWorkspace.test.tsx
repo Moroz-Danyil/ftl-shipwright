@@ -480,4 +480,52 @@ describe("Ship workspace: info", () => {
     await waitFor(() => expect(bp().name).toBe("MY_T"));
     expect(steps()).toBe(1);
   });
+
+  const slotGroup = () => within(inspector()).getByRole("group", { name: en.hangarSlot.label });
+  const typeRadio = (name: string) =>
+    within(within(slotGroup()).getByRole("radiogroup", { name: en.hangarSlot.types })).getByRole(
+      "radio",
+      { name }
+    );
+  const layoutRadio = (letter: string) =>
+    within(slotGroup()).getByRole("radio", { name: en.hangarSlot.layout(letter) });
+
+  it("puts the ship in a hangar slot, which sets its blueprint name", async () => {
+    await setUp();
+    // The test ship has an own name, which the plain game does not show.
+    expect(within(slotGroup()).getByText(en.hangarSlot.ownName("PLAYER_SHIP_T"))).toBeVisible();
+    expect(within(slotGroup()).getByText(en.hangarSlot.ownNameHint)).toBeInTheDocument();
+    expect(layoutRadio("A")).toBeDisabled();
+    fireEvent.pointerEnter(slotGroup().parentElement!);
+    expect(
+      within(screen.getByRole("tooltip")).getByText(en.help.hangarSlot.body)
+    ).toBeInTheDocument();
+
+    fireEvent.click(typeRadio("Mantis"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_MANTIS"));
+    expect(bp().layout).toBe("t");
+    expect(typeRadio("Mantis")).toBeChecked();
+    expect(layoutRadio("A")).toBeChecked();
+    fireEvent.click(layoutRadio("C"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_MANTIS_3"));
+    expect(within(slotGroup()).getByText("Mantis · layout C · PLAYER_SHIP_MANTIS_3")).toBeVisible();
+    expect(within(inspector()).getByLabelText(en.hangar.blueprintName)).toHaveValue(
+      "PLAYER_SHIP_MANTIS_3"
+    );
+    expect(steps()).toBe(2);
+  });
+
+  it("asks before moving a game ship to another hangar slot", async () => {
+    await setUp({ kind: "game" });
+    fireEvent.click(typeRadio("Rock"));
+    const dialog = await screen.findByRole("dialog", { name: en.hangar.confirmRename.title });
+    fireEvent.click(within(dialog).getByRole("button", { name: en.common.cancel }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(bp().name).toBe("PLAYER_SHIP_T");
+
+    fireEvent.click(typeRadio("Rock"));
+    const again = await screen.findByRole("dialog", { name: en.hangar.confirmRename.title });
+    fireEvent.click(within(again).getByRole("button", { name: en.hangar.confirmRename.confirm }));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_ROCK"));
+  });
 });

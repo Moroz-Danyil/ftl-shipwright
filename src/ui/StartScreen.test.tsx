@@ -89,11 +89,77 @@ describe("start screen", () => {
     expect(within(dialog).getByLabelText(en.newShip.name)).toHaveValue(
       en.newShip.copyName("The Mini")
     );
-    expect(within(dialog).getByText(en.newShip.savedAs("THE_MINI_COPY"))).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(en.newShip.savedAs("PLAYER_SHIP_HARD", "the_mini_copy"))
+    ).toBeInTheDocument();
     fireEvent.click(create);
 
     expect(await screen.findByText(en.topBar.unsaved)).toBeInTheDocument();
-    expect(useEditor.getState().doc!.history.present.ship.blueprint.name).toBe("THE_MINI_COPY");
+    expect(useEditor.getState().doc!.history.present.ship.blueprint).toMatchObject({
+      name: "PLAYER_SHIP_HARD",
+      layout: "the_mini_copy",
+      img: "the_mini_copy",
+    });
+  });
+
+  it("puts a new ship in a hangar slot of the type and layout chosen", async () => {
+    const platform = await withMiniGame();
+    render(<App platform={platform} />);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
+    const dialog = screen.getByRole("dialog", { name: en.newShip.title });
+    const types = within(dialog).getByRole("radiogroup", { name: en.hangarSlot.types });
+    const layouts = within(dialog).getByRole("radiogroup", { name: en.hangarSlot.layouts });
+    const layout = (letter: string) =>
+      within(layouts).getByRole("radio", { name: en.hangarSlot.layout(letter) });
+    const savedAs = (id: string) => en.newShip.savedAs(id, "new_ship");
+
+    // The Kestrel's layout A by default, with what taking a slot means.
+    expect(within(types).getByRole("radio", { name: "Kestrel" })).toBeChecked();
+    expect(layout("A")).toBeChecked();
+    expect(within(types).getAllByRole("radio")).toHaveLength(10);
+    expect(within(dialog).getByText(en.newShip.slotHint)).toBeInTheDocument();
+    expect(within(dialog).getByText(savedAs("PLAYER_SHIP_HARD"))).toBeInTheDocument();
+
+    fireEvent.click(within(types).getByRole("radio", { name: "Engi" }));
+    fireEvent.click(layout("C"));
+    expect(within(dialog).getByText("Engi · layout C · PLAYER_SHIP_CIRCLE_3")).toBeInTheDocument();
+    expect(within(dialog).getByText(savedAs("PLAYER_SHIP_CIRCLE_3"))).toBeInTheDocument();
+    // The Lanius has no layout C: the choice moves to its layout B.
+    fireEvent.click(within(types).getByRole("radio", { name: "Lanius" }));
+    expect(layout("C")).toBeDisabled();
+    expect(layout("B")).toBeChecked();
+    expect(within(dialog).getByText(savedAs("PLAYER_SHIP_ANAEROBIC_2"))).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: en.newShip.create }));
+    expect(await screen.findByText(en.topBar.unsaved)).toBeInTheDocument();
+    expect(useEditor.getState().doc!.history.present.ship.blueprint).toMatchObject({
+      name: "PLAYER_SHIP_ANAEROBIC_2",
+      layout: "new_ship",
+      img: "new_ship",
+    });
+  });
+
+  it("keeps an own blueprint name for mods made for other tools", async () => {
+    const platform = await withMiniGame();
+    render(<App platform={platform} />);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
+    const dialog = screen.getByRole("dialog", { name: en.newShip.title });
+    const create = within(dialog).getByRole("button", { name: en.newShip.create });
+    fireEvent.click(within(dialog).getByRole("checkbox", { name: en.newShip.ownName }));
+    const own = within(dialog).getByRole("textbox", { name: en.newShip.ownName });
+    expect(own).toHaveValue("NEW_SHIP");
+    expect(within(dialog).getByText(en.newShip.ownNameHint)).toBeInTheDocument();
+    expect(within(dialog).getByRole("radio", { name: "Kestrel" })).toBeDisabled();
+    expect(within(dialog).queryByText(en.newShip.slotHint)).not.toBeInTheDocument();
+
+    fireEvent.change(own, { target: { value: "MY SHIP" } });
+    expect(within(dialog).getByText(en.hangar.invalidId)).toBeInTheDocument();
+    expect(create).toBeDisabled();
+    fireEvent.change(own, { target: { value: "MY_SHIP" } });
+    expect(within(dialog).getByText(en.newShip.savedAs("MY_SHIP", "new_ship"))).toBeInTheDocument();
+    fireEvent.click(create);
+    expect(await screen.findByText(en.topBar.unsaved)).toBeInTheDocument();
+    expect(useEditor.getState().doc!.history.present.ship.blueprint.name).toBe("MY_SHIP");
   });
 
   it("lists recent ships and opens one again", async () => {

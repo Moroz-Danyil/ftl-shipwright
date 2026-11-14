@@ -1,7 +1,7 @@
 /**
- * A ship the overview finds complete: the Rooms test ship with a fourth room
- * under room 0, the four core systems, texts, crew, a weapon, two mounts, a
- * gib and every picture.
+ * A ship the overview finds complete: the Rooms test ship in the Kestrel's
+ * hangar slot, with a fourth room under room 0, the four core systems, texts,
+ * crew, a weapon, two mounts, a gib and every picture.
  */
 import {
   addDoor,
@@ -31,6 +31,7 @@ export function completeShip(): Ship {
   ship = addRoom(ship, { x: 0, y: 1, w: 2, h: 1 });
   ship = addDoor(ship, { x: 0, y: 1, vertical: false });
   ship = updateBlueprint(ship, {
+    name: "PLAYER_SHIP_HARD",
     texts: {
       name: { kind: "text", text: "The T" },
       class: { kind: "text", text: "T Cruiser" },

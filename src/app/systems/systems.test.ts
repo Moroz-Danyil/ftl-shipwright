@@ -196,6 +196,7 @@ describe("unusual mixes and system checks", () => {
       ["no-name", "ship"],
       ["no-class", "ship"],
       ["no-description", "ship"],
+      ["not-in-hangar", "ship"],
     ]);
   });
 });

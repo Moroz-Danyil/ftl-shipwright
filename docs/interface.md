@@ -27,7 +27,9 @@ How FTL Shipwright looks and behaves. The editor is built around **workspaces**:
 
 Shown when no ship is open.
 
-- **New ship**: start from an empty hull or from a copy of any ship in the game. The copy gets its own name and never overwrites the original.
+- **New ship**: start from an empty hull or from a copy of any ship in the game. The copy gets its own name and file names and never overwrites the original.
+  - **Hangar slot**: the game's hangar shows only ships whose blueprint name is one of its slots: ten ship types (each shown by the select icon of the game's ship there and named by the game's class, such as "Kestrel Cruiser") with layouts A, B and C (the Lanius and the Crystal only A and B). The new ship takes the chosen slot's blueprint name, so while the mod is installed it replaces the game's ship there; layouts B and C have to be unlocked in the game. The default is the Kestrel's layout A, the one ship every player has from the first run, so the new ship shows up at once; a copy of a hangar ship starts on that ship's slot. The file base name still comes from the ship's name, so its layout and pictures are its own.
+  - **Own blueprint name**: for mods that add ships with other tools; the plain game does not show such a ship.
 - **Open a ship**: pick a ship from the game or from the chosen mod and edit it in place.
 - **Recent**: ships opened or saved before.
 - **Game data** card: the game's `ftl.dat` (asked for on the first start), the ship count, and an optional mod (folder, `.ftl` or `.zip`).
@@ -73,7 +75,7 @@ A ship opens in Ship.
 
 Everything about the ship itself. A bar at the bottom of the canvas shows the weapon and drone slots like the game's own bar; their numbers match the mounts on the hull. A click on a filled slot selects it (`Delete` then removes it), a right click removes its item and the later ones move up. A click on an empty slot ("+ weapon", "+ drone", or Enter / Space on it) opens a picker above the bar with the same searchable list as the Weapons or Drones section, details on hover included; the item clicked goes in the first empty slot and the picker closes. Esc or a click outside closes it too. **Preview in hangar** on the canvas shows the ship as the hangar does.
 
-- **Info**: name, class and description as the hangar shows them; under **Save name**, the blueprint name and the file name of the ship.
+- **Info**: name, class and description as the hangar shows them; under **Save name**, the **Hangar slot** (the same type and layout choice as in New ship, or "Own name: …" for a ship in no slot), the blueprint name and the file name of the ship. Choosing a slot changes the blueprint name; for a game ship edited in place it asks first, as any new save name does.
 - **Stats**: hull points (30 for a new ship), the reactor's power, weapon slots (at most 8), drone slots, starting missiles and drone parts. The game has no starting fuel per ship.
 - **Crew**: a row for each race with its amount, and "Add race…" (at most 8 crew in total).
 - **Weapons**: the ship's weapons in slot order, with the number of weapons and slots. A click on one selects its slot (as a click in the bar does), the arrows move it to an earlier or later slot, the cross removes it; hovering it shows its details and marks its mount on the ship. Below, the game's weapons as a list (picture, name, stats) with search: a click puts one in the next free slot, hovering shows its description and stats.
@@ -117,11 +119,11 @@ Rooms, doors, the systems in the rooms and the crew stations.
 
 The **Overview** button opens a checklist of the whole ship, in sections in the order of the workspaces:
 
-- **Ship**: name, class, description, save name (and the file base name), hull and reactor, crew, weapon and drone slots, weapons and drones the game knows.
+- **Ship**: name, class, description, save name (and the file base name), in the game's hangar (a ship whose blueprint name is none of the hangar's slots is never offered by the game; the item points to the slot choice in Info), hull and reactor, crew, weapon and drone slots, weapons and drones the game knows.
 - **Rooms**: rooms, no overlaps, room sizes and ids, doors attached to rooms, crew can walk everywhere (doors join every room; airlocks do not count), airlocks on small rooms, every room inside the view-limit frame, crew stations inside their rooms, systems in existing rooms, one system per room at the start, usual system pairs, the core systems (piloting, engines, oxygen, shields), interior pictures that fit.
 - **Hull**: hull, floor, shield and cloak pictures, ship icon, explosion pieces with pictures, enough weapon mounts, mounts linked to existing gibs.
 
-An item that is fine is a row with a green check mark and a short value (for example "Rooms: 17" or "30 hull, 8 reactor bars"). An item that needs a look is a card: a red mark for a **problem** (the game will not work or may crash: no rooms, no hull picture, 0 hull points, a cloaking interior picture that does not fit its room) or an amber one for something **to check**, what is wrong, the rooms, doors, mounts or items involved, and **Go there ›**, which closes the dialog, opens the workspace and selects what the item is about. A summary at the top says "Everything looks complete." or counts the problems and the items to check; **Only what needs a look** hides the rows that are fine (remembered until the app is closed). Name, description and ship icon are asked of player ships only, and so is the frame. The Save mod dialog repeats the counts when something needs a look; the ship can still be saved.
+An item that is fine is a row with a green check mark and a short value (for example "Rooms: 17" or "30 hull, 8 reactor bars"). An item that needs a look is a card: a red mark for a **problem** (the game will not work or may crash: no rooms, no hull picture, 0 hull points, a cloaking interior picture that does not fit its room) or an amber one for something **to check**, what is wrong, the rooms, doors, mounts or items involved, and **Go there ›**, which closes the dialog, opens the workspace and selects what the item is about. A summary at the top says "Everything looks complete." or counts the problems and the items to check; **Only what needs a look** hides the rows that are fine (remembered until the app is closed). Name, description and ship icon are asked of player ships only (every hangar slot is a player ship's name), and so is the frame. The Save mod dialog repeats the counts when something needs a look; the ship can still be saved.
 
 ## Saving
 

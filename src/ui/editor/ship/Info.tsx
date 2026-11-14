@@ -1,13 +1,16 @@
 /**
  * The ship's info: name, class and description as the hangar shows them,
- * then the save name (the names of the ship's files).
+ * then the save name: the hangar slot the ship takes (its blueprint name)
+ * and the names of its files.
  */
 import type { Ship } from "../../../core";
 import { renameShip, setShipText } from "../../../app/loadoutActions";
+import { slotName, slotOf } from "../../../app/hangar";
 import { gameText } from "../../../app/loadout/catalog";
 import type { TextField as Field } from "../../../app/details/rules";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
+import { HangarSlotPicker } from "../../common/HangarSlotPicker";
 import { Help } from "../../common/Help";
 import { Section, SubHeading } from "../../common/Section";
 import { TextField } from "../../common/TextField";
@@ -16,6 +19,7 @@ export function Info({ ship }: { ship: Ship }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const value = (field: Field) => gameText(data, ship.blueprint.texts[field]) ?? "";
+  const slot = slotOf(ship.blueprint.name);
   return (
     <Section id="ship-info" title={texts.sections.info} icon="info">
       <Help topic="shipName">
@@ -41,6 +45,23 @@ export function Info({ ship }: { ship: Ship }) {
         />
       </Help>
       <SubHeading title={texts.hangar.saveName} icon="save">
+        <Help topic="hangarSlot">
+          <div className="field" role="group" aria-label={texts.hangarSlot.label}>
+            {texts.hangarSlot.label}
+            <HangarSlotPicker
+              slot={slot}
+              onPick={(next) => void renameShip(texts, { name: slotName(next) })}
+            />
+            {!slot && (
+              <>
+                <span className="hs-summary mono">
+                  {texts.hangarSlot.ownName(ship.blueprint.name)}
+                </span>
+                <span className="hs-note">{texts.hangarSlot.ownNameHint}</span>
+              </>
+            )}
+          </div>
+        </Help>
         <Help topic="blueprintName">
           <TextField
             label={texts.hangar.blueprintName}

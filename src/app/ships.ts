@@ -111,15 +111,20 @@ export function newShipIds(
   return { name: slug.toUpperCase(), layout: slug, img: slug };
 }
 
-/** Creates a new ship, empty or as a copy of a game ship, under its own name and ids. */
+/**
+ * Creates a new ship, empty or as a copy of a game ship, under its own name
+ * and file base name. The blueprint name is the given one (a hangar slot's,
+ * or an own name), else one no game ship uses.
+ */
 export async function createNewShip(
   texts: Texts,
-  input: { name: string; copyOf?: string }
+  input: { name: string; copyOf?: string; blueprint?: string }
 ): Promise<boolean> {
   const store = useEditor.getState();
   try {
     const data = requireGame();
-    const ids = newShipIds(input.name, data.catalogs.ships);
+    const free = newShipIds(input.name, data.catalogs.ships);
+    const ids = input.blueprint ? { ...free, name: input.blueprint } : free;
     const nameText = { kind: "text" as const, text: input.name };
     if (input.copyOf) {
       const loaded = await loadFrom(data.view, input.copyOf, texts);

@@ -70,7 +70,8 @@ describe("the ship overview", () => {
       name: "The T",
       class: "T Cruiser",
       description: "Written",
-      saveName: "PLAYER_SHIP_T · Files will be named t",
+      saveName: "PLAYER_SHIP_HARD · Files will be named t",
+      hangar: "Kestrel, layout A",
       hullReactor: "30 hull, 8 reactor bars",
       crew: "3 of 8",
       slots: "Weapons 1/2, drones 0/2",
@@ -93,7 +94,7 @@ describe("the ship overview", () => {
 
   it("puts every check in exactly one item of its own workspace", () => {
     const codes = Object.keys(ITEM_OF_CHECK) as CheckCode[];
-    expect(codes).toHaveLength(30);
+    expect(codes).toHaveLength(31);
     for (const code of codes) {
       const sections = Object.entries(OVERVIEW_ITEMS).filter(([, ids]) =>
         (ids as readonly string[]).includes(ITEM_OF_CHECK[code])
@@ -107,6 +108,7 @@ describe("the ship overview", () => {
     ship = addRoom(ship, { x: 30, y: 0, w: 1, h: 1 });
     ship = addDoor(ship, { x: 20, y: 9, vertical: true });
     ship = updateBlueprint(ship, {
+      name: "PLAYER_SHIP_MINE",
       texts: {},
       health: 0,
       weaponSlots: 1,
@@ -227,7 +229,48 @@ describe("the ship overview", () => {
       name: "AUTO_T",
       texts: { class: { kind: "text", text: "Drone" } },
     });
-    expect(notOk({ ship: enemy, art: { ...fullArt(), miniship: undefined } })).toEqual([]);
+    // An enemy ship takes no hangar slot, which is all there is to check.
+    expect(notOk({ ship: enemy, art: { ...fullArt(), miniship: undefined } })).toEqual([
+      ["hangar", "check"],
+    ]);
+  });
+
+  it("asks a ship outside the hangar's slots to take one", () => {
+    const own = updateBlueprint(completeShip(), { name: "PLAYER_SHIP_MINE" });
+    expect(notOk({ ship: own })).toEqual([["hangar", "check"]]);
+    expect(item("hangar", { ship: own })).toMatchObject({
+      title: en.overview.items.hangar.title,
+      explanation: en.overview.items.hangar.explain,
+      details: [{ text: en.checks.messages["not-in-hangar"]({ item: "PLAYER_SHIP_MINE" }) }],
+      workspace: "ship",
+    });
+    // A ship that takes a slot gets the player ship checks too.
+    const unnamed = updateBlueprint(completeShip(), {
+      name: "PLAYER_SHIP_CRYSTAL_2",
+      texts: { class: { kind: "text", text: "C" } },
+    });
+    expect(notOk({ ship: unnamed, art: { ...fullArt(), miniship: undefined } })).toEqual([
+      ["name", "check"],
+      ["description", "check"],
+      ["shipIcon", "check"],
+    ]);
+    // The slot's type is named by the game's class of its layout A ship.
+    const kestrel = {
+      name: "PLAYER_SHIP_HARD",
+      layout: "kestral",
+      img: "kestral",
+      isPlayer: true,
+      displayName: "The Kestrel",
+      className: "Kestrel Cruiser",
+      xml: "",
+      ...origin,
+    };
+    const named = { ...data, catalogs: { ...data.catalogs, ships: [kestrel] } };
+    const b = updateBlueprint(completeShip(), { name: "PLAYER_SHIP_HARD_2" });
+    expect(item("hangar", { ship: b, data: named })).toMatchObject({
+      status: "ok",
+      value: "Kestrel Cruiser, layout B",
+    });
   });
 
   it("reads text ids through the game's texts", () => {

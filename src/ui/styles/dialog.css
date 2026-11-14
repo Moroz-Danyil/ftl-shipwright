@@ -187,6 +187,69 @@
   color: var(--line-strong);
 }
 
+/* Hangar slot: the ship types by their icons, then the layout */
+.hs-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hs-types {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.hs-type {
+  display: flex;
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  cursor: pointer;
+}
+.hs-type .ship-icon {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+.hs-type:hover:not(:disabled),
+.hs-layout:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+.hs-type[aria-checked="true"],
+.hs-layout[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-soft);
+}
+.hs-type:disabled,
+.hs-layout:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+.hs-layouts {
+  display: flex;
+  gap: 6px;
+}
+.hs-layout {
+  width: 40px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  color: var(--text);
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+.hs-summary {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.hs-note {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 /* Settings */
 .set-group {
   margin: 0;
@@ -367,4 +430,27 @@
   display: flex;
   gap: 6px;
   margin-left: auto;
+}
+
+/* New ship: the choices scroll when the window is low */
+.ns-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.ns-body .picker-list {
+  height: 240px;
+}
+.ns-slot {
+  margin: 0;
+  padding: 0;
+  border: none;
+  gap: 8px;
+}
+.ns-legend {
+  padding: 0;
+  margin-bottom: 4px;
 }

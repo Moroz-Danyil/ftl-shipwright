@@ -10,6 +10,7 @@ import { useTexts, type Texts } from "../text";
 import type { ShipArt } from "./art/model";
 import { allChecks, selectionOfIssue, type CheckCode, type CheckIssue } from "./checks";
 import { LIMITS as SHIP_LIMITS, NEW_SHIP_HULL, crewTotal } from "./details/rules";
+import { LAYOUT_LETTERS, hangarTypeName, slotOf } from "./hangar";
 import { items, slots } from "./loadout/rules";
 import { systemName } from "./names";
 import { EMPTY_SELECTION, mergeSelections, type Selection } from "./selection";
@@ -20,7 +21,17 @@ import { isPlayerShip } from "../canvas/viewLimit";
 
 /** The items of each section, in the order they are listed. */
 export const OVERVIEW_ITEMS = {
-  ship: ["name", "class", "description", "saveName", "hullReactor", "crew", "slots", "knownItems"],
+  ship: [
+    "name",
+    "class",
+    "description",
+    "saveName",
+    "hangar",
+    "hullReactor",
+    "crew",
+    "slots",
+    "knownItems",
+  ],
   rooms: [
     "rooms",
     "overlap",
@@ -46,6 +57,7 @@ export const ITEM_OF_CHECK: Record<CheckCode, OverviewItemId> = {
   "no-name": "name",
   "no-class": "class",
   "no-description": "description",
+  "not-in-hangar": "hangar",
   "no-hull-points": "hullReactor",
   "no-crew": "crew",
   "too-many-weapons": "slots",
@@ -144,11 +156,18 @@ function itemValues(
   const airlocks = doors.filter((d) => d.roomA === -1 || d.roomB === -1).length;
   const weapons = items(ship, "weapon").length;
   const drones = items(ship, "drone").length;
+  const slot = slotOf(bp.name);
   return {
     name: text("name"),
     class: text("class"),
     description: t.description.value,
     saveName: t.saveName.value(bp.name, bp.layout),
+    hangar:
+      slot &&
+      t.hangar.value(
+        hangarTypeName(data?.catalogs, slot.type, texts.hangarSlot.typeNames[slot.type]),
+        LAYOUT_LETTERS[slot.layout]
+      ),
     hullReactor: t.hullReactor.value(
       bp.health ?? NEW_SHIP_HULL,
       bp.maxPower ?? SHIP_LIMITS.reactor.min
