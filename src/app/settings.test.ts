@@ -10,7 +10,6 @@ import {
   loadLanguage,
   loadMod,
   loadOfferTour,
-  loadOpenSections,
   loadRecent,
   loadTheme,
   loadUiScale,
@@ -20,7 +19,6 @@ import {
   saveMod,
   saveOfferTour,
   saveRecent,
-  saveSectionOpen,
   saveTheme,
   saveUiScale,
   type RecentShip,
@@ -117,18 +115,6 @@ describe("the look of the interface", () => {
     expect(loadLanguage(store)).toBeUndefined();
     saveLanguage("en", store);
     expect(loadLanguage(store)).toBe("en");
-  });
-
-  it("remembers which sections are open, keeping only true or false", () => {
-    const store = memoryStore();
-    expect(loadOpenSections(store)).toEqual({});
-    saveSectionOpen("crew", false, store);
-    saveSectionOpen("hull", true, store);
-    expect(loadOpenSections(store)).toEqual({ crew: false, hull: true });
-    store.setItem("shipwright.sections", JSON.stringify({ crew: "yes", hull: true }));
-    expect(loadOpenSections(store)).toEqual({ hull: true });
-    store.setItem("shipwright.sections", JSON.stringify([true]));
-    expect(loadOpenSections(store)).toEqual({});
   });
 
   it("remembers the changed shortcuts only, ignoring bad entries", () => {

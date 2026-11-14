@@ -1,10 +1,10 @@
 /**
  * A titled part of the inspector that folds away, with a pictogram before
- * its title and an optional count on the right. It remembers between runs
- * whether it was open.
+ * its title and an optional count on the right. Sections start folded each
+ * time the app starts; one opened stays open for the rest of the run.
  */
-import { useId, useState, type ReactNode } from "react";
-import { loadOpenSections, saveSectionOpen } from "../../app/settings";
+import { useId, type ReactNode } from "react";
+import { useEditor } from "../../app/store";
 import { ChevronIcon } from "./icons";
 import { Pictogram, type PictogramId } from "./Pictogram";
 
@@ -13,10 +13,10 @@ export function Section({
   title,
   icon,
   count,
-  defaultOpen = true,
+  defaultOpen = false,
   children,
 }: {
-  /** Names the section in the remembered settings. */
+  /** Names the section, so it stays open or folded for the rest of the run. */
   id: string;
   title: string;
   icon: PictogramId;
@@ -24,12 +24,10 @@ export function Section({
   defaultOpen?: boolean;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(() => loadOpenSections()[id] ?? defaultOpen);
+  const open = useEditor((s) => s.openSections[id] ?? defaultOpen);
+  const setSectionOpen = useEditor((s) => s.setSectionOpen);
   const bodyId = useId();
-  const toggle = () => {
-    setOpen(!open);
-    saveSectionOpen(id, !open);
-  };
+  const toggle = () => setSectionOpen(id, !open);
   return (
     <section className="sec" aria-label={title}>
       <button

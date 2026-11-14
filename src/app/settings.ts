@@ -1,8 +1,7 @@
 /**
  * What the app remembers between runs: the game archive, the mod, the
  * recently used ships, the look of the interface (theme, scale, language), the
- * keyboard shortcuts, which inspector sections are folded and whether the
- * tour is still offered.
+ * keyboard shortcuts and whether the tour is still offered.
  */
 import type { ModRef } from "../platform/types";
 import { readStored, writeStored, type KeyValueStore } from "../platform/storage";
@@ -15,7 +14,6 @@ const KEYS = {
   theme: "shipwright.theme",
   scale: "shipwright.scale",
   language: "shipwright.language",
-  sections: "shipwright.sections",
   shortcuts: "shipwright.shortcuts",
   offerTour: "shipwright.offerTour",
 } as const;
@@ -64,21 +62,6 @@ export function loadKeyMap(store?: KeyValueStore): KeyMap {
 
 export function saveKeyMap(map: KeyMap, store?: KeyValueStore): void {
   writeStored(KEYS.shortcuts, changedKeys(map), store);
-}
-
-/** Which inspector sections were opened or folded, by section id. */
-export function loadOpenSections(store?: KeyValueStore): Record<string, boolean> {
-  const value = readStored<unknown>(KEYS.sections, store);
-  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
-  return Object.fromEntries(
-    Object.entries(value).filter(
-      (entry): entry is [string, boolean] => typeof entry[1] === "boolean"
-    )
-  );
-}
-
-export function saveSectionOpen(id: string, open: boolean, store?: KeyValueStore): void {
-  writeStored(KEYS.sections, { ...loadOpenSections(store), [id]: open }, store);
 }
 
 /**

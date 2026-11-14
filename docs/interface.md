@@ -8,6 +8,7 @@ How FTL Shipwright looks and behaves. The editor is built around **workspaces**:
 - A light theme with the same layout: soft greys rather than white, the same amber accent darkened for contrast.
 - Typefaces: IBM Plex Sans for text, IBM Plex Mono for numbers, ids and keys.
 - Pictograms: every section title in the inspector, sub-headings such as Save name, and the ship's stats have a small picture before their text, on a dark chip so it reads in both themes. Where the game has a fitting picture it is the game's own (the weapons and drones system icons, the missile and drone part icons); otherwise a line icon in the style of the tool icons, and a tool's icon for its help and for what it works on (mounts, explosion pieces, the picture to move). They never replace the text.
+- Inspector sections fold away. Each run of the app starts with them folded, so a panel shows its parts first; a section opened stays open until the app is closed.
 - Every piece of text comes from one English dictionary, so translations can be added later.
 
 | Token      | Value     | Use                                    |

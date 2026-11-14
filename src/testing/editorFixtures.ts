@@ -12,12 +12,36 @@ import { createFakePlatform, type FakePlatform } from "./fakePlatform";
 export const DAT_PATH = "games/ftl/ftl.dat";
 
 /**
+ * The inspector sections the tests open: the app starts with every section
+ * folded, and the tests are about what the sections hold. The tool help
+ * stays folded, as in the app.
+ */
+const OPEN_SECTIONS = [
+  "ship-info",
+  "ship-stats",
+  "ship-crew",
+  "ship-weapons",
+  "ship-drones",
+  "ship-augments",
+  "rooms-palette",
+  "room-systems",
+  "room-position",
+  "art-pictures",
+  "art-move",
+  "art-mounts",
+  "art-gibs",
+];
+
+/**
  * A fresh store in which the tour counts as offered already, so a ship opens
- * without the offer over it.
+ * without the offer over it, and the inspector sections are open.
  */
 export function freshEditorStore(): void {
   resetEditorStore();
-  useEditor.setState({ tourOffered: true });
+  useEditor.setState({
+    tourOffered: true,
+    openSections: Object.fromEntries(OPEN_SECTIONS.map((id) => [id, true])),
+  });
 }
 
 /** A fresh store (see `freshEditorStore`) with the mini game loaded. */

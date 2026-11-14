@@ -210,6 +210,8 @@ export interface EditorState {
   tools: Record<WorkspaceId, ToolId>;
   view: ViewState;
   dialog: DialogId | null;
+  /** Inspector sections opened in this run of the app, by section id; the rest are folded. */
+  openSections: Record<string, boolean>;
   /** The ship overview shows only the items that need a look (for the session). */
   overviewNeedsOnly: boolean;
   /** The speed the explosion preview plays at (for the session). */
@@ -256,6 +258,7 @@ export interface EditorState {
   setCamera(camera: Camera): void;
   setPanHeld(held: boolean): void;
   openDialog(dialog: DialogId | null): void;
+  setSectionOpen(id: string, open: boolean): void;
   setOverviewNeedsOnly(on: boolean): void;
   setExplosionSpeed(speed: ExplosionSpeed): void;
   /**
@@ -330,6 +333,7 @@ export function initialEditorState() {
       panHeld: false,
     },
     dialog: null,
+    openSections: {} as Record<string, boolean>,
     overviewNeedsOnly: false,
     explosionSpeed: DEFAULT_EXPLOSION_SPEED as ExplosionSpeed,
     confirmation: null as Confirmation | null,
@@ -438,6 +442,7 @@ export const useEditor = create<EditorState>()((set, get) => {
     },
 
     openDialog: (dialog) => set({ dialog }),
+    setSectionOpen: (id, open) => set((s) => ({ openSections: { ...s.openSections, [id]: open } })),
     setOverviewNeedsOnly: (overviewNeedsOnly) => set({ overviewNeedsOnly }),
     setExplosionSpeed: (explosionSpeed) => set({ explosionSpeed }),
     askConfirm: (request) =>
