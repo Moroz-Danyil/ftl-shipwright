@@ -42,7 +42,7 @@ function ShipOption({
         }
       }}
     >
-      <ShipIcon img={ship.isPlayer ? ship.img : undefined} />
+      <ShipIcon img={ship.img} />
       <span className="picker-text">
         <span className="picker-name">{ship.displayName}</span>
         <span className="picker-sub">
