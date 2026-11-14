@@ -114,6 +114,7 @@ describe("Select tool", () => {
     expect(overlay).toMatchObject({ kind: "ghost", ok: false });
     tool.up(at(3.5, 0.5));
     expect(undoAvailable(state())).toBe(false);
+    expect(said).toEqual([en.layout.problems.overlap]);
   });
 
   it("cancels a drag with Esc without a step", () => {
@@ -163,15 +164,30 @@ describe("Room tool", () => {
     expect(ship().layout.rooms[3]).toEqual({ id: 3, x: 6, y: 0, w: 1, h: 1 });
   });
 
-  it("refuses overlaps and cells below 0", () => {
+  it("refuses overlaps and cells below 0 in red, and says why", () => {
     const tool = createRoomTool(context);
     drag(tool, { x: 0.5, y: 2.5 }, { x: 2.5, y: 1.5 });
-    expect(overlay).toMatchObject({ ok: false });
+    expect(overlay).toMatchObject({ kind: "ghost", ok: false });
     tool.up(at(2.5, 1.5));
+    expect(said).toEqual([en.layout.problems.overlap]);
     drag(tool, { x: 6.5, y: 0.5 }, { x: 6.5, y: -0.5 });
+    expect(overlay).toMatchObject({ kind: "ghost", ok: false });
     tool.up(at(6.5, -0.5));
+    expect(said).toEqual([en.layout.problems.overlap, en.layout.problems.belowZero]);
     expect(ship().layout.rooms).toHaveLength(3);
     expect(undoAvailable(state())).toBe(false);
+    // The pointer alone (no drag) shows red over a room too.
+    tool.move(at(0.5, 0.5));
+    expect(overlay).toMatchObject({
+      kind: "ghost",
+      cells: [{ x: 0, y: 0, w: 1, h: 1 }],
+      ok: false,
+    });
+    drag(tool, { x: 6.5, y: 0.5 }, { x: 7.5, y: 1.5 });
+    expect(overlay).toMatchObject({ ok: true });
+    tool.up(at(7.5, 1.5));
+    expect(said).toHaveLength(2);
+    expect(ship().layout.rooms).toHaveLength(4);
   });
 
   it("cancels with a right click or Esc", () => {

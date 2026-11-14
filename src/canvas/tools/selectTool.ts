@@ -1,10 +1,11 @@
 /**
  * The Select tool: click selects, Shift+click adds or removes, dragging a
  * selected room moves the selected rooms (snapped to cells), dragging on
- * empty canvas draws a selection box.
+ * empty canvas draws a selection box. A move that is refused shows red and,
+ * on release, the notice says why.
  */
 import { CELL_SIZE, doorSegmentPx, roomRectPx, type Point, type Rect, type Ship } from "../../core";
-import { moveSelectedRooms } from "../../app/layoutActions";
+import { moveSelectedRooms, problemText } from "../../app/layoutActions";
 import { moveProblem, shiftedRooms } from "../../app/layout/rooms";
 import {
   EMPTY_SELECTION,
@@ -137,9 +138,10 @@ export function createSelectTool(context: ToolContext, moveRooms = true): Canvas
       if (!s || !g) return;
       if (g.kind === "press" && g.collapse) state().select(selectionOf(g.target));
       else if (g.kind === "emptyPress" && !g.shift) state().select(EMPTY_SELECTION);
-      else if (g.kind === "move" && g.ok && (g.dx !== 0 || g.dy !== 0))
-        moveSelectedRooms(g.dx, g.dy);
-      else if (g.kind === "box") {
+      else if (g.kind === "move" && (g.dx !== 0 || g.dy !== 0)) {
+        const problem = moveSelectedRooms(g.dx, g.dy);
+        if (problem) context.say(problemText(context.texts, problem));
+      } else if (g.kind === "box") {
         const found = targetsInBox(s, boxBetween(g.start, g.end));
         state().select(g.shift ? mergeSelections(g.base, found) : found);
       }

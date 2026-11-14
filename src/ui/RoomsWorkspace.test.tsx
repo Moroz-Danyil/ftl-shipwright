@@ -110,6 +110,35 @@ describe("Rooms on the canvas", () => {
     expect(screen.getByTestId("door-4")).toHaveAttribute("data-kind", "inner");
   });
 
+  it("draws a room that cannot go there in red and says why", () => {
+    press("KeyW");
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(0.5, 1.5) });
+    fireEvent.pointerMove(canvas(), screenAt(1.5, 0.5));
+    const ghost = screen.getByTestId("ghost");
+    expect(ghost).toHaveAttribute("data-ok", "false");
+    expect(ghost.querySelector("rect")).toHaveClass("cv-ghost--bad");
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(1.5, 0.5) });
+    expect(ship().layout.rooms).toHaveLength(3);
+    expect(screen.getByText(en.layout.problems.overlap)).toBeInTheDocument();
+
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(6.5, 0.5) });
+    fireEvent.pointerMove(canvas(), screenAt(7.5, -0.5));
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "false");
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(7.5, -0.5) });
+    expect(screen.getByText(en.layout.problems.belowZero)).toBeInTheDocument();
+    expect(steps()).toBe(0);
+  });
+
+  it("says why a dragged room cannot go where it is dropped", () => {
+    click(4.5, 0.5);
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(4.5, 0.5) });
+    fireEvent.pointerMove(canvas(), screenAt(3.5, 0.5));
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "false");
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(3.5, 0.5) });
+    expect(ship().layout.rooms[2]).toMatchObject({ x: 4, y: 0 });
+    expect(screen.getByText(en.layout.problems.overlap)).toBeInTheDocument();
+  });
+
   it("moves the selection with the arrow keys and deletes it with Delete", () => {
     click(4.5, 0.5);
     press("ArrowDown");

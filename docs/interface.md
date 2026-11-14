@@ -93,6 +93,7 @@ Rooms, doors, the systems in the rooms and the crew stations.
 | Door    | `E` | click a wall; a door on the outer wall opens to space and is drawn blue                     |
 | Station | `R` | click a cell of a room with a system to put that system's crew station there                |
 
+- A room drawn with the Room tool, or rooms dragged with Select, show red where they cannot go (over another room, or left of or above cell 0); on release nothing changes and the notice says why.
 - With nothing selected the inspector shows **Add a system**: a palette of the game's systems in three groups (core, subsystems, special), coloured by their state (installed at the start, on the ship but bought later, not on the ship), with the room each one is in.
 - Drag a system onto a room to place it; drop it outside or back on the palette to remove it. With a room selected, a click on a system puts it in that room.
 - A selected room shows a heading with its systems, then **Systems in this room**: a card for each system with its starting level, upgrade limit, "installed at the start", the artillery weapon, the facing of its crew station, the interior picture and Remove. Then **Add a system**, **Position and size**, and Delete.

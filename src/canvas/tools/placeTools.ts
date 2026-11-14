@@ -1,9 +1,11 @@
 /**
  * The tools that add things: Room (drag a rectangle of cells), Door (click a
- * wall) and Station (click a cell of a room with a station system).
+ * wall) and Station (click a cell of a room with a station system). A room
+ * that cannot go where it is drawn shows red while dragging, and on release
+ * the notice says why.
  */
 import { pxToCell, roomAtCell, type Point } from "../../core";
-import { addDoorAt, addRoomAt, placeStationAt } from "../../app/layoutActions";
+import { addDoorAt, addRoomAt, placeStationAt, problemText } from "../../app/layoutActions";
 import { doorAt, nearestWall } from "../../app/layout/doors";
 import { placementProblem, rectFromCells } from "../../app/layout/rooms";
 import { stationCellAt, stationSystemsInRoom } from "../../app/layout/stations";
@@ -53,7 +55,8 @@ export function createRoomTool(context: ToolContext): CanvasTool {
       const a = start;
       const b = end;
       stop();
-      if (a && b) addRoomAt(rectFromCells(a, b));
+      const problem = a && b ? addRoomAt(rectFromCells(a, b)) : undefined;
+      if (problem) context.say(problemText(context.texts, problem));
     },
     leave() {
       if (!start) context.setOverlay(null);

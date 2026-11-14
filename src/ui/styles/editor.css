@@ -514,9 +514,11 @@
   stroke-width: 2;
   pointer-events: none;
 }
+/* Refused: red and a little heavier, to read over a room's light floor too. */
 .cv-ghost--bad {
-  fill: rgba(239, 107, 107, 0.25);
+  fill: rgba(239, 107, 107, 0.35);
   stroke: var(--problem);
+  stroke-width: 2.5;
 }
 .cv-wall {
   fill: rgba(242, 169, 59, 0.35);
