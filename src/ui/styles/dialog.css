@@ -118,6 +118,27 @@
 .picker-group {
   padding: 8px 4px 4px;
 }
+/* The other ships of one class: a small heading, the rows set in under it */
+.picker-class {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0;
+}
+.picker-class-name {
+  padding: 2px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-soft);
+}
+.picker-class-ships {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 6px;
+  padding-left: 6px;
+  border-left: 2px solid var(--line);
+}
 .picker-item {
   display: flex;
   align-items: center;

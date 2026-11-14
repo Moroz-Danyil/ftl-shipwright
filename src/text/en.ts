@@ -117,6 +117,8 @@ export const en = {
     noMatch: "No ship matches.",
     playerShips: "Player ships",
     otherShips: "Other ships",
+    /** The heading of the other ships that have no class. */
+    noClass: "Without a class",
     fromMod: "mod",
   },
 
