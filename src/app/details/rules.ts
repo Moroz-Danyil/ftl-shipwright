@@ -10,8 +10,17 @@ export const LIMITS = {
   crew: 8,
 } as const;
 
+/**
+ * What an empty hull starts with: the numbers most of the game's player ships
+ * use. Of the 28 ships in the hangar's slots, every one has 30 hull points;
+ * 19 have 4 weapon slots (the Engi, Mantis and Stealth cruisers 3); 24 have
+ * 2 drone slots (the Engi cruisers and the Stealth C 3); and a reactor of 8
+ * is by far the most common (13 ships; the others lie between 2 and 11).
+ */
+export const NEW_SHIP = { hull: 30, reactor: 8, weaponSlots: 4, droneSlots: 2 } as const;
+
 /** The hull a new ship starts with. */
-export const NEW_SHIP_HULL = 30;
+export const NEW_SHIP_HULL = NEW_SHIP.hull;
 
 export type TextField = "name" | "class" | "desc";
 

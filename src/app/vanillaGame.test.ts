@@ -9,6 +9,7 @@ import { GAME_ROOT, HAS_GAME_DATA } from "../core/testing/gameData";
 import { nodeDatAccess, nodeFolderAccess } from "../core/testing/nodeAccess";
 import { en } from "../text/en";
 import { createFakePlatform, type FakePlatform } from "../testing/fakePlatform";
+import { NEW_SHIP } from "./details/rules";
 import { loadGameData, loadGameIntoStore } from "./gameData";
 import { HANGAR_TYPES, hangarTypeName, slotImg } from "./hangar";
 import { buildOverview } from "./overview";
@@ -74,6 +75,29 @@ describe.skipIf(!HAS_GAME_DATA)("the editor on the vanilla game", () => {
         expect(await state().game.data!.view.has(`img/customizeUI/miniship_${img}.png`)).toBe(true);
       }
   });
+
+  it("starts an empty hull with the numbers most of the hangar's ships have", async () => {
+    const counts = new Map<string, number>();
+    const count = (key: string) => counts.set(key, (counts.get(key) ?? 0) + 1);
+    for (const name of HANGAR_TYPES.flatMap((t) => t.layouts)) {
+      expect(await openGameShip(en, name)).toBe(true);
+      const bp = state().doc!.history.present.ship.blueprint;
+      count(`hull ${bp.health}`);
+      count(`reactor ${bp.maxPower}`);
+      count(`weaponSlots ${bp.weaponSlots}`);
+      count(`droneSlots ${bp.droneSlots}`);
+    }
+    const most = (what: string) =>
+      [...counts.entries()]
+        .filter(([key]) => key.startsWith(`${what} `))
+        .sort((a, b) => b[1] - a[1])[0];
+    expect(most("hull")).toEqual([`hull ${NEW_SHIP.hull}`, 28]);
+    expect(most("weaponSlots")).toEqual([`weaponSlots ${NEW_SHIP.weaponSlots}`, 19]);
+    expect(most("droneSlots")).toEqual([`droneSlots ${NEW_SHIP.droneSlots}`, 24]);
+    expect(most("reactor")).toEqual([`reactor ${NEW_SHIP.reactor}`, 13]);
+    // The next test saves the Kestrel the first one opened.
+    expect(await openGameShip(en, "PLAYER_SHIP_HARD")).toBe(true);
+  }, 60_000);
 
   it("saves the unchanged Kestrel without copying the game's pictures", async () => {
     expect(await saveShipMod(platform, en, { kind: "ftl", path: "out/kestrel.ftl" })).toBe(true);

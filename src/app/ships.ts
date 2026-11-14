@@ -15,6 +15,7 @@ import { modSource } from "../platform/sources";
 import type { Platform } from "../platform/types";
 import type { Texts } from "../text";
 import { artFromPaths } from "./art/model";
+import { NEW_SHIP } from "./details/rules";
 import { reasonOf } from "./errors";
 import { addRecent, saveRecent, type RecentShip, type ShipOrigin } from "./settings";
 import { useEditor, type GameData, type SaveTarget } from "./store";
@@ -146,7 +147,14 @@ export async function createNewShip(
       const empty = createShip(ids);
       const ship: Ship = {
         ...empty,
-        blueprint: { ...empty.blueprint, texts: { name: nameText }, health: 30 },
+        blueprint: {
+          ...empty.blueprint,
+          texts: { name: nameText },
+          health: NEW_SHIP.hull,
+          maxPower: NEW_SHIP.reactor,
+          weaponSlots: NEW_SHIP.weaponSlots,
+          droneSlots: NEW_SHIP.droneSlots,
+        },
       };
       store.openDocument({
         ship,

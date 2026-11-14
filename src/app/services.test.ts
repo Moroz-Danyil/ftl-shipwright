@@ -103,7 +103,13 @@ describe("opening ships", () => {
     expect(await createNewShip(en, { name: "Blank" })).toBe(true);
     const ship = currentShip(state())!;
     expect(ship.blueprint.name).toBe("BLANK");
-    expect(ship.blueprint.health).toBe(30);
+    // The numbers most of the game's player ships start with.
+    expect(ship.blueprint).toMatchObject({
+      health: 30,
+      maxPower: 8,
+      weaponSlots: 4,
+      droneSlots: 2,
+    });
     expect(ship.layout.rooms).toEqual([]);
   });
 });
