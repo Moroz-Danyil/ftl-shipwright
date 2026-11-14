@@ -269,6 +269,37 @@
   border: 1px solid var(--line);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
+/* The first steps on a ship without rooms; the pointer goes through to the grid. */
+.cv-empty-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100% - 48px));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0.94;
+  pointer-events: none;
+}
+.cv-empty-title {
+  font-weight: 600;
+}
+.cv-empty-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.5;
+}
 .cv-tool {
   height: 30px;
   padding: 0 6px 0 8px;

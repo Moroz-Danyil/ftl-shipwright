@@ -69,7 +69,7 @@ The first ship opened in a run of the app comes with an offer: "Take a quick tou
 
 ## Workspaces
 
-A ship opens in Ship.
+A ship opens in Ship. An empty hull opens in Rooms with the Room tool chosen, and while it has no rooms the middle of the canvas shows where to start: choose Room (with its current key) and drag on the grid to draw the first room, then add doors, then put systems in the rooms from the tiles. The hint lets the pointer through and goes away with the first room.
 
 ### 1 · Ship
 

@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
-import { resetEditorStore, useEditor } from "../app/store";
+import { addRoomAt } from "../app/layoutActions";
+import { currentTool, resetEditorStore, useEditor } from "../app/store";
 import { miniGame } from "../core/testing/miniGame";
 import { en } from "../text/en";
 import { DAT_PATH, withMiniGame } from "../testing/editorFixtures";
@@ -100,6 +101,39 @@ describe("start screen", () => {
       layout: "the_mini_copy",
       img: "the_mini_copy",
     });
+    // A copy opens in Ship, with no hint about drawing rooms.
+    expect(useEditor.getState().workspace).toBe("ship");
+    expect(screen.queryByRole("note", { name: en.canvas.emptyShip.title })).toBeNull();
+  });
+
+  it("opens an empty hull in Rooms with the Room tool and a hint until the first room", async () => {
+    const platform = await withMiniGame();
+    render(<App platform={platform} />);
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
+    const dialog = screen.getByRole("dialog", { name: en.newShip.title });
+    fireEvent.click(within(dialog).getByRole("button", { name: en.newShip.create }));
+
+    const hint = await screen.findByRole("note", { name: en.canvas.emptyShip.title });
+    expect(useEditor.getState().workspace).toBe("rooms");
+    expect(currentTool(useEditor.getState())).toBe("room");
+    expect(screen.getByRole("button", { name: en.tools.room })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(hint).toHaveTextContent(en.canvas.emptyShip.rooms("W"));
+    expect(hint).toHaveTextContent(en.canvas.emptyShip.doors("E"));
+    expect(hint).toHaveTextContent(en.canvas.emptyShip.systems);
+
+    // Only Rooms shows it.
+    act(() => useEditor.getState().setWorkspace("ship"));
+    expect(screen.queryByRole("note", { name: en.canvas.emptyShip.title })).toBeNull();
+    act(() => useEditor.getState().setWorkspace("rooms"));
+    expect(screen.getByRole("note", { name: en.canvas.emptyShip.title })).toBeInTheDocument();
+
+    act(() => void addRoomAt({ x: 0, y: 0, w: 2, h: 1 }));
+    expect(screen.queryByRole("note", { name: en.canvas.emptyShip.title })).toBeNull();
+    act(() => useEditor.getState().undo());
+    expect(screen.getByRole("note", { name: en.canvas.emptyShip.title })).toBeInTheDocument();
   });
 
   it("puts a new ship in a hangar slot of the type and layout chosen", async () => {

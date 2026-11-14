@@ -1,11 +1,13 @@
 /**
  * The ship on the game's grid, with zoom, pan and the current tool, and the
- * workspace's tools in a bar at the top.
+ * workspace's tools in a bar at the top. In Rooms, a ship without rooms gets
+ * a hint where to start.
  */
 import { useEffect, useRef } from "react";
 import { currentTool, useEditor } from "../app/store";
 import { useTexts } from "../text";
 import { CanvasControls } from "./CanvasControls";
+import { EmptyShipHint } from "./EmptyShipHint";
 import { setCanvasElement } from "./canvasElement";
 import { shipBounds } from "./fit";
 import { ShipScene } from "./ShipScene";
@@ -56,6 +58,7 @@ export function ShipCanvas() {
     h: bottomRight.y - topLeft.y,
   };
   const cursor = panning ? "cv-panning" : view.panHeld ? "cv-pan-ready" : "";
+  const noRooms = doc.history.present.ship.layout.rooms.length === 0;
 
   return (
     <main
@@ -71,6 +74,7 @@ export function ShipCanvas() {
           <ShipScene area={area} overlay={overlay} explosion={explosion.seconds} />
         </g>
       </svg>
+      {workspace === "rooms" && noRooms && !view.hangarPreview && <EmptyShipHint />}
       <ToolBar />
       {workspace === "ship" && <SlotBar />}
       <CanvasControls onPlayExplosion={workspace === "hull" ? explosion.play : undefined} />

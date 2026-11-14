@@ -46,6 +46,30 @@ describe("editor store", () => {
     expect(hasUnsavedChanges(state())).toBe(true);
   });
 
+  it("opens a ship in Ship, or in the workspace and with the tool it is started with", () => {
+    state().setWorkspace("hull");
+    state().openDocument({ ship: shipWithRooms(), art, saved: true });
+    expect(state().workspace).toBe("ship");
+    state().openDocument({
+      ship: createShip({ name: "E", layout: "e", img: "e" }),
+      art,
+      saved: false,
+      start: { workspace: "rooms", tool: "room" },
+    });
+    expect(state().workspace).toBe("rooms");
+    expect(currentTool(state())).toBe("room");
+    // A tool of another workspace is not taken.
+    state().openDocument({
+      ship: shipWithRooms(),
+      art,
+      saved: true,
+      start: { workspace: "ship", tool: "room" },
+    });
+    expect(state().workspace).toBe("ship");
+    expect(state().tools.ship).toBe("select");
+    expect(state().tools.rooms).toBe("select");
+  });
+
   it("records no step for an edit that changes nothing", () => {
     state().openDocument({ ship: shipWithRooms(), art, saved: true });
     state().edit((s) => s);

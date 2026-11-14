@@ -349,6 +349,13 @@ export const en = {
     previewOffKey: "Esc",
     hangarMoreCrew: (n: number) => `+${n} more`,
     gibToolLayers: "The Gib tool shows only the hull and the gibs while it is chosen.",
+    /** The first steps shown on the Rooms canvas while the ship has no rooms. */
+    emptyShip: {
+      title: "Start with the rooms",
+      rooms: (key: string) => `Choose Room (${key}) and drag on the grid to draw the first room.`,
+      doors: (key: string) => `Then add doors with Door (${key}): click a wall between two rooms.`,
+      systems: "Then put systems in the rooms: drag them from the tiles in the inspector.",
+    },
     layerNames: {
       hull: "Hull",
       floor: "Floor",

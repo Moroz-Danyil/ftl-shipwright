@@ -226,12 +226,17 @@ export interface EditorState {
 
   setGame(game: Partial<GameState>): void;
   setRecent(recent: RecentShip[]): void;
+  /**
+   * Opens a ship, in Ship with the Select tool unless `start` names the
+   * workspace and tool to begin with.
+   */
   openDocument(input: {
     ship: Ship;
     art: ShipArt;
     origin?: ShipOrigin;
     saveTarget?: SaveTarget;
     saved: boolean;
+    start?: { workspace: WorkspaceId; tool?: ToolId };
   }): void;
   closeDocument(): void;
   /**
@@ -369,7 +374,7 @@ export const useEditor = create<EditorState>()((set, get) => {
     setGame: (game) => set({ game: { ...get().game, ...game } }),
     setRecent: (recent) => set({ recent }),
 
-    openDocument: ({ ship, art, origin, saved, saveTarget }) => {
+    openDocument: ({ ship, art, origin, saved, saveTarget, start }) => {
       const snapshot: ShipSnapshot = { ship, art };
       // The first ship opened in a run of the app comes with the offer of a tour.
       const offerTour = !get().tourOffered && loadOfferTour();
@@ -387,8 +392,11 @@ export const useEditor = create<EditorState>()((set, get) => {
         artTool: { picture: "auto", keepMounts: false, active: null },
         pictureTarget: null,
         hoverWeapon: null,
-        workspace: "ship",
-        tools: initialTools(),
+        workspace: start?.workspace ?? "ship",
+        tools:
+          start?.tool && hasTool(start.workspace, start.tool)
+            ? { ...initialTools(), [start.workspace]: start.tool }
+            : initialTools(),
         view: { ...get().view, hangarPreview: false, panHeld: false },
         dialog: offerTour ? "tourOffer" : null,
         tour: null,

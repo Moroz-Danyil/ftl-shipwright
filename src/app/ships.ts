@@ -156,10 +156,12 @@ export async function createNewShip(
           droneSlots: NEW_SHIP.droneSlots,
         },
       };
+      // An empty hull starts where its first rooms are drawn.
       store.openDocument({
         ship,
         art: { source: data.view, gibs: [] },
         saved: false,
+        start: { workspace: "rooms", tool: "room" },
       });
     }
     store.setNotice(undefined);
