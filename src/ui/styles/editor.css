@@ -186,6 +186,23 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
+/* The note under the stats that the game has no fuel per ship, with its icon */
+.st-fuel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.hv-fuel {
+  flex: none;
+  box-sizing: content-box;
+  padding: 2px;
+  border-radius: 4px;
+  background: var(--icon-bg);
+  image-rendering: pixelated;
+}
 .ed-group {
   display: flex;
   flex-direction: column;

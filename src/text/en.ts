@@ -582,6 +582,7 @@ export const en = {
     droneSlots: "Drone slots",
     missiles: "Starting missiles",
     droneParts: "Starting drone parts",
+    noFuel: "No fuel field: the game starts every ship with the same fuel.",
     equipped: {
       weapon: "The ship's weapons",
       drone: "The ship's drones",
@@ -683,6 +684,16 @@ export const en = {
   },
 
   /** Hover help for the fields: a title (the field's label) and what it means in the game. */
+  /** Notes under the game's pictures in the hover help. */
+  helpPictures: {
+    hullFull: (hull: number) =>
+      `The game's bar has 30 cells, one per hull point: a hull of ${hull} shows it full.`,
+    reactorFull: (power: number) =>
+      `The game's reactor has 25 bars at most: a reactor of ${power} shows them all.`,
+    nearestBox: (count: number, shown: number) =>
+      `The game has no box for ${count} ${count === 1 ? "slot" : "slots"}; its box for ${shown} is shown.`,
+  },
+
   help: {
     roomPosition: {
       title: "Room position",

@@ -1,6 +1,7 @@
 /**
  * Everything about the ship that is set as a number: hull, reactor, weapon
- * and drone slots, starting missiles and drone parts.
+ * and drone slots, starting missiles and drone parts, and a note that the
+ * game has no starting fuel per ship.
  */
 import type { Ship } from "../../../core";
 import {
@@ -14,6 +15,7 @@ import { LIMITS as SHIP_LIMITS, NEW_SHIP_HULL } from "../../../app/details/rules
 import { LIMITS, items, slots } from "../../../app/loadout/rules";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
+import { FuelIcon } from "../../common/HelpVisual";
 import { NumberField } from "../../common/NumberField";
 import { Section } from "../../common/Section";
 import { Stepper } from "../../common/Stepper";
@@ -81,6 +83,10 @@ export function Stats({ ship }: { ship: Ship }) {
           />
         </Help>
       </div>
+      <p className="st-fuel muted">
+        <FuelIcon />
+        {texts.loadout.noFuel}
+      </p>
     </Section>
   );
 }

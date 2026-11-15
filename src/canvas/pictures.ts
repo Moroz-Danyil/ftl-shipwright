@@ -77,6 +77,38 @@ export function usePicture(
   return loaded && loaded.source === source && loaded.path === path ? loaded.picture : undefined;
 }
 
+/**
+ * Several pictures read together: `"loading"` until all are read, `"missing"`
+ * when one of them is missing or there is no source, else the pictures in the
+ * order of `paths`.
+ */
+export function usePictures(
+  source: FileSource | undefined,
+  paths: readonly string[]
+): LoadedPicture[] | "loading" | "missing" {
+  const key = paths.join("\n");
+  const [loaded, setLoaded] = useState<{
+    source: FileSource;
+    key: string;
+    pictures: Array<LoadedPicture | undefined>;
+  }>();
+  useEffect(() => {
+    if (!source) return;
+    let live = true;
+    const list = key.split("\n");
+    void Promise.all(list.map((path) => loadPicture(source, path))).then((pictures) => {
+      if (live) setLoaded({ source, key, pictures });
+    });
+    return () => {
+      live = false;
+    };
+  }, [source, key]);
+  if (!source) return "missing";
+  if (!loaded || loaded.source !== source || loaded.key !== key) return "loading";
+  const pictures = loaded.pictures;
+  return pictures.every((p) => p !== undefined) ? (pictures as LoadedPicture[]) : "missing";
+}
+
 const fileCache = new WeakMap<Uint8Array, Promise<LoadedPicture | undefined>>();
 const settled = new WeakMap<Promise<LoadedPicture | undefined>, LoadedPicture | undefined>();
 

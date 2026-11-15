@@ -75,6 +75,35 @@
   border-radius: 4px;
   border: 1px solid #8a93a0;
 }
+/* The game's own interface pictures, at one CSS pixel per picture pixel; a
+   wide one widens the panel */
+.hover-panel:has(.hv-game) {
+  width: max-content;
+  min-width: 300px;
+  max-width: calc(100vw - 16px);
+}
+.hover-panel:has(.hv-game) .lo-details-text {
+  width: 0;
+  min-width: 100%;
+}
+.hv-game {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.hv-game svg {
+  display: block;
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+}
+.hv-note {
+  width: 0;
+  min-width: 100%;
+  color: #c3cad4;
+  font-size: 12px;
+  line-height: 1.4;
+}
 .hv-hangar {
   display: flex;
   flex-direction: column;

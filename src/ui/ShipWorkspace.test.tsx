@@ -412,14 +412,16 @@ describe("Ship workspace: info, stats and crew", () => {
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
 
-  it("explains the hull on hover, with the game's hull bar", () => {
+  it("explains the hull on hover, with the game's hull bar", async () => {
     const hull = within(inspector()).getByRole("group", { name: en.loadout.hull });
     fireEvent.pointerEnter(hull.parentElement!);
     const help = screen.getByRole("tooltip");
     expect(within(help).getByRole("region", { name: en.help.hull.title })).toHaveTextContent(
       en.help.hull.body
     );
-    expect(help.querySelectorAll(".hv-hull span")).toHaveLength(bp().health ?? 30);
+    await waitFor(() =>
+      expect(help.querySelectorAll(".hv-hull span")).toHaveLength(bp().health ?? 30)
+    );
     fireEvent.pointerLeave(hull.parentElement!);
     expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
   });
