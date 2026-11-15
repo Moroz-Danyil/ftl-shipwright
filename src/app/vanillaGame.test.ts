@@ -99,10 +99,12 @@ describe.skipIf(!HAS_GAME_DATA)("the editor on the vanilla game", () => {
     expect(await openGameShip(en, "PLAYER_SHIP_HARD")).toBe(true);
   }, 60_000);
 
-  it("saves the unchanged Kestrel without copying the game's pictures", async () => {
+  it("saves the unchanged Kestrel with its own pictures but not the game's interiors", async () => {
     expect(await saveShipMod(platform, en, { kind: "ftl", path: "out/kestrel.ftl" })).toBe(true);
-    const files = Object.keys(unzipSync(platform.disk.get("out/kestrel.ftl")!)).sort();
-    expect(files).toEqual(["data/blueprints.xml.append", "data/kestral.txt", "data/kestral.xml"]);
+    const files = Object.keys(unzipSync(platform.disk.get("out/kestrel.ftl")!));
+    expect(files).toContain("img/ship/kestral_base.png");
+    expect(files).toContain("data/kestral.txt");
+    expect(files.filter((f) => f.startsWith("img/ship/interior/"))).toEqual([]);
   });
 
   it("finds no problems in the overview of any player ship, and little to check", async () => {

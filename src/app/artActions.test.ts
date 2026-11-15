@@ -89,7 +89,6 @@ describe("saving a picture from a file", () => {
     expect(await saveShipMod(platform, en, { kind: "ftl", path: "out/t.ftl" })).toBe(true);
     const files = unzipSync(platform.disk.get("out/t.ftl")!);
     expect(files["img/ship/t_base.png"]).toEqual(bytes);
-    expect(files["img/ship/t_floor.png"]).toBeUndefined();
   });
 });
 

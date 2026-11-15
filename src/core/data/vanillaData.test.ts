@@ -317,18 +317,22 @@ describe.skipIf(!HAS_GAME_DATA)("vanilla game data", () => {
         )
       ),
     };
-    // Change one gib so that exactly one picture differs from the game's.
+    // Change one gib so that it differs from the game's.
     const changedGib = new Uint8Array(pictures.gibs[1]);
     changedGib[changedGib.length - 1] ^= 0xff;
     pictures.gibs[1] = changedGib;
 
     const files = await buildShipMod({ ship: original.ship, pictures, game });
-    expect(files.map((f) => f.path)).toEqual([
+    const paths = files.map((f) => f.path);
+    // The ship's own pictures are all written; the game's interiors are not.
+    expect(paths.slice(0, 4)).toEqual([
       "data/blueprints.xml.append",
       "data/kestral.txt",
       "data/kestral.xml",
-      "img/ship/kestral_gib2.png",
+      "img/ship/kestral_base.png",
     ]);
+    expect(paths).toContain("img/ship/kestral_gib2.png");
+    expect(paths.filter((p) => p.startsWith("img/ship/interior/"))).toEqual([]);
 
     const zip = zipMod(files);
     const mod = zipSource(zip);

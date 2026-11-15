@@ -123,11 +123,13 @@ describe("saving a mod", () => {
     expect(state().doc!.saveTarget).toEqual({ kind: "ftl", path: "out/mini.ftl" });
 
     const files = unzipSync(platform.disk.get("out/mini.ftl")!);
-    expect(Object.keys(files).sort()).toEqual([
+    const paths = Object.keys(files);
+    expect(paths.slice(0, 3)).toEqual([
       "data/blueprints.xml.append",
       "data/mini.txt",
       "data/mini.xml",
     ]);
+    expect(paths).toContain("img/ship/mini_base.png");
     expect(parseLayoutTxt(decodeText(files["data/mini.txt"])).rooms).toHaveLength(3);
     expect(decodeText(files["data/mini.txt"])).toContain("\r\n");
 

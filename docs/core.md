@@ -144,10 +144,10 @@ Everything that touches files is async. Paths use forward slashes and are matche
 
 ## Writing a mod (`mod/`)
 
-| Function                                  |                                                                                              |
-| ----------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `buildShipMod({ ship, pictures, game? })` | the files of the mod (rooms from cell (0, 0)); pictures identical to the game's are left out |
-| `buildShipModForFolder(input, folder)`    | the same, merged into the folder's existing `data/blueprints.xml.append`                     |
-| `mergeBlueprintAppend(existing, xml)`     | replaces the ship with the same name in place, otherwise adds it at the end                  |
-| `zipMod(files)`                           | `.ftl` bytes                                                                                 |
-| `shipPicturePaths(ship)`                  | where each picture goes in the mod                                                           |
+| Function                                  |                                                                                                                         |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `buildShipMod({ ship, pictures, game? })` | the files of the mod (rooms from cell (0, 0)); every picture of the ship, and the interiors that differ from the game's |
+| `buildShipModForFolder(input, folder)`    | the same, merged into the folder's existing `data/blueprints.xml.append`                                                |
+| `mergeBlueprintAppend(existing, xml)`     | replaces the ship with the same name in place, otherwise adds it at the end                                             |
+| `zipMod(files)`                           | `.ftl` bytes                                                                                                            |
+| `shipPicturePaths(ship)`                  | where each picture goes in the mod                                                                                      |

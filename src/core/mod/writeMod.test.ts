@@ -73,7 +73,7 @@ async function miniPictures(overrides: Partial<ShipPictureFiles> = {}): Promise<
 }
 
 describe("buildShipMod", () => {
-  it("writes the blueprint, layout files and pictures that differ from the game", async () => {
+  it("writes the blueprint, layout files, every ship picture and the interiors that differ from the game", async () => {
     const game = miniGame();
     const view = createGameView(game);
     const { ship } = (await loadShipFromGame(view, "PLAYER_SHIP_MINI"))!;
@@ -86,11 +86,38 @@ describe("buildShipMod", () => {
       "data/blueprints.xml.append",
       "data/mini.txt",
       "data/mini.xml",
+      "img/ship/mini_base.png",
+      "img/ship/mini_floor.png",
       "img/ship/mini_cloak.png",
+      "img/ship/mini_gib1.png",
       "img/ship/mini_gib2.png",
+      "img/ship/mini_shields1.png",
+      "img/customizeUI/miniship_mini.png",
       "img/ship/interior/room_shields_9.png",
     ]);
     expect(parseShipBlueprint(decodeText(files[0].bytes))).toStrictEqual(ship.blueprint);
+  });
+
+  it("writes the hull even when the game's files hold the same picture", async () => {
+    const game = miniGame();
+    const { ship } = (await loadShipFromGame(createGameView(game), "PLAYER_SHIP_MINI"))!;
+    const hull = (await game.readBytes("img/ship/mini_base.png"))!;
+    const files = await buildShipMod({ ship, pictures: await miniPictures({ hull }), game });
+    expect(files.find((f) => f.path === "img/ship/mini_base.png")?.bytes).toEqual(hull);
+  });
+
+  it("saves when a listed game file can no longer be read", async () => {
+    const game = miniGame();
+    const { ship } = (await loadShipFromGame(createGameView(game), "PLAYER_SHIP_MINI"))!;
+    const changedArchive = {
+      readBytes: () => Promise.reject(new Error("Inner path not found in archive")),
+    };
+    const files = await buildShipMod({
+      ship,
+      pictures: await miniPictures(),
+      game: changedArchive,
+    });
+    expect(files.map((f) => f.path)).toContain("img/ship/interior/room_pilot.png");
   });
 
   it("writes every picture without a game to compare with, using the image-name overrides", async () => {

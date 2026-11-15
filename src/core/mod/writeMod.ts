@@ -39,8 +39,11 @@ export interface BuildShipModInput {
   ship: Ship;
   pictures: ShipPictureFiles;
   /**
-   * The base game (no mod). Pictures whose bytes equal the game's file at
-   * the same path are left out.
+   * The game's files. Interior pictures whose bytes equal the game's file at
+   * the same path are left out, so the mod does not replace pictures that
+   * every ship shares. The ship's own pictures are always written: a mod
+   * manager may write installed mods into `ftl.dat` itself, so a picture
+   * found there can come from an earlier version of this very mod.
    */
   game?: Pick<FileSource, "readBytes">;
   /**
@@ -86,9 +89,28 @@ function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
 }
 
 /**
+ * Whether the game has a file at `path` with exactly these bytes. A file that
+ * cannot be read (for example, `ftl.dat` changed since its list was read)
+ * counts as different.
+ */
+async function sameAsGame(
+  game: Pick<FileSource, "readBytes"> | undefined,
+  path: string,
+  bytes: Uint8Array
+): Promise<boolean> {
+  if (!game) return false;
+  try {
+    const own = await game.readBytes(path);
+    return own !== undefined && sameBytes(own, bytes);
+  } catch {
+    return false;
+  }
+}
+
+/**
  * The files of a mod that adds (or replaces) one ship:
  * `data/blueprints.xml.append`, `data/<layout>.txt`, `data/<layout>.xml` and
- * the pictures, minus pictures identical to the game's own. The layout is
+ * the ship's pictures, minus interior pictures identical to the game's own. The layout is
  * written with the rooms starting at cell (0, 0) ({@link normalizeRoomOrigin}).
  */
 export async function buildShipMod(input: BuildShipModInput): Promise<ModFile[]> {
@@ -109,19 +131,15 @@ export async function buildShipMod(input: BuildShipModInput): Promise<ModFile[]>
   ];
 
   const paths = shipPicturePaths(ship);
-  const candidates: ModFile[] = [{ path: paths.hull, bytes: pictures.hull }];
-  if (pictures.floor) candidates.push({ path: paths.floor, bytes: pictures.floor });
-  if (pictures.cloak) candidates.push({ path: paths.cloak, bytes: pictures.cloak });
-  pictures.gibs.forEach((bytes, i) => candidates.push({ path: paths.gib(i + 1), bytes }));
-  if (pictures.shield) candidates.push({ path: paths.shield, bytes: pictures.shield });
-  if (pictures.miniship) candidates.push({ path: paths.miniship, bytes: pictures.miniship });
-  for (const [name, bytes] of Object.entries(pictures.interiors))
-    candidates.push({ path: paths.interior(name), bytes });
-
-  for (const file of candidates) {
-    const own = game ? await game.readBytes(file.path) : undefined;
-    if (own && sameBytes(own, file.bytes)) continue;
-    files.push(file);
+  files.push({ path: paths.hull, bytes: pictures.hull });
+  if (pictures.floor) files.push({ path: paths.floor, bytes: pictures.floor });
+  if (pictures.cloak) files.push({ path: paths.cloak, bytes: pictures.cloak });
+  pictures.gibs.forEach((bytes, i) => files.push({ path: paths.gib(i + 1), bytes }));
+  if (pictures.shield) files.push({ path: paths.shield, bytes: pictures.shield });
+  if (pictures.miniship) files.push({ path: paths.miniship, bytes: pictures.miniship });
+  for (const [name, bytes] of Object.entries(pictures.interiors)) {
+    const path = paths.interior(name);
+    if (!(await sameAsGame(game, path, bytes))) files.push({ path, bytes });
   }
   return files;
 }
