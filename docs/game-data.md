@@ -89,3 +89,24 @@ img/ship/interior/<name>.png only for interiors that are not in the game
 - A `.ftl` file is a zip of exactly this tree, without a wrapping folder.
 - Saving into a folder that already holds a mod: a blueprint with the same name in its `data/blueprints.xml.append` is replaced in place; otherwise the new one is added at the end (before a closing `</FTL>` if the file is wrapped in one). Other content of that file is left untouched.
 - Pictures that are the game's own (same path, same bytes) don't need to be copied.
+
+## 9. Fonts
+
+The game draws its texts with bitmap fonts in `fonts/*.font` (`HL1`, `HL2`, `JustinFont8`, `JustinFont10`, `JustinFont11Bold`, `JustinFont12Bold`, `c&c`, `c&cnew`, `num_font`; `fonts/ja/` holds the Japanese fonts in the same format, `fonts/zh-Hans/` a TrueType font). A `.font` file is big-endian:
+
+| Offset | Size | Meaning                                                           |
+| ------ | ---- | ----------------------------------------------------------------- |
+| 0      | 4    | `FONT`                                                            |
+| 4      | 1    | version, `1`                                                      |
+| 5      | 1    | line height                                                       |
+| 6      | 1    | baseline: distance from the top of a line                         |
+| 7      | 1    | `0`                                                               |
+| 8      | 4    | offset of the glyph table (`24`)                                  |
+| 12     | 2    | number of glyphs                                                  |
+| 14     | 2    | size of a glyph record (`16`)                                     |
+| 16     | 4    | offset of the bitmap (the table is padded with zeros to 64 bytes) |
+| 20     | 4    | size of the bitmap; it ends the file                              |
+
+A glyph record (16 bytes): code point (4), x and y of its rectangle in the bitmap (2 + 2), width and height (1 + 1), then three signed 8.8 fixed-point numbers (2 each): the rows above the baseline, the space before the glyph and the space after it. The pen moves by space before + width + space after; the space after is fractional in `HL1` (0.6) and `HL2` (0.4) and whole in the others. Code points are not sorted, and a character can be listed twice (`HL1` has one such pair; the first record is used).
+
+The bitmap starts with a 32-byte header: `TEX` and a line feed, 4 bytes (`02 40 00 00`), width and height (2 + 2), `00 01 00 00`, the offset of the pixels from the header's start (4, `32`), the pixels' size (4), zeros. The pixels are one byte each (0 or 255), row by row from the top; the sizes are powers of two (128 × 256 for `HL1`, 256 × 512 for `num_font`). Every glyph rectangle lies inside the bitmap, and every font has the letters A–Z and the digits [checked on the vanilla fonts].
