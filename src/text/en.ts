@@ -116,6 +116,10 @@ export const en = {
     placeholder: "Name, class or blueprint…",
     noMatch: "No ship matches.",
     playerShips: "Player ships",
+    /** The player ships whose blueprint name is no hangar slot. */
+    otherPlayerShips: "Other player ships",
+    /** A hangar ship's row: its layout and blueprint name, e.g. "Layout B · PLAYER_SHIP_HARD_2". */
+    layoutRow: (letter: string, name: string) => `Layout ${letter} · ${name}`,
     otherShips: "Other ships",
     /** The heading of the other ships that have no class. */
     noClass: "Without a class",

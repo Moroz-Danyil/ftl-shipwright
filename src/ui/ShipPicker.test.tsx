@@ -41,7 +41,10 @@ describe("the ship picker", () => {
       />
     );
     const kestrel = screen.getByRole("option", { name: /The Kestrel/ });
-    expect(kestrel).toHaveTextContent("Kestrel Cruiser · PLAYER_SHIP_HARD");
+    expect(kestrel).toHaveTextContent("Layout A · PLAYER_SHIP_HARD");
+    expect(within(screen.getByRole("group", { name: "Kestrel Cruiser" })).getByRole("option")).toBe(
+      kestrel
+    );
 
     const flagships = screen.getByRole("group", { name: "Rebel Flagship" });
     const rows = within(flagships).getAllByRole("option");
@@ -62,7 +65,7 @@ describe("the ship picker", () => {
     expect(mystery.querySelector(".picker-name")).toHaveTextContent("MYSTERY");
     expect(mystery.querySelector(".picker-sub")).toBeNull();
     const groups = screen.getAllByRole("group").map((g) => g.getAttribute("aria-label"));
-    expect(groups).toEqual(["Rebel Flagship", en.shipPicker.noClass]);
+    expect(groups).toEqual(["Kestrel Cruiser", "Rebel Flagship", en.shipPicker.noClass]);
     const titles = screen
       .getAllByRole("option")
       .map((o) => o.querySelector(".picker-name")!.textContent);
@@ -77,6 +80,51 @@ describe("the ship picker", () => {
 
     fireEvent.click(rows[1]);
     expect(picked).toEqual(["BOSS_1_NORMAL_DLC"]);
+  });
+
+  it("lists the player ships as the hangar does, the ships in no slot in a group of their own", () => {
+    const players = [
+      ship("PLAYER_SHIP_FED_2", { className: "Federation Cruiser" }),
+      ship("PLAYER_SHIP_EASY", { displayName: "The Kestrel", className: "Kestrel Cruiser" }),
+      ship("PLAYER_SHIP_FED", { displayName: "The Osprey", className: "Federation Cruiser" }),
+      ship("PLAYER_SHIP_HARD_2", { displayName: "The Red-Tail", className: "Kestrel Cruiser" }),
+      ship("PLAYER_SHIP_CIRCLE", { className: "Engi Cruiser" }),
+    ];
+    render(
+      <ShipPicker
+        ships={[...ships, ...players]}
+        selected={undefined}
+        onSelect={() => {}}
+        onChoose={() => {}}
+      />
+    );
+    const headings = screen.getAllByRole("group").map((g) => g.getAttribute("aria-label"));
+    expect(headings).toEqual([
+      "Kestrel Cruiser",
+      "Engi Cruiser",
+      "Federation Cruiser",
+      en.shipPicker.otherPlayerShips,
+      "Rebel Flagship",
+      en.shipPicker.noClass,
+    ]);
+    const rows = (heading: string) =>
+      within(screen.getByRole("group", { name: heading }))
+        .getAllByRole("option")
+        .map((o) => o.querySelector(".picker-sub")?.textContent);
+    expect(rows("Kestrel Cruiser")).toEqual([
+      "Layout A · PLAYER_SHIP_HARD",
+      "Layout B · PLAYER_SHIP_HARD_2",
+    ]);
+    expect(rows("Federation Cruiser")).toEqual([
+      "Layout A · PLAYER_SHIP_FED",
+      "Layout B · PLAYER_SHIP_FED_2",
+    ]);
+    expect(rows(en.shipPicker.otherPlayerShips)).toEqual(["Kestrel Cruiser · PLAYER_SHIP_EASY"]);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "osprey" } });
+    expect(screen.getAllByRole("option")).toHaveLength(1);
+    expect(screen.getByRole("group", { name: "Federation Cruiser" })).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: en.shipPicker.otherPlayerShips })).toBeNull();
   });
 
   it("still finds a ship by its blueprint name", () => {
