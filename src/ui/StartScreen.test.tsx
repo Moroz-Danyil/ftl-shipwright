@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import { addRoomAt } from "../app/layoutActions";
 import { currentTool, resetEditorStore, useEditor } from "../app/store";
@@ -78,42 +78,138 @@ describe("start screen", () => {
     expect(useEditor.getState().recent[0].blueprint).toBe("PLAYER_SHIP_MINI");
   });
 
-  it("creates a copy of a game ship under a new name", async () => {
+  /** Opens the New ship dialog; `dialog()` finds it again after each step. */
+  const openNewShip = () => {
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
+    const dialog = () => screen.getByRole("dialog", { name: en.newShip.title });
+    const button = (name: string) => within(dialog()).getByRole("button", { name });
+    return {
+      dialog,
+      button,
+      card: (name: string) => within(dialog()).getByRole("radio", { name: new RegExp(name) }),
+      step: (n: number, of: number, title: string) => {
+        expect(within(dialog()).getByText(en.newShip.step(n, of))).toBeInTheDocument();
+        expect(within(dialog()).getByRole("heading", { name: title })).toBeInTheDocument();
+      },
+      next: () => fireEvent.click(button(en.newShip.next)),
+      back: () => fireEvent.click(button(en.newShip.back)),
+    };
+  };
+  const fact = (preview: HTMLElement, label: string) =>
+    within(preview).getByText(label).nextElementSibling;
+
+  it("creates a copy of a game ship in three steps, Back keeping the choices", async () => {
     const platform = await withMiniGame();
     render(<App platform={platform} />);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
-    const dialog = screen.getByRole("dialog", { name: en.newShip.title });
-    const create = within(dialog).getByRole("button", { name: en.newShip.create });
-    fireEvent.click(within(dialog).getByRole("button", { name: new RegExp(en.newShip.copy) }));
-    expect(create).toBeDisabled();
-    fireEvent.click(within(dialog).getByRole("option", { name: /The Mini/ }));
-    expect(within(dialog).getByLabelText(en.newShip.name)).toHaveValue(
-      en.newShip.copyName("The Mini")
-    );
+    const ns = openNewShip();
+
+    // 1 · How to start: two cards and nothing else; the empty hull is chosen at first.
+    ns.step(1, 2, en.newShip.steps.start);
+    expect(ns.card(en.newShip.empty)).toBeChecked();
+    expect(ns.card(en.newShip.empty)).toHaveFocus();
+    expect(ns.button(en.newShip.back)).toBeDisabled();
+    expect(within(ns.dialog()).queryByRole("textbox")).not.toBeInTheDocument();
+    fireEvent.click(ns.card(en.newShip.copy));
+    ns.step(1, 3, en.newShip.steps.start);
+    ns.next();
+
+    // 2 · The base ship: the list and a preview of the ship picked; Next waits for one.
+    ns.step(2, 3, en.newShip.steps.base);
+    expect(within(ns.dialog()).getByRole("searchbox")).toHaveFocus();
+    expect(within(ns.dialog()).getByText(en.newShip.preview.none)).toBeInTheDocument();
+    expect(ns.button(en.newShip.next)).toBeDisabled();
+    fireEvent.click(within(ns.dialog()).getByRole("option", { name: /The Mini/ }));
+    const preview = within(ns.dialog()).getByRole("region", { name: "The Mini" });
+    expect(within(preview).getByText("Mini Cruiser")).toBeInTheDocument();
+    expect(within(preview).getByText("PLAYER_SHIP_MINI")).toBeInTheDocument();
+    await waitFor(() => expect(fact(preview, en.newShip.preview.rooms)).toHaveTextContent("2"));
+    expect(fact(preview, en.newShip.preview.systems)).toHaveTextContent("2");
+    expect(fact(preview, en.newShip.preview.weapons)).toHaveTextContent("1");
+    expect(fact(preview, en.newShip.preview.crew)).toHaveTextContent("1");
+    expect(fact(preview, en.newShip.preview.hull)).toHaveTextContent("10");
+    ns.next();
+
+    // 3 · Name and hangar slot: the name follows the base ship.
+    ns.step(3, 3, en.newShip.steps.name);
+    const nameField = () => within(ns.dialog()).getByLabelText(en.newShip.name);
+    expect(nameField()).toHaveValue(en.newShip.copyName("The Mini"));
+    expect(nameField()).toHaveFocus();
     expect(
-      within(dialog).getByText(en.newShip.savedAs("PLAYER_SHIP_HARD", "the_mini_copy"))
+      within(ns.dialog()).getByText(en.newShip.takesPlace("Kestrel", "A", "the_mini_copy"))
     ).toBeInTheDocument();
-    fireEvent.click(create);
+    fireEvent.change(nameField(), { target: { value: "Tiny" } });
+    fireEvent.click(within(ns.dialog()).getByRole("radio", { name: "Engi" }));
+
+    // Back keeps the ship, the name and the slot.
+    ns.back();
+    ns.step(2, 3, en.newShip.steps.base);
+    expect(within(ns.dialog()).getByRole("option", { name: /The Mini/ })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    );
+    ns.back();
+    expect(ns.card(en.newShip.copy)).toBeChecked();
+    ns.next();
+    ns.next();
+    expect(nameField()).toHaveValue("Tiny");
+    expect(within(ns.dialog()).getByRole("radio", { name: "Engi" })).toBeChecked();
+    fireEvent.click(ns.button(en.newShip.create));
 
     expect(await screen.findByText(en.topBar.unsaved)).toBeInTheDocument();
     expect(useEditor.getState().doc!.history.present.ship.blueprint).toMatchObject({
-      name: "PLAYER_SHIP_HARD",
-      layout: "the_mini_copy",
-      img: "the_mini_copy",
+      name: "PLAYER_SHIP_CIRCLE",
+      layout: "tiny",
+      img: "tiny",
     });
     // A copy opens in Ship, with no hint about drawing rooms.
     expect(useEditor.getState().workspace).toBe("ship");
     expect(screen.queryByRole("note", { name: en.canvas.emptyShip.title })).toBeNull();
   });
 
-  it("opens an empty hull in Rooms with the Room tool and a hint until the first room", async () => {
+  it("goes on with a double click or Enter, and closes with Esc", async () => {
     const platform = await withMiniGame();
     render(<App platform={platform} />);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
-    const dialog = screen.getByRole("dialog", { name: en.newShip.title });
-    fireEvent.click(within(dialog).getByRole("button", { name: en.newShip.create }));
+    let ns = openNewShip();
+    fireEvent.doubleClick(ns.card(en.newShip.copy));
+    ns.step(2, 3, en.newShip.steps.base);
+    // Enter waits for a ship to be picked.
+    fireEvent.keyDown(within(ns.dialog()).getByRole("searchbox"), { key: "Enter" });
+    ns.step(2, 3, en.newShip.steps.base);
+    fireEvent.click(within(ns.dialog()).getByRole("option", { name: /The Mini/ }));
+    fireEvent.keyDown(within(ns.dialog()).getByRole("searchbox"), { key: "Enter" });
+    ns.step(3, 3, en.newShip.steps.name);
+    ns.back();
+    fireEvent.doubleClick(within(ns.dialog()).getByRole("option", { name: /The Mini/ }));
+    ns.step(3, 3, en.newShip.steps.name);
+    fireEvent.keyDown(ns.dialog(), { key: "Escape" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    // A new dialog starts afresh; Enter on a card goes on with it.
+    ns = openNewShip();
+    expect(ns.card(en.newShip.empty)).toBeChecked();
+    fireEvent.keyDown(ns.card(en.newShip.empty), { key: "Enter" });
+    ns.step(2, 2, en.newShip.steps.name);
+    fireEvent.click(ns.button(en.common.cancel));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("opens an empty hull made in two steps in Rooms, with the Room tool and a hint until the first room", async () => {
+    const platform = await withMiniGame();
+    render(<App platform={platform} />);
+    const ns = openNewShip();
+    ns.step(1, 2, en.newShip.steps.start);
+    ns.next();
+    ns.step(2, 2, en.newShip.steps.name);
+    const nameField = within(ns.dialog()).getByLabelText(en.newShip.name);
+    expect(nameField).toHaveValue(en.newShip.defaultName);
+    // Enter in the name field creates the ship.
+    fireEvent.keyDown(nameField, { key: "Enter" });
 
     const hint = await screen.findByRole("note", { name: en.canvas.emptyShip.title });
+    expect(useEditor.getState().doc!.history.present.ship.blueprint).toMatchObject({
+      name: "PLAYER_SHIP_HARD",
+      layout: "new_ship",
+    });
     expect(useEditor.getState().workspace).toBe("rooms");
     expect(currentTool(useEditor.getState())).toBe("room");
     expect(screen.getByRole("button", { name: en.tools.room })).toHaveAttribute(
@@ -139,30 +235,51 @@ describe("start screen", () => {
   it("puts a new ship in a hangar slot of the type and layout chosen", async () => {
     const platform = await withMiniGame();
     render(<App platform={platform} />);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
-    const dialog = screen.getByRole("dialog", { name: en.newShip.title });
+    const ns = openNewShip();
+    ns.next();
+    const dialog = ns.dialog();
     const types = within(dialog).getByRole("radiogroup", { name: en.hangarSlot.types });
     const layouts = within(dialog).getByRole("radiogroup", { name: en.hangarSlot.layouts });
     const layout = (letter: string) =>
       within(layouts).getByRole("radio", { name: en.hangarSlot.layout(letter) });
-    const savedAs = (id: string) => en.newShip.savedAs(id, "new_ship");
+    const takes = (type: string, letter: string) =>
+      within(dialog).getByText(en.newShip.takesPlace(type, letter, "new_ship"));
 
-    // The Kestrel's layout A by default, with what taking a slot means.
+    // The Kestrel's layout A by default; each type is named under its icon.
     expect(within(types).getByRole("radio", { name: "Kestrel" })).toBeChecked();
+    expect(within(types).getByRole("radio", { name: "Kestrel" })).toHaveTextContent("Kestrel");
     expect(layout("A")).toBeChecked();
     expect(within(types).getAllByRole("radio")).toHaveLength(10);
-    expect(within(dialog).getByText(en.newShip.slotHint)).toBeInTheDocument();
-    expect(within(dialog).getByText(savedAs("PLAYER_SHIP_HARD"))).toBeInTheDocument();
+    expect(takes("Kestrel", "A")).toBeInTheDocument();
+    // What taking a slot means is in the hover help of the slot heading.
+    expect(screen.queryByText(en.help.newShipSlot.body)).not.toBeInTheDocument();
+    fireEvent.pointerEnter(within(dialog).getByText(en.hangarSlot.label));
+    expect(
+      within(screen.getByRole("tooltip")).getByText(en.help.newShipSlot.body)
+    ).toBeInTheDocument();
 
     fireEvent.click(within(types).getByRole("radio", { name: "Engi" }));
     fireEvent.click(layout("C"));
-    expect(within(dialog).getByText("Engi · layout C · PLAYER_SHIP_CIRCLE_3")).toBeInTheDocument();
-    expect(within(dialog).getByText(savedAs("PLAYER_SHIP_CIRCLE_3"))).toBeInTheDocument();
-    // The Lanius has no layout C: the choice moves to its layout B.
-    fireEvent.click(within(types).getByRole("radio", { name: "Lanius" }));
-    expect(layout("C")).toBeDisabled();
+    expect(takes("Engi", "C")).toBeInTheDocument();
+    // The Lanius and the Crystal have no layout C: there is no C to pick, and
+    // the choice moves to their layout B.
+    const noC = () =>
+      expect(
+        within(layouts).queryByRole("radio", { name: en.hangarSlot.layout("C") })
+      ).not.toBeInTheDocument();
+    fireEvent.click(within(types).getByRole("radio", { name: "Crystal" }));
+    noC();
+    expect(within(layouts).getAllByRole("radio")).toHaveLength(2);
     expect(layout("B")).toBeChecked();
-    expect(within(dialog).getByText(savedAs("PLAYER_SHIP_ANAEROBIC_2"))).toBeInTheDocument();
+    expect(takes("Crystal", "B")).toBeInTheDocument();
+    fireEvent.click(within(types).getByRole("radio", { name: "Engi" }));
+    expect(layout("C")).toBeEnabled();
+    expect(layout("B")).toBeChecked();
+    fireEvent.click(layout("C"));
+    fireEvent.click(within(types).getByRole("radio", { name: "Lanius" }));
+    noC();
+    expect(layout("B")).toBeChecked();
+    expect(takes("Lanius", "B")).toBeInTheDocument();
 
     fireEvent.click(within(dialog).getByRole("button", { name: en.newShip.create }));
     expect(await screen.findByText(en.topBar.unsaved)).toBeInTheDocument();
@@ -176,24 +293,46 @@ describe("start screen", () => {
   it("keeps an own blueprint name for mods made for other tools", async () => {
     const platform = await withMiniGame();
     render(<App platform={platform} />);
-    fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.newShip) }));
-    const dialog = screen.getByRole("dialog", { name: en.newShip.title });
+    const ns = openNewShip();
+    ns.next();
+    const dialog = ns.dialog();
     const create = within(dialog).getByRole("button", { name: en.newShip.create });
-    fireEvent.click(within(dialog).getByRole("checkbox", { name: en.newShip.ownName }));
+    // Folded away, marked as not shown in the plain game.
+    const fold = within(dialog).getByText(en.newShip.ownNameFold, { selector: "summary" });
+    expect(fold).toHaveTextContent(en.newShip.notInGame);
+    expect(fold.parentElement).not.toHaveAttribute("open");
+    fireEvent.click(fold);
+    fireEvent.click(within(dialog).getByRole("checkbox", { name: en.newShip.useOwnName }));
     const own = within(dialog).getByRole("textbox", { name: en.newShip.ownName });
+    expect(own).toHaveFocus();
     expect(own).toHaveValue("NEW_SHIP");
     expect(within(dialog).getByText(en.newShip.ownNameHint)).toBeInTheDocument();
     expect(within(dialog).getByRole("radio", { name: "Kestrel" })).toBeDisabled();
-    expect(within(dialog).queryByText(en.newShip.slotHint)).not.toBeInTheDocument();
+    expect(
+      within(dialog).getByText(en.newShip.savedAs("NEW_SHIP", "new_ship"))
+    ).toBeInTheDocument();
 
+    // An invalid name keeps Create (and Enter) from going on.
     fireEvent.change(own, { target: { value: "MY SHIP" } });
     expect(within(dialog).getByText(en.hangar.invalidId)).toBeInTheDocument();
     expect(create).toBeDisabled();
+    fireEvent.keyDown(own, { key: "Enter" });
+    expect(screen.getByRole("dialog", { name: en.newShip.title })).toBeInTheDocument();
+    // So does an empty ship name.
     fireEvent.change(own, { target: { value: "MY_SHIP" } });
-    expect(within(dialog).getByText(en.newShip.savedAs("MY_SHIP", "new_ship"))).toBeInTheDocument();
+    expect(create).toBeEnabled();
+    const nameField = within(dialog).getByLabelText(en.newShip.name);
+    fireEvent.change(nameField, { target: { value: "  " } });
+    expect(create).toBeDisabled();
+    fireEvent.change(nameField, { target: { value: "Mine" } });
+    expect(within(dialog).getByText(en.newShip.savedAs("MY_SHIP", "mine"))).toBeInTheDocument();
     fireEvent.click(create);
     expect(await screen.findByText(en.topBar.unsaved)).toBeInTheDocument();
-    expect(useEditor.getState().doc!.history.present.ship.blueprint.name).toBe("MY_SHIP");
+    expect(useEditor.getState().doc!.history.present.ship.blueprint).toMatchObject({
+      name: "MY_SHIP",
+      layout: "mine",
+      img: "mine",
+    });
   });
 
   it("lists recent ships and opens one again", async () => {

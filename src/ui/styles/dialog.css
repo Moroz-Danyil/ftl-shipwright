@@ -247,6 +247,30 @@
   cursor: default;
   opacity: 0.4;
 }
+/* With each type named under its icon */
+.hs-types--named .hs-type {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  padding: 4px 4px 6px;
+}
+/* Low icons, so the whole step fits even at a large interface scale */
+.hs-types--named .hs-type .ship-icon {
+  aspect-ratio: auto;
+  height: 48px;
+}
+.hs-type-name {
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--text-soft);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hs-type[aria-checked="true"] .hs-type-name {
+  color: var(--accent-soft);
+}
 .hs-layouts {
   display: flex;
   gap: 6px;
@@ -453,25 +477,219 @@
   margin-left: auto;
 }
 
-/* New ship: the choices scroll when the window is low */
-.ns-body {
+/* New ship: a large dialog of a steady size, its steps in turn */
+.dlg--large {
+  width: 860px;
+  height: 640px;
+}
+.dlg--large .dlg-body {
+  flex: 1;
+}
+/* Cancel on the left, Back and Next on the right */
+.ns-cancel {
+  margin-right: auto;
+}
+.ns-head {
   display: flex;
   flex-direction: column;
+  gap: 2px;
+}
+.ns-step-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ns-step {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  /* Room for the focus ring of the fields at the edges */
+  padding: 3px 6px 3px 3px;
+}
+
+/* How to start: two large cards */
+.ns-cards {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+  min-height: 220px;
+}
+.ns-card {
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+}
+.choice.ns-card[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+}
+.ns-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ns-card .choice-title {
+  font-size: 16px;
+}
+.ns-card .choice-hint {
+  max-width: 280px;
+}
+.ns-card-pic {
+  width: 160px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--tile);
+  color: var(--line-strong);
+}
+.ns-card-pic svg {
+  width: 72px;
+  height: auto;
+}
+.ns-card-pic .ship-icon {
+  width: 100%;
+  height: 100%;
+}
+
+/* The base ship: the list taking the height, the preview beside it */
+.ns-base {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.ns-base .picker {
+  min-height: 0;
+}
+.ns-base .picker-list {
+  flex: 1;
+  height: auto;
+  min-height: 120px;
+}
+.ns-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   min-height: 0;
   overflow-y: auto;
-  padding-right: 4px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--raised);
 }
-.ns-body .picker-list {
-  height: 240px;
+.ns-preview--none {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+/* The picture gives way first when the dialog is low (a large interface scale) */
+.ns-preview-pic {
+  flex: 0 1 200px;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--icon-bg);
+  color: var(--line-strong);
+}
+.ns-preview-pic img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.ns-preview-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ns-preview-name {
+  font-size: 16px;
+  font-weight: 600;
+}
+.ns-preview-class {
+  color: var(--text-soft);
+}
+.ns-preview-id {
+  font-size: 12px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.ns-facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.ns-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.ns-fact dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.ns-fact dd {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text);
+}
+
+/* Name and hangar slot */
+.ns-name {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .ns-slot {
-  margin: 0;
-  padding: 0;
-  border: none;
   gap: 8px;
 }
 .ns-legend {
-  padding: 0;
-  margin-bottom: 4px;
+  align-self: flex-start;
+  border-radius: 4px;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+.ns-slot .help-target {
+  align-self: flex-start;
+}
+.ns-summary {
+  font-size: 13px;
+  color: var(--text-soft);
+  overflow-wrap: anywhere;
+}
+.ns-own summary {
+  width: fit-content;
+  font-size: 13px;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+.ns-own-tag {
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--muted);
+}
+.ns-own-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 0 0 14px;
 }

@@ -101,6 +101,7 @@ export function ShipPicker({ ships, selected, onSelect, onChoose }: Props) {
         <input
           className="input"
           type="search"
+          data-autofocus=""
           value={query}
           placeholder={texts.shipPicker.placeholder}
           onChange={(e) => setQuery(e.target.value)}

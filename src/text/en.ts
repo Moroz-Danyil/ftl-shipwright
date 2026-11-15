@@ -135,12 +135,36 @@ export const en = {
     name: "Ship name",
     defaultName: "New ship",
     copyName: (name: string) => `${name} copy`,
-    savedAs: (id: string, base: string) => `Saved in the mod as ${id} · file name ${base}`,
-    slotHint:
-      "The new ship takes this place in the game's hangar: while the mod is installed, the game's own ship there is replaced. Layouts B and C have to be unlocked in the game first.",
+    /** Where the dialog is, e.g. "Step 2 of 3". */
+    step: (n: number, of: number) => `Step ${n} of ${of}`,
+    steps: {
+      start: "How to start",
+      base: "The base ship",
+      name: "Name and hangar slot",
+    },
+    back: "Back",
+    next: "Next",
+    /** The chosen slot and file name, e.g. "Takes the place of the Kestrel Cruiser, layout A · files new_ship". */
+    takesPlace: (type: string, letter: string, base: string) =>
+      `Takes the place of the ${type}, layout ${letter} · files ${base}`,
+    /** The own blueprint name and file name, e.g. "Saved as MY_SHIP · files new_ship". */
+    savedAs: (id: string, base: string) => `Saved as ${id} · files ${base}`,
+    ownNameFold: "Own blueprint name",
+    notInGame: "not shown in the plain game",
+    useOwnName: "Use an own blueprint name",
     ownName: "Own blueprint name",
     ownNameHint:
       "For mods that add ships with other tools. The plain game's hangar does not show a ship under any other name.",
+    preview: {
+      none: "Pick a ship to see it here.",
+      rooms: "Rooms",
+      systems: "Systems",
+      weapons: "Weapons",
+      crew: "Crew",
+      hull: "Hull",
+      /** A fact the game data does not give. */
+      unknown: "–",
+    },
     create: "Create",
   },
 
@@ -775,6 +799,10 @@ export const en = {
     hangarSlot: {
       title: "Hangar slot",
       body: "The game's hangar has ten ship types, each with layouts A, B and C (the Lanius and the Crystal only A and B), and shows only ships whose blueprint name is one of these slots. A slot gives the ship that name: while the mod is installed, it replaces the game's own ship there. Layouts B and C have to be unlocked in the game. An own name suits mods for other tools; the plain game does not show such a ship.",
+    },
+    newShipSlot: {
+      title: "Hangar slot",
+      body: "The new ship takes this place in the game's hangar: while the mod is installed, the game's own ship there is replaced. Layouts B and C have to be unlocked in the game first. The file names come from the ship's name, so its layout and pictures are its own.",
     },
     baseName: {
       title: "File name",

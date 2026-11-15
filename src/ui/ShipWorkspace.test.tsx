@@ -515,6 +515,32 @@ describe("Ship workspace: info", () => {
     expect(steps()).toBe(2);
   });
 
+  it("offers no layout C for the Lanius and the Crystal", async () => {
+    await setUp();
+    const noC = () =>
+      expect(
+        within(slotGroup()).queryByRole("radio", { name: en.hangarSlot.layout("C") })
+      ).not.toBeInTheDocument();
+    // Without a slot no type is chosen, and A, B and C wait for one.
+    expect(layoutRadio("C")).toBeDisabled();
+
+    fireEvent.click(typeRadio("Engi"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CIRCLE"));
+    fireEvent.click(layoutRadio("C"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CIRCLE_3"));
+    // A type without layout C moves the ship to its layout B.
+    fireEvent.click(typeRadio("Lanius"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_ANAEROBIC_2"));
+    noC();
+    expect(layoutRadio("B")).toBeChecked();
+    fireEvent.click(typeRadio("Crystal"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CRYSTAL_2"));
+    noC();
+    fireEvent.click(layoutRadio("A"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CRYSTAL"));
+    expect(within(slotGroup()).getByText("Crystal · layout A · PLAYER_SHIP_CRYSTAL")).toBeVisible();
+  });
+
   it("asks before moving a game ship to another hangar slot", async () => {
     await setUp({ kind: "game" });
     fireEvent.click(typeRadio("Rock"));

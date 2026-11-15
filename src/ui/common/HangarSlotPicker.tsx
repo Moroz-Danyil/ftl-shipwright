@@ -1,7 +1,9 @@
 /**
  * Picks a place in the game's hangar: one of its ship types (shown by the
- * select icon of the game's ship there) and the layout A, B or C. Without a
- * slot (a ship under its own name) no type is chosen until one is picked.
+ * select icon of the game's ship there) and one of the layouts that type has
+ * (A, B and C; only A and B for the Lanius and the Crystal). Without a slot
+ * (a ship under its own name) no type is chosen until one is picked, and the
+ * layouts A, B and C wait for it.
  */
 import {
   HANGAR_TYPES,
@@ -22,12 +24,22 @@ interface Props {
   slot: HangarSlot | undefined;
   onPick: (slot: HangarSlot) => void;
   disabled?: boolean;
+  /** Each type's name under its icon, where there is room for it. */
+  named?: boolean;
+  /** The line naming the chosen slot; off where the place has a summary of its own. */
+  summary?: boolean;
 }
 
 /** The layout a type opens with when it is picked without a slot: A. */
 const FIRST_LAYOUT = 0;
 
-export function HangarSlotPicker({ slot, onPick, disabled = false }: Props) {
+export function HangarSlotPicker({
+  slot,
+  onPick,
+  disabled = false,
+  named = false,
+  summary = true,
+}: Props) {
   const texts = useTexts();
   const catalogs = useEditor((s) => s.game.data?.catalogs);
   const typeName = (type: HangarTypeId) =>
@@ -38,7 +50,11 @@ export function HangarSlotPicker({ slot, onPick, disabled = false }: Props) {
 
   return (
     <div className="hs-picker">
-      <div className="hs-types" role="radiogroup" aria-label={texts.hangarSlot.types}>
+      <div
+        className={named ? "hs-types hs-types--named" : "hs-types"}
+        role="radiogroup"
+        aria-label={texts.hangarSlot.types}
+      >
         {HANGAR_TYPES.map(({ id }) => {
           const name = typeName(id);
           const img = slotImg(
@@ -58,12 +74,17 @@ export function HangarSlotPicker({ slot, onPick, disabled = false }: Props) {
               onClick={() => pickType(id)}
             >
               <ShipIcon img={img} />
+              {named && (
+                <span className="hs-type-name" aria-hidden="true">
+                  {name}
+                </span>
+              )}
             </button>
           );
         })}
       </div>
       <div className="hs-layouts" role="radiogroup" aria-label={texts.hangarSlot.layouts}>
-        {LAYOUT_LETTERS.map((letter, layout) => (
+        {LAYOUT_LETTERS.slice(0, layouts).map((letter, layout) => (
           <button
             key={letter}
             type="button"
@@ -71,14 +92,14 @@ export function HangarSlotPicker({ slot, onPick, disabled = false }: Props) {
             className="hs-layout"
             aria-checked={slot?.layout === layout}
             aria-label={texts.hangarSlot.layout(letter)}
-            disabled={disabled || !slot || layout >= layouts}
+            disabled={disabled || !slot}
             onClick={() => slot && onPick({ ...slot, layout })}
           >
             {letter}
           </button>
         ))}
       </div>
-      {slot && (
+      {slot && summary && (
         <span className="hs-summary">
           {texts.hangarSlot.summary(
             typeName(slot.type),

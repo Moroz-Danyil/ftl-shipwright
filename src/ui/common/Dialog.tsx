@@ -10,8 +10,8 @@ interface Props {
   onClose: () => void;
   children: ReactNode;
   actions?: ReactNode;
-  /** A small dialog for a short question. */
-  size?: "small";
+  /** A small dialog for a short question, or a large one of a steady size (for steps). */
+  size?: "small" | "large";
 }
 
 export function Dialog({ title, onClose, children, actions, size }: Props) {
@@ -36,7 +36,7 @@ export function Dialog({ title, onClose, children, actions, size }: Props) {
     >
       <div
         ref={panel}
-        className={size === "small" ? "dlg dlg--small" : "dlg"}
+        className={size ? `dlg dlg--${size}` : "dlg"}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
