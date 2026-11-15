@@ -1,7 +1,7 @@
 /**
  * Crew at their stations, as the game draws them: the crew members in the
  * order of the crew list man the stations in the ship's systems order, each
- * facing its station's direction. Without the game's pictures a small round
+ * facing its station's direction and in its own colours. Without the game's pictures a small round
  * marker stands in. A station nobody is left for shows a faint outline of its
  * cell (an empty seat); the hangar preview leaves it out. A selected station
  * gets an amber ring.
@@ -11,7 +11,7 @@ import { CELL_SIZE, type Animations, type Ship } from "../core";
 import { stationOf } from "../app/layout/stations";
 import { stationCrew, stationCrewFrame } from "./gameLook";
 import { STATION_RADIUS, stationCentre } from "./hitTest";
-import { SheetSprite } from "./SheetSprite";
+import { CrewSprite } from "./CrewSprite";
 
 interface Props {
   ship: Ship;
@@ -25,7 +25,7 @@ interface Props {
 function StationsLayer({ ship, animations, selected, plain }: Props) {
   return (
     <g>
-      {stationCrew(ship).map(({ system, race }) => {
+      {stationCrew(ship).map(({ system, race }, member) => {
         const c = stationCentre(ship, system);
         const station = stationOf(ship, system);
         if (!c || !station || (plain && race === null)) return null;
@@ -54,7 +54,9 @@ function StationsLayer({ ship, animations, selected, plain }: Props) {
                 vectorEffect="non-scaling-stroke"
               />
             ) : frame ? (
-              <SheetSprite
+              <CrewSprite
+                race={race}
+                member={member}
                 path={frame.path}
                 frame={frame.rect}
                 x={c.x - CELL_SIZE / 2}

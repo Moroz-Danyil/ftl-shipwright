@@ -35,7 +35,7 @@ ${MINI_SHIP_BLUEPRINT}
 <weaponBlueprint name="GUN"><type>LASER</type><title id="weapon_GUN_title"/><damage>1</damage><cost>20</cost><weaponArt>gun_art</weaponArt><iconImage>laser</iconImage></weaponBlueprint>
 <droneBlueprint name="BOT"><type>COMBAT</type><title>Bot</title><power>2</power><weaponBlueprint>DRONE_GUN</weaponBlueprint></droneBlueprint>
 <augBlueprint name="AUG"><title id="aug_title"/><cost>30</cost><stackable>false</stackable><value>0.5</value></augBlueprint>
-<crewBlueprint name="human"><title>Human</title><cost>45</cost><powerList><power id="p1"/><power>Fast</power></powerList></crewBlueprint>
+<crewBlueprint name="human"><title>Human</title><cost>45</cost><powerList><power id="p1"/><power>Fast</power></powerList><colorList><layer><color a="0.7" b="255" g="140" r="140"/></layer><layer><color r="90" g="60" b="40" a="0.7"/><color r="1" g="2"/></layer></colorList></crewBlueprint>
 <systemBlueprint name="shields"><type>shields</type><title id="sys_shields"/><startPower>2</startPower><maxPower>8</maxPower><cost>125</cost></systemBlueprint>
 </FTL>`,
     "data/dlcBlueprints.xml": `<FTL><weaponBlueprint name="GUN"><type>BEAM</type><damage>2</damage><weaponArt>gun_art</weaponArt></weaponBlueprint></FTL>`,

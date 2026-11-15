@@ -98,6 +98,11 @@ describe("catalogs", () => {
       { kind: "id", id: "p1" },
       { kind: "text", text: "Fast" },
     ]);
+    // One list per layer; a colour without all four channels is left out.
+    expect(c.races[0].colorLayers).toEqual([
+      [{ r: 140, g: 140, b: 255, a: 0.7 }],
+      [{ r: 90, g: 60, b: 40, a: 0.7 }],
+    ]);
     expect(c.systems[0]).toMatchObject({ name: "shields", startPower: 2, maxPower: 8, cost: 125 });
   });
 

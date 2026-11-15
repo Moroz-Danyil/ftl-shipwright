@@ -1,7 +1,7 @@
 /**
  * The equipment panel at the bottom of the hangar: the crew as cards (the
- * race's picture, the race's title as the name, since the game gives crew
- * random names), the weapons and drones in their slots with their pictures
+ * race's picture in the member's colours, the race's title as the name,
+ * since the game gives crew random names), the weapons and drones in their slots with their pictures
  * and short titles ("system not installed" without their system), and the
  * augments in their boxes. Frame titles come from the game's texts.
  */
@@ -19,7 +19,7 @@ import { isInstalled } from "../../app/systems/rules";
 import { useTexts } from "../../text";
 import { crewMembers } from "../gameLook";
 import { usePicture } from "../pictures";
-import { SheetSprite } from "../SheetSprite";
+import { CrewSprite } from "../CrewSprite";
 import {
   AUGMENT_BOXES,
   CREW_CARDS,
@@ -63,7 +63,9 @@ function CrewCard({ race, index }: { race: string | undefined; index: number }) 
     <g data-testid={`hangar-crew-${index + 1}`} data-race={race}>
       <ScreenPicture path={HANGAR_PICTURES.crewOn} x={at.x} y={at.y} />
       {frame && (
-        <SheetSprite
+        <CrewSprite
+          race={race}
+          member={index}
           path={frame.path}
           frame={frame.rect}
           transform={`translate(${at.x + CREW_CARDS.pictureMiddle.x} ${at.y + CREW_CARDS.pictureMiddle.y}) scale(${CREW_CARDS.crewScale}) translate(${-frame.rect.w / 2} ${-frame.rect.h / 2})`}

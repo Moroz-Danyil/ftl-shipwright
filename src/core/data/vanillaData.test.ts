@@ -93,6 +93,13 @@ describe.skipIf(!HAS_GAME_DATA)("vanilla game data", () => {
     const human = catalogs.races.find((r) => r.name === "human")!;
     expect(human.title).toEqual({ kind: "text", text: "Clone" });
     expect(human.powers).toEqual([{ kind: "id", id: "crew_human_power_1" }]);
+    // The shirt (layer 1) has one colour, the skin and hair (layer 2) four.
+    expect(human.colorLayers?.map((l) => l.length)).toEqual([1, 4]);
+    expect(human.colorLayers?.[0][0]).toEqual({ r: 140, g: 140, b: 255, a: 0.7 });
+    for (const race of ["mantis", "rock", "slug", "crystal", "energy", "anaerobic"])
+      expect(catalogs.races.find((r) => r.name === race)?.colorLayers, race).toHaveLength(1);
+    // The Engi has no layer pictures and no colours.
+    expect(catalogs.races.find((r) => r.name === "engi")?.colorLayers).toBeUndefined();
     expect(catalogs.augments.find((a) => a.name === "SCRAP_COLLECTOR")).toMatchObject({
       cost: 50,
       stackable: true,
@@ -153,6 +160,25 @@ describe.skipIf(!HAS_GAME_DATA)("vanilla game data", () => {
       }
     }
     expect(checked).toBeGreaterThan(40);
+  });
+
+  it("every colour list of a race has its layer picture, the size of the race's sheet", async () => {
+    let layers = 0;
+    for (const race of catalogs.races) {
+      const frame = raceWalkDownFrame(animations, race.name)!;
+      for (let i = 0; i < (race.colorLayers?.length ?? 0); i++) {
+        const path = frame.path.replace(/_base\.png$/i, `_layer${i + 1}.png`);
+        const bytes = await view.readBytes(path);
+        expect(bytes, path).toBeDefined();
+        const size = readPngSize(bytes!);
+        expect({ w: size.width, h: size.height }, path).toEqual({
+          w: frame.sheet.w,
+          h: frame.sheet.h,
+        });
+        layers++;
+      }
+    }
+    expect(layers).toBe(8);
   });
 
   it("every race has a walk-down frame inside its sheet picture", async () => {

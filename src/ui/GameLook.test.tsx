@@ -56,6 +56,28 @@ describe("the ship as the game draws it", () => {
     );
   });
 
+  it("colours the crew at a station with its race's colour layers", async () => {
+    const data = state().game.data!;
+    const human = {
+      name: "human",
+      powers: [],
+      colorLayers: [[{ r: 140, g: 140, b: 255, a: 0.7 }]],
+      file: "data/blueprints.xml",
+      fromMod: false,
+    };
+    useEditor.setState({
+      game: { ...state().game, data: { ...data, catalogs: { ...data.catalogs, races: [human] } } },
+    });
+    act(() =>
+      state().edit((s) => ({ ...s, blueprint: { ...s.blueprint, crew: [crew("human", 1)] } }))
+    );
+    const station = screen.getByTestId("station-1");
+    await waitFor(() => expect(station.querySelector("svg")).not.toBeNull());
+    expect(station.querySelector("[data-layers]")).toHaveAttribute("data-layers", "1");
+    const matrix = station.querySelector("feColorMatrix")!;
+    expect(matrix.getAttribute("values")!.split(" ")[0]).toBe("0.6843");
+  });
+
   it("mans the stations with the crew in the order of the crew list, and marks empty seats", async () => {
     const withStations = (amounts: Array<[string, number]>) =>
       act(() =>

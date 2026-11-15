@@ -2,7 +2,7 @@
  * Catalogs of ships and items in the modded game (for pickers and cards).
  */
 import type { ShipText } from "../model";
-import { elements, firstElement } from "../xml";
+import { elements, firstElement, type XmlNode } from "../xml";
 import type { GameView } from "./gameView";
 import { resolveText, type GameTexts } from "./texts";
 import {
@@ -96,6 +96,14 @@ export interface AugmentCatalogEntry extends Origin {
   value?: number;
 }
 
+/** A colour of a crew member's layer: red, green and blue 0–255, and how strongly it tints (0–1). */
+export interface CrewColour {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}
+
 export interface RaceCatalogEntry extends Origin {
   /** The race name (`human`, `engi`, ...). */
   name: string;
@@ -105,6 +113,11 @@ export interface RaceCatalogEntry extends Origin {
   cost?: number;
   /** `powerList/power`: texts describing the race's traits. */
   powers: ShipText[];
+  /**
+   * `colorList`: for each `<layer>` in order, the colours the game picks
+   * from for that layer of the crew member's picture (`img/people/<race>_layer1.png` ...).
+   */
+  colorLayers?: CrewColour[][];
 }
 
 export interface SystemCatalogEntry extends Origin {
@@ -169,6 +182,16 @@ function origin(item: LayeredElement): Origin {
 }
 
 /** Copies only the defined values, so absent fields stay absent. */
+/** The `<layer>` lists of a `colorList`; colours with a missing or unreadable channel are left out. */
+function readColorLayers(children: XmlNode[]): CrewColour[][] {
+  return elements(children, "layer").map((layer) =>
+    elements(layer.children, "color").flatMap((c) => {
+      const [r, g, b, a] = ["r", "g", "b", "a"].map((k) => Number(c.attributes[k]));
+      return [r, g, b, a].every(Number.isFinite) ? [{ r, g, b, a }] : [];
+    })
+  );
+}
+
 function defined<T extends object>(obj: T): T {
   const out = {} as T;
   for (const [k, v] of Object.entries(obj))
@@ -275,6 +298,7 @@ export async function loadCatalogs(view: GameView, texts?: GameTexts): Promise<C
 
   const races = latestDefinitions(all, "crewBlueprint").map((c) => {
     const powerList = firstElement(c.element.children, "powerList");
+    const colorList = firstElement(c.element.children, "colorList");
     return defined<RaceCatalogEntry>({
       name: c.element.attributes.name!,
       title: text(c, "title"),
@@ -282,6 +306,7 @@ export async function loadCatalogs(view: GameView, texts?: GameTexts): Promise<C
       desc: text(c, "desc"),
       cost: num(c, "cost"),
       powers: powerList ? elements(powerList.children, "power").map((p) => readGameText(p)!) : [],
+      colorLayers: colorList && readColorLayers(colorList.children),
       ...origin(c),
     });
   });
