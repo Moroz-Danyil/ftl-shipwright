@@ -1,9 +1,11 @@
 /**
  * "Systems in this room": a card for each system of the selected room with
- * its level, upgrade limit, installed at the start, artillery weapon, crew
- * station facing, interior picture and remove; with the warning for an
- * unusual mix of systems and the crew cells medbay and clonebay keep. A click
- * on a card makes its system the Info panel's subject.
+ * its starting level and installed at the start first, then its upgrade
+ * limit, artillery weapon, crew station facing, interior picture and remove;
+ * with the warning for an unusual mix of systems and the crew cells medbay
+ * and clonebay keep. A click on a card makes its system the Info panel's
+ * subject. Selecting a room with systems opens the section (the store's
+ * `select`).
  */
 import type { Room, Ship } from "../../../core";
 import { turnStation } from "../../../app/layoutActions";
@@ -24,7 +26,7 @@ import {
   showsUpgradeLimit,
   systemsInRoom,
 } from "../../../app/systems/rules";
-import { keyOf, useEditor } from "../../../app/store";
+import { ROOM_SYSTEMS_SECTION, keyOf, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
 import { Section } from "../../common/Section";
@@ -121,6 +123,16 @@ function SystemCard({ ship, index, room }: { ship: Ship; index: number; room: Ro
           onChange={(v) => setSystemLevel(index, v)}
         />
       </Help>
+      <Help topic="installed">
+        <label className="ed-choice">
+          <input
+            type="checkbox"
+            checked={isInstalled(system)}
+            onChange={(e) => setSystemInstalled(index, e.target.checked)}
+          />
+          {texts.systems.installed}
+        </label>
+      </Help>
       {showsUpgradeLimit(ship, system) && (
         <Help topic="upgradeLimit">
           <Stepper
@@ -132,16 +144,6 @@ function SystemCard({ ship, index, room }: { ship: Ship; index: number; room: Ro
           />
         </Help>
       )}
-      <Help topic="installed">
-        <label className="ed-choice">
-          <input
-            type="checkbox"
-            checked={isInstalled(system)}
-            onChange={(e) => setSystemInstalled(index, e.target.checked)}
-          />
-          {texts.systems.installed}
-        </label>
-      </Help>
       {system.system === "artillery" && <ArtilleryWeapon index={index} weapon={system.weapon} />}
       {isStationSystem(system.system) && <StationFacing ship={ship} index={index} />}
       <InteriorPicker index={index} room={room} />
@@ -165,7 +167,7 @@ export function RoomSystems({ ship, room }: { ship: Ship; room: Room }) {
   const unusual = isUnusualMix(indices.map((i) => ship.blueprint.systems[i].system));
   return (
     <Section
-      id="room-systems"
+      id={ROOM_SYSTEMS_SECTION}
       title={texts.sections.roomSystems}
       icon="roomSystems"
       count={String(indices.length)}

@@ -1,7 +1,8 @@
 /**
  * The Info panel's pages for the parts of the layout: a room (its systems, the
  * crew at its station, its size and doors), a system (from a palette tile or a
- * system card), a door and a crew station.
+ * system card), a door and a crew station. A system on the ship has an Edit
+ * button that opens its room in Rooms.
  */
 import { CELL_SIZE, doorRooms, stationCellToXY, type Room, type Ship } from "../../../core";
 import { doorsOfRoom } from "../../../app/layout/doors";
@@ -79,14 +80,33 @@ function SystemFacts({ ship, system }: { ship: Ship; system: string }) {
   );
 }
 
-/** One system of a room: its icon, name and what the game says about it. */
-function SystemBlock({ ship, system }: { ship: Ship; system: string }) {
+/** Opens Rooms with the system's room selected and its systems' section open. */
+function EditInRooms({ room, name }: { room: number; name: string }) {
+  const texts = useTexts();
+  return (
+    <button
+      type="button"
+      className="btn btn--small"
+      aria-label={texts.info.editSystem(name)}
+      title={texts.info.editSystem(name)}
+      onClick={() => useEditor.getState().goToRoom(room)}
+    >
+      {texts.info.edit}
+    </button>
+  );
+}
+
+/** One system of a room: its icon, name, Edit and what the game says about it. */
+function SystemBlock({ ship, system, room }: { ship: Ship; system: string; room: number }) {
   const nameOf = useSystemName();
   return (
     <div className="info-card" data-system={system}>
-      <span className="info-card-title">
-        <SystemIcon system={system} size={40} />
-        <span>{nameOf(system)}</span>
+      <span className="ed-row info-card-head">
+        <span className="info-card-title">
+          <SystemIcon system={system} size={40} />
+          <span>{nameOf(system)}</span>
+        </span>
+        <EditInRooms room={room} name={nameOf(system)} />
       </span>
       <SystemFacts ship={ship} system={system} />
     </div>
@@ -210,6 +230,7 @@ export function RoomInfo({ ship, id }: { ship: Ship; id: number }) {
             key={ship.blueprint.systems[i].system}
             ship={ship}
             system={ship.blueprint.systems[i].system}
+            room={room.id}
           />
         ))}
       </InfoSection>
@@ -268,15 +289,20 @@ export function SystemInfo({ ship, system }: { ship: Ship; system: string }) {
       </InfoSection>
       <InfoSection title={t.sections.rooms} icon="room">
         {placed ? (
-          <Facts
-            rows={[
-              [t.room, texts.inspector.room(placed.room)],
-              [
-                t.state,
-                isInstalled(placed) ? texts.systems.states.start : texts.systems.states.later,
-              ],
-            ]}
-          />
+          <>
+            <Facts
+              rows={[
+                [t.room, texts.inspector.room(placed.room)],
+                [
+                  t.state,
+                  isInstalled(placed) ? texts.systems.states.start : texts.systems.states.later,
+                ],
+              ]}
+            />
+            <div>
+              <EditInRooms room={placed.room} name={nameOf(system)} />
+            </div>
+          </>
         ) : (
           <InfoText muted>{t.notOnShip}</InfoText>
         )}

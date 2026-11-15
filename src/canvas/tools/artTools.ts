@@ -201,15 +201,14 @@ export function createGibTool(context: ToolContext): CanvasTool {
   return createArtPicker(context, findGib, clear);
 }
 
+/** What the Select tool in Hull picks at the pointer: a mount, else a gib when they are shown. */
+export const artTargetAt: Finder = (ship, art, pointer) =>
+  findMount(ship, art, pointer) ??
+  (useEditor.getState().view.layers.gibs ? findGib(ship, art, pointer) : undefined);
+
 /** The Select tool in Hull: mounts, and gibs when they are shown. */
 export function createArtSelectTool(context: ToolContext): CanvasTool {
-  return createArtPicker(
-    context,
-    (ship, art, pointer) =>
-      findMount(ship, art, pointer) ??
-      (useEditor.getState().view.layers.gibs ? findGib(ship, art, pointer) : undefined),
-    clear
-  );
+  return createArtPicker(context, artTargetAt, clear);
 }
 
 /** The selected gib (when exactly one thing, a gib, is selected) and its fan. */

@@ -127,6 +127,10 @@
   border-radius: 10px;
   background: var(--raised);
 }
+/* A system's card: its icon and name, and Edit on the right */
+.info-card-head {
+  align-items: center;
+}
 .info-card-title {
   display: inline-flex;
   align-items: center;

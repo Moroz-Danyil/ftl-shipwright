@@ -1,7 +1,8 @@
 /**
  * The current tool of the canvas, with the overlay it draws. The Select tool
- * moves rooms only in Rooms and picks mounts and gibs in Hull; every Hull
- * tool also turns the selected gib's direction with its fan.
+ * moves rooms only in Rooms and picks mounts and gibs in Hull; in Ship and
+ * Hull a plain click on a room opens it in Rooms. Every Hull tool also turns
+ * the selected gib's direction with its fan.
  */
 import { useEffect, useMemo, useState } from "react";
 import { setGestureCancel } from "../../app/gesture";
@@ -9,6 +10,7 @@ import { useEditor } from "../../app/store";
 import type { ToolId, WorkspaceId } from "../../app/workspaces";
 import type { Texts } from "../../text";
 import {
+  artTargetAt,
   createArtSelectTool,
   createGibTool,
   createMountTool,
@@ -16,6 +18,7 @@ import {
   withGibDirection,
 } from "./artTools";
 import { createDoorTool, createRoomTool, createStationTool } from "./placeTools";
+import { withRoomClick } from "./roomClick";
 import { createSelectTool } from "./selectTool";
 import type { CanvasTool, Overlay, ToolContext } from "./types";
 
@@ -41,10 +44,14 @@ export function createTool(
 }
 
 function createPlainTool(id: ToolId, context: ToolContext, workspace: WorkspaceId): CanvasTool {
-  if (id === "select")
-    return workspace === "hull"
-      ? createArtSelectTool(context)
-      : createSelectTool(context, workspace === "rooms");
+  if (id === "select") {
+    if (workspace === "rooms") return createSelectTool(context);
+    if (workspace === "ship") return withRoomClick(createSelectTool(context, false));
+    return withRoomClick(
+      createArtSelectTool(context),
+      (ship, art, pointer) => artTargetAt(ship, art, pointer) !== undefined
+    );
+  }
   if (id === "room") return createRoomTool(context);
   if (id === "door") return createDoorTool(context);
   if (id === "station") return createStationTool(context);

@@ -11,7 +11,13 @@ import type { MovablePicture } from "./art/pictures";
 import type { ModRef } from "../platform/types";
 import type { InfoPick } from "./info";
 import { canRedo, canUndo, createHistory, record, redo, undo, type History } from "./history";
-import { EMPTY_SELECTION, validSelection, type Selection } from "./selection";
+import {
+  EMPTY_SELECTION,
+  selectionOf,
+  singleTarget,
+  validSelection,
+  type Selection,
+} from "./selection";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "../text";
 import {
   loadDatPath,
@@ -260,7 +266,13 @@ export interface EditorState {
   redo(): void;
   /** Records that this snapshot (the present one, or an earlier one) was saved to the target. */
   markSaved(snapshot: ShipSnapshot, target: SaveTarget, origin: ShipOrigin): void;
+  /**
+   * Selects. A single room with systems also opens the Rooms inspector's
+   * "Systems in this room" section, which then stays open as any section does.
+   */
   select(selection: Selection): void;
+  /** Opens Rooms with the Select tool and the room selected (with its systems' section open). */
+  goToRoom(id: number): void;
   setStationSystem(system: number | null): void;
   setSystemDrag(drag: SystemDrag | null): void;
   setArtTool(options: Partial<ArtToolOptions>): void;
@@ -317,6 +329,9 @@ export interface EditorState {
 }
 
 let nextDocumentId = 1;
+
+/** The id of the Rooms inspector's "Systems in this room" section. */
+export const ROOM_SYSTEMS_SECTION = "room-systems";
 
 const initialTools = (): Record<WorkspaceId, ToolId> => ({
   ship: "select",
@@ -447,7 +462,25 @@ export const useEditor = create<EditorState>()((set, get) => {
     // A selection made by the user is what the Info panel describes next.
     select: (selection) => {
       const ship = get().doc?.history.present.ship;
-      set({ selection: ship ? validSelection(ship, selection) : selection, infoPick: null });
+      const next = ship ? validSelection(ship, selection) : selection;
+      const target = singleTarget(next);
+      const opensSystems =
+        target?.kind === "room" &&
+        !!ship?.blueprint.systems.some((s) => s.room === target.id) &&
+        !get().openSections[ROOM_SYSTEMS_SECTION];
+      set({
+        selection: next,
+        infoPick: null,
+        ...(opensSystems && {
+          openSections: { ...get().openSections, [ROOM_SYSTEMS_SECTION]: true },
+        }),
+      });
+    },
+    goToRoom: (id) => {
+      const { workspace, tools } = get();
+      if (workspace !== "rooms" || tools.rooms !== "select")
+        set({ workspace: "rooms", tools: { ...tools, rooms: "select" }, infoPick: null });
+      get().select(selectionOf({ kind: "room", id }));
     },
     setStationSystem: (stationSystem) => set({ stationSystem }),
     setSystemDrag: (systemDrag) => set({ systemDrag }),

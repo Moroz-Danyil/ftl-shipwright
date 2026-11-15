@@ -263,7 +263,7 @@ export const en = {
       roomsInspector: {
         title: "Rooms: systems and rooms",
         body: () =>
-          "With nothing selected, Rooms lists the game's systems as tiles: green when installed at the start, amber when bought later, red when not on the ship. Drag a tile onto a room to put the system there. Click a room on the canvas to edit everything about it: its systems, crew station, position and size.",
+          "With nothing selected, Rooms lists the game's systems as tiles: green when installed at the start, amber when bought later, red when not on the ship. Drag a tile onto a room to put the system there. Click a room on the canvas to edit everything about it: its systems (their starting level first), crew station, position and size. In Ship and Hull, a click on a room brings you here with it selected.",
       },
       hullInspector: {
         title: "Hull: pictures, mounts and explosion",
@@ -283,7 +283,7 @@ export const en = {
       info: {
         title: "The Info panel",
         body: () =>
-          "The panel on the right describes what you clicked: a room with its systems and crew, a door, a station, a mount, a gib, a slot, or an item, race or system in a list, with the game's pictures, texts and numbers. With nothing selected it sums up the ship. It only shows; you edit in the inspector. The arrow in its header folds it to a thin strip to give the canvas more room.",
+          "The panel on the right describes what you clicked: a room with its systems and crew, a door, a station, a mount, a gib, a slot, or an item, race or system in a list, with the game's pictures, texts and numbers. With nothing selected it sums up the ship. It only shows; you edit in the inspector, and Edit next to a system takes you to its room in Rooms. The arrow in its header folds it to a thin strip to give the canvas more room.",
       },
       slots: {
         title: "Weapon and drone slots",
@@ -1008,6 +1008,8 @@ export const en = {
     allGood: "Everything looks complete.",
     openOverview: "Open the overview",
     startRooms: "Open Rooms with the Room tool",
+    edit: "Edit",
+    editSystem: (name: string) => `Edit ${name} in Rooms`,
     hintSelect: "Click a room, door, mount or slot, or an item in a list, to see it here.",
     severalCount: {
       rooms: "Rooms",
