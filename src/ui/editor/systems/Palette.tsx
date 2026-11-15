@@ -10,6 +10,7 @@
 import { PALETTE_ATTRIBUTE, clickSystem, pressSystemChip } from "../../../app/systemDrag";
 import { SYSTEM_GROUPS, isInstalled, type SystemGroup } from "../../../app/systems/rules";
 import { gameText } from "../../../app/loadout/catalog";
+import { systemTileField } from "../../../app/overviewGo";
 import { useSystemName } from "../../../app/names";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
@@ -42,6 +43,7 @@ function Tile({ system }: { system: string }) {
       className={`sy-tile sy-tile--${state}`}
       data-system={system}
       data-state={state}
+      data-field={systemTileField(system)}
       onPointerEnter={(e) => panel.show(true, e.currentTarget)}
       onPointerLeave={panel.hide}
       onFocus={(e) => panel.show(true, e.currentTarget)}

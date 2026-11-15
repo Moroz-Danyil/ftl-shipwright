@@ -10,6 +10,7 @@ import {
   type OverviewItem,
   type OverviewSection,
 } from "../../app/overview";
+import { goToOverviewItem } from "../../app/overviewGo";
 import { useEditor } from "../../app/store";
 import { useTexts } from "../../text";
 import { Dialog } from "../common/Dialog";
@@ -67,11 +68,24 @@ function OkRow({ item }: { item: OverviewItem }) {
   );
 }
 
-/** An item that needs a look: a card with what is wrong and a link to where to fix it. */
+/**
+ * An item that needs a look: a card with what is wrong and a link to where
+ * to fix it. A click on the card, or Enter while it has the focus, goes
+ * there too.
+ */
 function IssueCard({ item, onGo }: { item: OverviewItem; onGo: (item: OverviewItem) => void }) {
   const texts = useTexts();
   return (
-    <li className={`ov-card ov-card--${item.status}`} onClick={() => onGo(item)}>
+    <li
+      className={`ov-card ov-card--${item.status}`}
+      tabIndex={0}
+      onClick={() => onGo(item)}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" || e.target !== e.currentTarget) return;
+        e.preventDefault();
+        onGo(item);
+      }}
+    >
       <StatusMark status={item.status} />
       <div className="ov-card-body">
         <span className="ov-title">{item.title}</span>
@@ -140,10 +154,8 @@ export function OverviewDialog() {
   const close = () => useEditor.getState().openDialog(null);
 
   const go = (item: OverviewItem) => {
-    const state = useEditor.getState();
-    state.setWorkspace(item.workspace);
-    state.select(item.selection);
     close();
+    goToOverviewItem(item);
   };
 
   return (

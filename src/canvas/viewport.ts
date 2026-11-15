@@ -67,6 +67,35 @@ export function fitRect(
   };
 }
 
+/**
+ * The camera that shows `rect` (ship pixels) with a margin: the same camera
+ * when it is in view already, else one centred on it at the same zoom, or
+ * zoomed out to fit it when it is too big.
+ */
+export function cameraShowing(
+  camera: Camera,
+  rect: Rect,
+  size: { width: number; height: number },
+  margin = 48
+): Camera {
+  const s = camera.scale;
+  const left = rect.x * s + camera.x;
+  const top = rect.y * s + camera.y;
+  const inView =
+    left >= margin &&
+    top >= margin &&
+    left + rect.w * s <= size.width - margin &&
+    top + rect.h * s <= size.height - margin;
+  if (inView) return camera;
+  const fits = rect.w * s <= size.width - 2 * margin && rect.h * s <= size.height - 2 * margin;
+  if (!fits) return fitRect(rect, size, margin, s);
+  return {
+    scale: s,
+    x: size.width / 2 - (rect.x + rect.w / 2) * s,
+    y: size.height / 2 - (rect.y + rect.h / 2) * s,
+  };
+}
+
 /** The smallest rectangle holding all the given ones; `undefined` for none. */
 export function unionRects(rects: Array<Rect | undefined>): Rect | undefined {
   const list = rects.filter((r): r is Rect => !!r && r.w > 0 && r.h > 0);

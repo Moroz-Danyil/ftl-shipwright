@@ -4,6 +4,7 @@
  */
 import { removePicture } from "../../../app/artActions";
 import { pictureName, type PictureRef, type PictureSlot } from "../../../app/art/model";
+import { pictureField } from "../../../app/overviewGo";
 import { useEditor } from "../../../app/store";
 import { usePictureRef } from "../../../canvas/pictures";
 import { useTexts } from "../../../text";
@@ -17,7 +18,7 @@ function PictureRow({ slot, picture }: { slot: PictureSlot; picture: PictureRef 
   const loaded = usePictureRef(source, picture);
   const label = texts.art.slots[slot];
   return (
-    <div className="ar-picture" data-slot={slot}>
+    <div className="ar-picture" data-slot={slot} data-field={pictureField(slot)}>
       <PictureZoom
         className="ar-thumb"
         picture={loaded}

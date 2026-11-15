@@ -18,6 +18,7 @@ import { isPlayerShip, viewLimitCells, viewLimitPx } from "./viewLimit";
 import {
   MAX_SCALE,
   MIN_SCALE,
+  cameraShowing,
   fitRect,
   panBy,
   screenToShip,
@@ -29,6 +30,20 @@ import {
 } from "./viewport";
 
 describe("viewport", () => {
+  it("brings a rectangle into view: kept, centred at the same zoom, or fitted", () => {
+    const size = { width: 800, height: 600 };
+    const camera = { x: 0, y: 0, scale: 2 };
+    expect(cameraShowing(camera, { x: 50, y: 50, w: 70, h: 35 }, size)).toBe(camera);
+    expect(cameraShowing(camera, { x: 1000, y: 700, w: 70, h: 35 }, size)).toEqual({
+      scale: 2,
+      x: 400 - 1035 * 2,
+      y: 300 - 717.5 * 2,
+    });
+    const big = cameraShowing(camera, { x: 0, y: 0, w: 1000, h: 100 }, size);
+    expect(big.scale).toBeLessThan(2);
+    expect(1000 * big.scale).toBeLessThanOrEqual(800 - 2 * 48);
+  });
+
   it("converts between screen and ship pixels", () => {
     const camera = { x: 100, y: 50, scale: 2 };
     expect(shipToScreen(camera, { x: 10, y: 20 })).toEqual({ x: 120, y: 90 });

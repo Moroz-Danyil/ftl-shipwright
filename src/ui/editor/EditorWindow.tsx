@@ -5,6 +5,7 @@
  */
 import { useEditor } from "../../app/store";
 import { HangarPreview } from "../../canvas/hangar/HangarPreview";
+import { FieldFlash } from "./FieldFlash";
 import { InfoPanel } from "./info/InfoPanel";
 import { ShipCanvas } from "../../canvas/ShipCanvas";
 import { PicturePicker } from "./art/PicturePicker";
@@ -36,6 +37,7 @@ export function EditorWindow() {
         {dialog === "picture" && <PicturePicker />}
         {dialog === "tourOffer" && <TourOffer />}
         <DragChip />
+        <FieldFlash />
         {preview && <HangarPreview />}
       </div>
       <Tour />

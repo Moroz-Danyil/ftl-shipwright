@@ -28,6 +28,7 @@
   --room-tile-line: #bcb9b3;
   --room-wall: #33302c;
   --room-selected-tint: rgba(242, 169, 59, 0.22);
+  --flash-glow: rgba(242, 169, 59, 0.4);
   --room-ink: #4a525e;
   --icon-bg: #20252d;
   --row-shade: rgba(255, 255, 255, 0.035);
@@ -77,6 +78,7 @@
   --room-tile-line: #bcb9b3;
   --room-wall: #33302c;
   --room-selected-tint: rgba(242, 169, 59, 0.28);
+  --flash-glow: rgba(232, 150, 42, 0.45);
   --room-ink: #4a525e;
   --icon-bg: #3a414c;
   --row-shade: rgba(0, 0, 0, 0.035);
@@ -285,6 +287,51 @@ input[type="checkbox"] {
 .notice .btn {
   height: 26px;
   font-size: 12px;
+}
+/* What is wrong with the ship and what to do, after a click in the Overview. */
+.notice--issue {
+  background: var(--accent-bg);
+  border-color: var(--accent-line);
+}
+.notice--issue.notice--problem {
+  background: var(--problem-bg);
+  border-color: var(--problem);
+}
+.notice-issue {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 13px;
+}
+.notice-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--accent-soft);
+}
+.notice--problem .notice-title {
+  color: var(--problem);
+}
+.notice-status {
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+.notice-status--problem {
+  background: var(--problem);
+  color: var(--problem-ink);
+}
+.notice-details {
+  margin: 2px 0 0;
+  padding-left: 18px;
+  color: var(--text-soft);
 }
 
 .btn--danger:hover:not(:disabled) {

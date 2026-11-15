@@ -81,7 +81,7 @@ export function GibPanel({ ship, index }: { ship: Ship; index: number }) {
           onChange={(angular) => set({ angular })}
         />
       </Help>
-      <div className="ed-row">
+      <div className="ed-row" data-field="gibPicture">
         <span>{texts.art.pictureOf(picture ? pictureName(picture) : texts.art.noPicture)}</span>
         <button
           type="button"

@@ -166,10 +166,36 @@ export interface SystemDrag {
   target: "room" | "remove" | "none";
 }
 
+/**
+ * A message at the bottom of the editor. An `info` message goes away by
+ * itself; an error stays until closed, and so does an `issue`: what is wrong
+ * with the ship and what to do, shown after a click in the Overview.
+ */
 export interface Notice {
-  kind: "error" | "info";
+  kind: "error" | "info" | "issue";
   text: string;
+  /** An issue's title (the Overview item) and how bad it is. */
+  title?: string;
+  status?: "check" | "problem";
+  /** An issue's lines: the rooms, doors, mounts or items involved. */
+  details?: string[];
 }
+
+/**
+ * What a click in the Overview points at, flashed for a few seconds: a field
+ * (an element with that `data-field`), else the inspector section (its
+ * `data-section`), and the objects on the canvas.
+ */
+export interface Flash {
+  /** Changes with every flash, so the same target can flash again. */
+  key: number;
+  field?: string;
+  section?: string;
+  objects: Selection;
+}
+
+/** How long a flash lasts. */
+export const FLASH_MS = 3500;
 
 /** The guided tour while it runs. */
 export interface TourState {
@@ -239,6 +265,8 @@ export interface EditorState {
   /** The tour was offered in this run of the app (it is offered once a run at most). */
   tourOffered: boolean;
   notice?: Notice;
+  /** The field and objects flashed after a click in the Overview, while they flash. */
+  flash: Flash | null;
 
   setGame(game: Partial<GameState>): void;
   setRecent(recent: RecentShip[]): void;
@@ -299,6 +327,8 @@ export interface EditorState {
   /** Answers the question on screen. */
   answerConfirm(yes: boolean): void;
   setNotice(notice: Notice | undefined): void;
+  /** Flashes a field or section and objects for {@link FLASH_MS}. */
+  startFlash(target: Omit<Flash, "key">): void;
   /**
    * Starts the guided tour: closes any dialog and clears the selection, which
    * comes back with the workspace when the tour ends.
@@ -329,6 +359,7 @@ export interface EditorState {
 }
 
 let nextDocumentId = 1;
+let nextFlashKey = 1;
 
 /** The id of the Rooms inspector's "Systems in this room" section. */
 export const ROOM_SYSTEMS_SECTION = "room-systems";
@@ -375,6 +406,7 @@ export function initialEditorState() {
     tour: null as TourState | null,
     tourOffered: false,
     notice: undefined,
+    flash: null as Flash | null,
   };
 }
 
@@ -432,6 +464,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         dialog: offerTour ? "tourOffer" : null,
         tour: null,
         tourOffered: get().tourOffered || offerTour,
+        flash: null,
       });
     },
 
@@ -442,6 +475,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         infoPick: null,
         dialog: null,
         tour: null,
+        flash: null,
       }),
 
     edit: (change, selection) =>
@@ -530,6 +564,13 @@ export const useEditor = create<EditorState>()((set, get) => {
       open.resolve(yes);
     },
     setNotice: (notice) => set({ notice }),
+    startFlash: (target) => {
+      const flash: Flash = { ...target, key: nextFlashKey++ };
+      set({ flash });
+      setTimeout(() => {
+        if (get().flash === flash) set({ flash: null });
+      }, FLASH_MS);
+    },
 
     startTour: () => {
       const { doc, workspace, selection, view } = get();

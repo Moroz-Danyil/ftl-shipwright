@@ -19,6 +19,7 @@ import {
   setSystemWeapon,
 } from "../../../app/systemActions";
 import { useSystemName } from "../../../app/names";
+import { UNUSUAL_MIX_FIELD, stationField } from "../../../app/overviewGo";
 import {
   artilleryWeapons,
   isInstalled,
@@ -65,9 +66,15 @@ function StationFacing({ ship, index }: { ship: Ship; index: number }) {
   const texts = useTexts();
   const stationKey = useEditor(keyOf("tool.station"));
   const station = stationOf(ship, index);
-  if (!station) return <span className="muted">{texts.systems.noStation(stationKey)}</span>;
+  const field = stationField(ship.blueprint.systems[index].system);
+  if (!station)
+    return (
+      <span className="muted" data-field={field}>
+        {texts.systems.noStation(stationKey)}
+      </span>
+    );
   return (
-    <Help topic="stationFacing">
+    <Help topic="stationFacing" field={field}>
       <div className="sy-station">
         <span className="eyebrow">{texts.systems.station(station.slot.number)}</span>
         <div className="ed-directions" role="group" aria-label={texts.inspector.facing}>
@@ -172,7 +179,11 @@ export function RoomSystems({ ship, room }: { ship: Ship; room: Room }) {
       icon="roomSystems"
       count={String(indices.length)}
     >
-      {unusual && <div className="ed-group ed-group--warn">{texts.systems.unusualMix}</div>}
+      {unusual && (
+        <div className="ed-group ed-group--warn" data-field={UNUSUAL_MIX_FIELD}>
+          {texts.systems.unusualMix}
+        </div>
+      )}
       {indices.length === 0 && <span className="muted">{texts.systems.empty}</span>}
       {indices.map((i) => (
         <SystemCard key={ship.blueprint.systems[i].system} ship={ship} index={i} room={room} />

@@ -11,6 +11,7 @@ import type { Ship } from "../../../core";
 import { moveSlot, removeShipAugment, removeSlot } from "../../../app/loadoutActions";
 import { findItem, itemTitle, type CatalogItem } from "../../../app/loadout/catalog";
 import { LIMITS, items, slots, type LoadoutKind } from "../../../app/loadout/rules";
+import { equippedField } from "../../../app/overviewGo";
 import { isSelected, selectionOf } from "../../../app/selection";
 import { useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
@@ -64,7 +65,7 @@ function SlotRow({
     if (kind === "weapon") setHover(null);
   };
   return (
-    <li className="ar-gib eq-row" data-slot={index}>
+    <li className="ar-gib eq-row" data-slot={index} data-field={equippedField(kind, index)}>
       <button
         type="button"
         className="ar-gib-main"

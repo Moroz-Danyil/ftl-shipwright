@@ -29,7 +29,7 @@ export function Section({
   const bodyId = useId();
   const toggle = () => setSectionOpen(id, !open);
   return (
-    <section className="sec" aria-label={title}>
+    <section className="sec" aria-label={title} data-section={id}>
       <button
         type="button"
         className="sec-head"

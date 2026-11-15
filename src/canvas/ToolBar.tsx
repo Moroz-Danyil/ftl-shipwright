@@ -4,6 +4,7 @@
  * it does in a panel below the bar.
  */
 import { keyLabel } from "../app/keys";
+import { toolField } from "../app/overviewGo";
 import { currentTool, useEditor } from "../app/store";
 import { WORKSPACE_TOOLS, type ToolId } from "../app/workspaces";
 import { useTexts } from "../text";
@@ -40,6 +41,7 @@ export function ToolBar() {
           className="cv-tool"
           aria-label={texts.tools[id]}
           aria-pressed={id === tool}
+          data-field={toolField(id)}
           onClick={() => setTool(id)}
           onPointerEnter={(e) => panel.show(id, e.currentTarget)}
           onPointerLeave={panel.hide}

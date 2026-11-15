@@ -1,7 +1,8 @@
 /**
  * The ship on the game's grid, with zoom, pan and the current tool, and the
  * workspace's tools in a bar at the top. In Rooms, a ship without rooms gets
- * a hint where to start.
+ * a hint where to start. Objects flashed after a click in the Overview are
+ * brought into view.
  */
 import { useEffect, useRef } from "react";
 import { currentTool, useEditor } from "../app/store";
@@ -17,7 +18,8 @@ import { useCanvasTool } from "./tools/useCanvasTool";
 import { useCanvasInput } from "./useCanvasInput";
 import { useElementSize } from "./useElementSize";
 import { useExplosion } from "./useExplosion";
-import { fitRect, screenToShip } from "./viewport";
+import { objectRectsPx } from "./objectRects";
+import { cameraShowing, fitRect, screenToShip, unionRects } from "./viewport";
 
 export function ShipCanvas() {
   const texts = useTexts();
@@ -37,6 +39,22 @@ export function ShipCanvas() {
     setCanvasElement(ref.current);
     return () => setCanvasElement(null);
   }, [hasDoc]);
+
+  // Objects flashed after a click in the Overview are brought into view, once per flash.
+  const flash = useEditor((s) => s.flash);
+  const shownFlash = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    const state = useEditor.getState();
+    const snapshot = state.doc?.history.present;
+    if (!flash || !snapshot || !size || size.width <= 0 || size.height <= 0) return;
+    if (shownFlash.current === flash.key) return;
+    shownFlash.current = flash.key;
+    const rect = unionRects(objectRectsPx(snapshot.ship, snapshot.art, flash.objects));
+    if (!rect) return;
+    const camera = state.view.camera;
+    const next = cameraShowing(camera, rect, size);
+    if (next !== camera) state.setCamera(next);
+  }, [flash, size]);
 
   useEffect(() => {
     if (!doc || !size || size.width <= 0 || size.height <= 0) return;

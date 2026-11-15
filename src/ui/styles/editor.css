@@ -1556,3 +1556,41 @@ textarea.input {
 .ov-card--problem .ov-go:hover {
   color: var(--problem);
 }
+
+/* What a click in the Overview points at: an amber outline with a glow that pulses for a few seconds. */
+@keyframes flash-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--flash-glow);
+  }
+}
+@keyframes flash-pulse-stroke {
+  0%,
+  100% {
+    stroke-opacity: 1;
+  }
+  50% {
+    stroke-opacity: 0.45;
+  }
+}
+[data-flashed] {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+  animation: flash-pulse 0.9s ease-in-out 4;
+}
+.cv-flash rect {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  animation: flash-pulse-stroke 0.9s ease-in-out 4;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-flashed],
+  .cv-flash rect {
+    animation: none;
+  }
+}

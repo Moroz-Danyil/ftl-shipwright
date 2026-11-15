@@ -57,6 +57,7 @@ function Slot(props: SlotProps) {
   const data = useEditor((s) => s.game.data);
   const selected = useEditor((s) => isSelected(s.selection, { kind, index }));
   const hovered = useEditor((s) => kind === "weapon" && s.hoverWeapon === index);
+  const flashed = useEditor((s) => !!s.flash && isSelected(s.flash.objects, { kind, index }));
   const setHover = useEditor((s) => s.setHoverWeapon);
   if (!name) return <EmptySlot {...props} />;
   const item = findItem(data, kind, name);
@@ -77,6 +78,7 @@ function Slot(props: SlotProps) {
       aria-label={texts.loadout.slotLabel(index + 1, label)}
       title={texts.loadout.slotHint}
       data-testid={`${kind}-slot-${index + 1}`}
+      data-flashed={flashed || undefined}
       onClick={() => {
         onPick(null);
         useEditor.getState().select(selectionOf({ kind, index }));

@@ -11,13 +11,26 @@ import { useHoverPanel } from "./useHoverPanel";
 
 export type HelpTopic = keyof Texts["help"];
 
-export function Help({ topic, children }: { topic: HelpTopic; children: ReactNode }) {
+/**
+ * `field` names the element for the Overview to point at (`data-field`);
+ * it is the topic unless given.
+ */
+export function Help({
+  topic,
+  field,
+  children,
+}: {
+  topic: HelpTopic;
+  field?: string;
+  children: ReactNode;
+}) {
   const texts = useTexts();
   const panel = useHoverPanel<HelpTopic>();
   const { title, body } = texts.help[topic];
   return (
     <div
       className="help-target"
+      data-field={field ?? topic}
       onPointerEnter={(e) => panel.show(topic, e.currentTarget)}
       onPointerLeave={panel.hide}
       onFocus={(e) => panel.show(topic, e.currentTarget)}

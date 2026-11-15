@@ -5,6 +5,7 @@
  */
 import { useState } from "react";
 import type { FileSource, Room } from "../../../core";
+import { interiorField } from "../../../app/overviewGo";
 import { setSystemInterior } from "../../../app/systemActions";
 import { interiorPath, useInteriorList } from "../../../app/systems/interiors";
 import { interiorFits, interiorsFor } from "../../../app/systems/rules";
@@ -86,7 +87,7 @@ export function InteriorPicker({ index, room }: { index: number; room: Room }) {
   if (system.img && !names.includes(system.img)) names.unshift(system.img);
   const group = `interior-${index}`;
   return (
-    <fieldset className="sy-interiors">
+    <fieldset className="sy-interiors" data-field={interiorField(system.system)}>
       <legend className="eyebrow">
         <Help topic="interior">
           <span>{texts.systems.interior}</span>
