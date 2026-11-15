@@ -83,6 +83,85 @@ export const HANGAR_BOXES = {
   equipment: { x: 0, y: 478 },
 } as const;
 
+/** The colours of the hangar's texts and buttons. */
+export const HANGAR_COLOURS = {
+  /** Labels on light buttons, and the frame titles. */
+  dark: "#193133",
+  /** Titles on dark bars, and the light buttons. */
+  light: "#ebf5e5",
+  /** The chosen button (difficulty, layout, Advanced Edition). */
+  chosen: "#ffe65e",
+  /** Names. */
+  white: "#ffffff",
+} as const;
+
+/** A button the game draws itself: a rectangle with its corners cut off. */
+export interface HangarButtonRect extends Rect {
+  /** How far each corner is cut, along both edges. */
+  cut: number;
+}
+
+/**
+ * The hangar's buttons, measured like the boxes; their labels are centred
+ * on them. The layout buttons A, B and C sit 45 px apart from the first.
+ */
+export const HANGAR_BUTTONS = {
+  rename: { x: 14, y: 16, w: 93, h: 31, cut: 6 },
+  list: { x: 70, y: 145, w: 50, h: 28, cut: 4 },
+  randomShip: { x: 19, y: 178, w: 151, h: 32, cut: 4 },
+  layoutA: { x: 34, y: 248, w: 32, h: 34, cut: 4 },
+  layoutPitch: 45,
+  hideRooms: { x: 20, y: 301, w: 151, h: 28, cut: 4 },
+  easy: { x: 977, y: 14, w: 94, h: 24, cut: 4 },
+  normal: { x: 977, y: 40, w: 94, h: 23, cut: 4 },
+  hard: { x: 977, y: 66, w: 94, h: 24, cut: 4 },
+  start: { x: 1082, y: 28, w: 148, h: 48, cut: 4 },
+  advancedOff: { x: 995, y: 425, w: 107, h: 22, cut: 3 },
+  advancedOn: { x: 1127, y: 425, w: 101, h: 22, cut: 3 },
+  /** The Customize button of a crew card, from the card's top-left corner. */
+  customize: { x: 4, y: 70, w: 91, h: 12, cut: 2 },
+} as const;
+
+/** The outline of a rectangle with its corners cut off, as SVG polygon points. */
+export function cutCornerPoints({ x, y, w, h, cut }: HangarButtonRect): string {
+  const r = x + w;
+  const b = y + h;
+  return [
+    [x + cut, y],
+    [r - cut, y],
+    [r, y + cut],
+    [r, b - cut],
+    [r - cut, b],
+    [x + cut, b],
+    [x, b - cut],
+    [x, y + cut],
+  ]
+    .map(([px, py]) => `${px},${py}`)
+    .join(" ");
+}
+
+/** The middle of a rectangle. */
+export function rectMiddle(r: Rect): Point {
+  return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
+}
+
+/**
+ * Where the hangar's texts go that are not on a button: the frame titles by
+ * their left edge and baseline, the ship's name and the box titles.
+ */
+export const HANGAR_TEXTS = {
+  shipTitle: { x: 19, y: 133 },
+  layoutTitle: { x: 19, y: 235 },
+  /**
+   * The middle of the ship's name field and the name's baseline. The game
+   * spaces the name's letters one font pixel wider than the font says.
+   */
+  shipName: { x: 274, y: 42, maxWidth: 310, letterSpacing: 1 },
+  achievementsTitle: { x: 18, y: 386 },
+  /** Centred. */
+  advancedTitle: { x: 1112, y: 411 },
+} as const;
+
 /** The systems bar: one 38 × 96 box per system, side by side from x = 373. */
 export const SYSTEM_BAR = {
   x: 373,
@@ -176,12 +255,12 @@ export function systemColumns(ship: Ship): SystemColumn[] {
     }));
 }
 
-/** The equipment panel's frame titles and panes. */
+/** The equipment panel's frame titles (left edge and baseline) and panes. */
 export const EQUIPMENT = {
-  titleY: 499,
-  crewTitleX: 21,
+  titleY: 505,
+  crewTitleX: 19,
   weaponsTitleX: 388,
-  dronesTitleY: 610,
+  dronesTitleY: 615,
   augmentsTitleX: 954,
   /** The weapons pane, and the drones pane under it. */
   weaponsPane: { x: 381, y: 511, w: 560, h: 87 },
@@ -197,11 +276,11 @@ export const CREW_CARDS = {
   columns: 2,
   count: 4,
   width: 100,
-  /** The middle of the crew member's picture, drawn at twice its size. */
-  pictureMiddle: 22,
+  /** The middle of the crew member's picture (drawn at twice its size), from the card's corner. */
+  pictureMiddle: { x: 51, y: 28 },
   crewScale: 2,
-  /** The middle of the name bar. */
-  nameY: 57,
+  /** The baseline of the name. */
+  nameY: 62,
   /** The Customize button under the card. */
   buttonY: 64,
 } as const;
@@ -226,7 +305,8 @@ export const ITEM_SLOT = {
   centreX: 665,
   /** The picture area: its middle. */
   picture: { x: 58, y: 33, w: 96, h: 44 },
-  nameY: 66,
+  /** The baseline of the name. */
+  nameY: 71,
 } as const;
 
 /**

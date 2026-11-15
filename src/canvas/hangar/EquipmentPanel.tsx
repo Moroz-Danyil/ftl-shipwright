@@ -25,12 +25,17 @@ import {
   CREW_CARDS,
   EQUIPMENT,
   HANGAR_BOXES,
+  HANGAR_BUTTONS,
+  HANGAR_COLOURS,
   HANGAR_PICTURES,
   ITEM_SLOT,
   ITEM_SLOTS_Y,
   crewCardAt,
   itemSlotsX,
 } from "./hangarLayout";
+import { GameText } from "./GameText";
+import { HangarButton } from "./HangarButton";
+import { FrameTitle } from "./HangarDecorations";
 import { ScreenPicture } from "./ScreenPicture";
 import { useGameText } from "./useGameText";
 
@@ -61,16 +66,30 @@ function CrewCard({ race, index }: { race: string | undefined; index: number }) 
         <SheetSprite
           path={frame.path}
           frame={frame.rect}
-          transform={`translate(${middle} ${at.y + CREW_CARDS.pictureMiddle}) scale(${CREW_CARDS.crewScale}) translate(${-frame.rect.w / 2} ${-frame.rect.h / 2})`}
+          transform={`translate(${at.x + CREW_CARDS.pictureMiddle.x} ${at.y + CREW_CARDS.pictureMiddle.y}) scale(${CREW_CARDS.crewScale}) translate(${-frame.rect.w / 2} ${-frame.rect.h / 2})`}
         />
       )}
-      <text className="hg-text hg-text--small" x={middle} y={at.y + CREW_CARDS.nameY}>
-        {title}
-      </text>
+      <GameText
+        text={title}
+        font="JustinFont8"
+        scale={1}
+        colour={HANGAR_COLOURS.white}
+        x={middle}
+        y={at.y + CREW_CARDS.nameY}
+        centred
+        maxWidth={CREW_CARDS.width - 8}
+      />
       <ScreenPicture path={HANGAR_PICTURES.customize} x={at.x} y={at.y + CREW_CARDS.buttonY} />
-      <text className="hg-text hg-text--tiny" x={middle} y={at.y + CREW_CARDS.buttonY + 12}>
-        {customize}
-      </text>
+      <HangarButton
+        rect={{
+          ...HANGAR_BUTTONS.customize,
+          x: at.x + HANGAR_BUTTONS.customize.x,
+          y: at.y + HANGAR_BUTTONS.customize.y,
+        }}
+        label={customize}
+        font="HL1"
+        scale={1}
+      />
     </g>
   );
 }
@@ -85,14 +104,16 @@ function Crew({ ship }: { ship: Ship }) {
         <CrewCard key={i} race={members[i]} index={i} />
       ))}
       {more > 0 && (
-        <text
-          className="hg-text hg-text--small"
-          data-testid="hangar-more-crew"
+        <GameText
+          testId="hangar-more-crew"
+          text={texts.canvas.hangarMoreCrew(more)}
+          font="JustinFont8"
+          scale={1}
+          colour={HANGAR_COLOURS.white}
           x={CREW_CARDS.x + CREW_CARDS.columnPitch + CREW_CARDS.width + 20}
           y={CREW_CARDS.y + CREW_CARDS.rowPitch * 2 - 12}
-        >
-          {texts.canvas.hangarMoreCrew(more)}
-        </text>
+          middle
+        />
       )}
     </g>
   );
@@ -172,9 +193,16 @@ function ItemSlot({
       ) : (
         <DroneInSlot name={name} cx={cx} cy={cy} />
       )}
-      <text className="hg-text hg-text--small" x={x + ITEM_SLOT.picture.x} y={y + ITEM_SLOT.nameY}>
-        {label}
-      </text>
+      <GameText
+        text={label}
+        font="JustinFont8"
+        scale={1}
+        colour={HANGAR_COLOURS.white}
+        x={x + ITEM_SLOT.picture.x}
+        y={y + ITEM_SLOT.nameY}
+        centred
+        maxWidth={ITEM_SLOT.picture.w}
+      />
     </g>
   );
 }
@@ -182,14 +210,18 @@ function ItemSlot({
 function NotInstalled({ pane, kind }: { pane: Rect; kind: LoadoutKind }) {
   const text = useGameText("equipment_no_system");
   return (
-    <text
-      className="hg-text hg-text--big"
-      data-testid={`hangar-${kind}-not-installed`}
+    <GameText
+      testId={`hangar-${kind}-not-installed`}
+      text={text}
+      font="HL2"
+      scale={3}
+      colour={HANGAR_COLOURS.light}
       x={pane.x + pane.w / 2}
       y={pane.y + pane.h / 2}
-    >
-      {text}
-    </text>
+      centred
+      middle
+      maxWidth={pane.w - 8}
+    />
   );
 }
 
@@ -224,13 +256,17 @@ function Augments({ ship }: { ship: Ship }) {
         return (
           <g key={i} data-testid={`hangar-augment-${name}`}>
             <ScreenPicture path={HANGAR_PICTURES.augmentOn} x={AUGMENT_BOXES.x} y={y} />
-            <text
-              className="hg-text hg-text--small"
+            <GameText
+              text={item ? itemTitle(data, item) : name}
+              font="JustinFont10"
+              scale={1}
+              colour={HANGAR_COLOURS.white}
               x={AUGMENT_BOXES.x + AUGMENT_BOXES.width / 2}
               y={y + AUGMENT_BOXES.height / 2}
-            >
-              {item ? itemTitle(data, item) : name}
-            </text>
+              centred
+              middle
+              maxWidth={AUGMENT_BOXES.width - 8}
+            />
           </g>
         );
       })}
@@ -246,11 +282,7 @@ export function EquipmentPanel() {
   const augments = useGameText("equipment_frame_augments");
   if (!ship) return null;
   const { x, y } = HANGAR_BOXES.equipment;
-  const title = (text: string, tx: number, ty: number) => (
-    <text className="hg-text hg-text--title" x={tx} y={ty}>
-      {text}
-    </text>
-  );
+  const title = (text: string, tx: number, ty: number) => <FrameTitle text={text} x={tx} y={ty} />;
   return (
     <g data-testid="hangar-equipment">
       <ScreenPicture path={HANGAR_PICTURES.equipment} x={x} y={y} />

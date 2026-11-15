@@ -1,58 +1,89 @@
 /**
  * The hangar's other boxes, drawn only for the look: the ship and layout
- * box with its arrows, the achievements box, the Start box with the
- * difficulties and the Advanced Edition box. Their texts are the game's own;
- * nothing here does anything.
+ * box with its arrows and buttons, the achievements box, the Start box with
+ * the difficulties and the Advanced Edition box. Their texts are the game's
+ * own, in its fonts; the layout button of the ship's own layout is chosen,
+ * as are Easy and Advanced Edition. Nothing here does anything.
  */
-import { HANGAR_BOXES, HANGAR_PICTURES } from "./hangarLayout";
+import { slotOf } from "../../app/hangar";
+import { useEditor } from "../../app/store";
+import { GameText } from "./GameText";
+import { HangarButton } from "./HangarButton";
+import {
+  HANGAR_BOXES,
+  HANGAR_BUTTONS,
+  HANGAR_COLOURS,
+  HANGAR_PICTURES,
+  HANGAR_TEXTS,
+  type HangarButtonRect,
+} from "./hangarLayout";
 import { ScreenPicture } from "./ScreenPicture";
 import { useGameText } from "./useGameText";
 
-function Text({
+/** A frame title: dark, `HL2` at twice its size, by its left edge and baseline. */
+export function FrameTitle({ text, x, y }: { text: string; x: number; y: number }) {
+  return <GameText text={text} font="HL2" scale={2} colour={HANGAR_COLOURS.dark} x={x} y={y} />;
+}
+
+function Button({
   textKey,
-  x,
-  y,
-  kind = "button",
+  rect,
+  scale,
+  chosen,
 }: {
   textKey: string;
-  x: number;
-  y: number;
-  kind?: "button" | "title" | "small" | "start";
+  rect: HangarButtonRect;
+  scale?: number;
+  chosen?: boolean;
 }) {
-  const text = useGameText(textKey);
-  return (
-    <text className={`hg-text hg-text--${kind}`} x={x} y={y}>
-      {text}
-    </text>
-  );
+  return <HangarButton rect={rect} label={useGameText(textKey)} scale={scale} chosen={chosen} />;
 }
+
+const LAYOUT_KEYS = ["typebutton_a", "typebutton_b", "typebutton_c"] as const;
 
 function ShipSelect() {
   const { x, y } = HANGAR_BOXES.shipSelect;
-  const middle = x + 96;
+  const name = useEditor((s) => s.doc?.history.present.ship.blueprint.name);
+  const ship = useGameText("hangar_frame_ship");
+  const layout = useGameText("hangar_frame_layout");
+  const chosenLayout = (name && slotOf(name)?.layout) ?? 0;
+  const { layoutA, layoutPitch } = HANGAR_BUTTONS;
   return (
     <g>
       <ScreenPicture path={HANGAR_PICTURES.shipSelect} x={x} y={y} />
-      <Text textKey="hangar_frame_ship" x={x + 19} y={y + 20} kind="title" />
-      <ScreenPicture path={HANGAR_PICTURES.arrow} x={x + 17} y={y + 38} />
-      <ScreenPicture path={HANGAR_PICTURES.arrow} x={x + 143} y={y + 38} mirror />
-      <Text textKey="ship_list_button" x={middle} y={y + 53} />
-      <Text textKey="ship_random_button" x={middle} y={y + 87} />
-      <Text textKey="hangar_frame_layout" x={x + 19} y={y + 123} kind="title" />
-      <Text textKey="typebutton_a" x={middle - 50} y={y + 156} />
-      <Text textKey="typebutton_b" x={middle} y={y + 156} />
-      <Text textKey="typebutton_c" x={middle + 50} y={y + 156} />
-      <Text textKey="ship_hiderooms_button" x={middle} y={y + 206} />
+      <FrameTitle text={ship} {...HANGAR_TEXTS.shipTitle} />
+      <ScreenPicture path={HANGAR_PICTURES.arrow} x={x + 32} y={y + 38} />
+      <ScreenPicture path={HANGAR_PICTURES.arrow} x={x + 126} y={y + 38} mirror />
+      <Button textKey="ship_list_button" rect={HANGAR_BUTTONS.list} />
+      <Button textKey="ship_random_button" rect={HANGAR_BUTTONS.randomShip} />
+      <FrameTitle text={layout} {...HANGAR_TEXTS.layoutTitle} />
+      {LAYOUT_KEYS.map((key, i) => (
+        <Button
+          key={key}
+          textKey={key}
+          rect={{ ...layoutA, x: layoutA.x + i * layoutPitch }}
+          scale={3}
+          chosen={i === chosenLayout}
+        />
+      ))}
+      <Button textKey="ship_hiderooms_button" rect={HANGAR_BUTTONS.hideRooms} />
     </g>
   );
 }
 
 function Achievements() {
   const { x, y } = HANGAR_BOXES.achievements;
+  const title = useGameText("hangar_achievements_title");
   return (
     <g>
       <ScreenPicture path={HANGAR_PICTURES.achievements} x={x} y={y} />
-      <Text textKey="hangar_achievements_title" x={x + 125} y={y + 26} kind="small" />
+      <GameText
+        text={title}
+        font="JustinFont12Bold"
+        scale={1}
+        colour={HANGAR_COLOURS.light}
+        {...HANGAR_TEXTS.achievementsTitle}
+      />
     </g>
   );
 }
@@ -62,22 +93,30 @@ function Start() {
   return (
     <g>
       <ScreenPicture path={HANGAR_PICTURES.start} x={x} y={y} />
-      <Text textKey="easy_button" x={x + 60} y={y + 26} />
-      <Text textKey="normal_button" x={x + 60} y={y + 52} />
-      <Text textKey="hard_button" x={x + 60} y={y + 78} />
-      <Text textKey="start_button" x={x + 195} y={y + 38} kind="start" />
+      <Button textKey="easy_button" rect={HANGAR_BUTTONS.easy} chosen />
+      <Button textKey="normal_button" rect={HANGAR_BUTTONS.normal} />
+      <Button textKey="hard_button" rect={HANGAR_BUTTONS.hard} />
+      <Button textKey="start_button" rect={HANGAR_BUTTONS.start} scale={4} />
     </g>
   );
 }
 
 function Advanced() {
   const { x, y } = HANGAR_BOXES.advanced;
+  const title = useGameText("hangar_advanced_title");
   return (
     <g>
       <ScreenPicture path={HANGAR_PICTURES.advanced} x={x} y={y} />
-      <Text textKey="hangar_advanced_title" x={x + 133} y={y + 21} kind="small" />
-      <Text textKey="advanced_off_button" x={x + 68} y={y + 53} />
-      <Text textKey="advanced_on_button" x={x + 200} y={y + 53} />
+      <GameText
+        text={title}
+        font="JustinFont12Bold"
+        scale={1}
+        colour={HANGAR_COLOURS.light}
+        centred
+        {...HANGAR_TEXTS.advancedTitle}
+      />
+      <Button textKey="advanced_off_button" rect={HANGAR_BUTTONS.advancedOff} />
+      <Button textKey="advanced_on_button" rect={HANGAR_BUTTONS.advancedOn} chosen />
     </g>
   );
 }

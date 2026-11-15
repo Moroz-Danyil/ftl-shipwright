@@ -74,39 +74,14 @@
   filter: brightness(0.49);
 }
 
-/* Texts, in the editor's fonts until the game's own fonts are drawn */
+/*
+ * Texts are drawn in the game's fonts, glyph by glyph; until a font is read,
+ * or when it lacks a character, the editor's font stands in.
+ */
 .hg-text {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 11px;
-  fill: #f2f6f0;
-  text-anchor: middle;
-  dominant-baseline: central;
   pointer-events: none;
-}
-.hg-text--title {
-  font-size: 16px;
-  fill: #262a2a;
-  text-anchor: start;
-}
-.hg-text--name {
-  font-size: 20px;
-}
-.hg-text--label,
-.hg-text--button {
-  font-size: 13px;
-}
-.hg-text--small {
-  font-size: 10px;
-}
-.hg-text--tiny {
-  font-size: 8px;
-}
-.hg-text--big {
-  font-size: 24px;
-}
-.hg-text--start {
-  font-size: 34px;
 }
 .hg-power {
   fill: #64ff64;

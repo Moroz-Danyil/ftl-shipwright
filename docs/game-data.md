@@ -110,3 +110,17 @@ The game draws its texts with bitmap fonts in `fonts/*.font` (`HL1`, `HL2`, `Jus
 A glyph record (16 bytes): code point (4), x and y of its rectangle in the bitmap (2 + 2), width and height (1 + 1), then three signed 8.8 fixed-point numbers (2 each): the rows above the baseline, the space before the glyph and the space after it. The pen moves by space before + width + space after; the space after is fractional in `HL1` (0.6) and `HL2` (0.4) and whole in the others. Code points are not sorted, and a character can be listed twice (`HL1` has one such pair; the first record is used).
 
 The bitmap starts with a 32-byte header: `TEX` and a line feed, 4 bytes (`02 40 00 00`), width and height (2 + 2), `00 01 00 00`, the offset of the pixels from the header's start (4, `32`), the pixels' size (4), zeros. The pixels are one byte each (0 or 255), row by row from the top; the sizes are powers of two (128 × 256 for `HL1`, 256 × 512 for `num_font`). Every glyph rectangle lies inside the bitmap, and every font has the letters A–Z and the digits [checked on the vanilla fonts].
+
+In the hangar the game draws (checked on a screenshot of the game at twice its size):
+
+| Text                                                               | Font               | Scale |
+| ------------------------------------------------------------------ | ------------------ | ----- |
+| Start                                                              | `HL2`              | 4     |
+| layout buttons (A, B, C), "system not installed"                   | `HL2`              | 3     |
+| frame titles, buttons (Rename, List, difficulties, Hide rooms ...) | `HL2`              | 2     |
+| the ship's name                                                    | `JustinFont10`     | 2     |
+| achievements and Advanced Edition titles                           | `JustinFont12Bold` | 1     |
+| crew names, weapon names                                           | `JustinFont8`      | 1     |
+| Customize                                                          | `HL1`              | 1     |
+
+A scaled glyph's pixels are drawn as squares, and after each glyph the pen moves by its advance times the scale, rounded to a whole screen pixel (so `HL2` at 3 moves 16 px after an S, not 16.2). The ship's name is spaced one font pixel wider than its font says. Labels on light buttons are dark (`#193133`), the frame titles too; the titles on dark bars are light (`#ebf5e5`); names are white. The buttons are no pictures: the game draws them as light (`#ebf5e5`) rectangles with their corners cut off, the chosen one yellow (`#ffe65e`).

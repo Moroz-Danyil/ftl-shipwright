@@ -10,9 +10,19 @@ import { shipDisplayName } from "../../app/ships";
 import { useTexts } from "../../text";
 import { BackIcon } from "../../ui/common/icons";
 import { useElementSize } from "../useElementSize";
-import { HANGAR_BOXES, HANGAR_PICTURES, SCREEN, hangarScale } from "./hangarLayout";
+import {
+  HANGAR_BOXES,
+  HANGAR_BUTTONS,
+  HANGAR_COLOURS,
+  HANGAR_PICTURES,
+  HANGAR_TEXTS,
+  SCREEN,
+  hangarScale,
+} from "./hangarLayout";
 import { HangarDecorations } from "./HangarDecorations";
 import { EquipmentPanel } from "./EquipmentPanel";
+import { GameText } from "./GameText";
+import { HangarButton } from "./HangarButton";
 import { HangarShip } from "./HangarShip";
 import { ScreenPicture } from "./ScreenPicture";
 import { useGameText } from "./useGameText";
@@ -26,12 +36,15 @@ function ShipNameBox() {
   return (
     <g data-testid="hangar-name">
       <ScreenPicture path={HANGAR_PICTURES.shipName} x={x} y={y} />
-      <text className="hg-text hg-text--label" x={x + 54} y={y + 24}>
-        {label}
-      </text>
-      <text className="hg-text hg-text--name" x={x + 273} y={y + 24}>
-        {ship ? shipDisplayName(ship, data) : ""}
-      </text>
+      <HangarButton rect={HANGAR_BUTTONS.rename} label={label} />
+      <GameText
+        text={ship ? shipDisplayName(ship, data) : ""}
+        font="JustinFont10"
+        scale={2}
+        colour={HANGAR_COLOURS.white}
+        centred
+        {...HANGAR_TEXTS.shipName}
+      />
     </g>
   );
 }

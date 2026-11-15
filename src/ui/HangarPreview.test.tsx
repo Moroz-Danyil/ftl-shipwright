@@ -6,6 +6,7 @@ import { useEditor } from "../app/store";
 import { en } from "../text/en";
 import { createFakePlatform } from "../testing/fakePlatform";
 import { openLoadoutShip } from "../testing/loadoutFixtures";
+import { buildFont } from "../core/testing/fontFile";
 import { App } from "./App";
 
 const state = () => useEditor.getState();
@@ -166,5 +167,42 @@ describe("the hangar preview", () => {
     expect(hangar().getByTestId("hangar-system-drones")).toBeInTheDocument();
     const augment = hangar().getByTestId("hangar-augment-SCRAP_COLLECTOR");
     expect(within(augment).getByText("Scrap Recovery Arm")).toBeInTheDocument();
+  });
+
+  it("draws the texts in the game's fonts, and in the editor's font where a character is missing", async () => {
+    // An HL2 with the capitals and the space, each a 1 × 1 glyph.
+    const letters = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ "].map((ch) => ({
+      codePoint: ch.codePointAt(0)!,
+      x: 0,
+      y: 0,
+      width: 1,
+      height: ch === " " ? 0 : 1,
+      top: 1,
+      left: 0,
+      spacing: 1,
+    }));
+    const hl2 = buildFont(letters, { width: 1, height: 1, pixels: [255] });
+    const data = state().game.data!;
+    const read = data.view.readBytes.bind(data.view);
+    vi.spyOn(data.view, "readBytes").mockImplementation((path) =>
+      path === "fonts/HL2.font" ? Promise.resolve(hl2) : read(path)
+    );
+    const english = { ...data.texts.english, hangar_frame_crew: "Crew" };
+    useEditor.setState({ game: { ...state().game, data: { ...data, texts: { english } } } });
+    open();
+    const rename = await waitFor(() => {
+      const g = hangar().getByTestId("hangar-name").querySelector("[data-text=RENAME]");
+      expect(g).not.toBeNull();
+      return g!;
+    });
+    expect(rename.querySelectorAll("svg")).toHaveLength(6);
+    expect(rename.querySelector("image")).toHaveAttribute("href");
+    // The ship's name is in JustinFont10, which this game lacks; "Crew" has small letters.
+    expect(within(screen.getByTestId("hangar-name")).getByText("The Tee").tagName).toBe("text");
+    expect(hangar().getByText("Crew").tagName).toBe("text");
+    expect(hangar().getByTestId("hangar-drone-not-installed")).toHaveAttribute(
+      "data-text",
+      "SYSTEM NOT INSTALLED"
+    );
   });
 });

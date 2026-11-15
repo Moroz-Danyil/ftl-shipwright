@@ -21,7 +21,8 @@ export function pngSize(bytes: Uint8Array): { width: number; height: number } | 
   return { width: view.getUint32(16), height: view.getUint32(20) };
 }
 
-function bytesToUrl(bytes: Uint8Array): string {
+/** A URL for a PNG's bytes, for `<image>`. */
+export function pngUrl(bytes: Uint8Array): string {
   if (typeof URL.createObjectURL === "function")
     return URL.createObjectURL(new Blob([bytes as BlobPart], { type: "image/png" }));
   let binary = "";
@@ -44,7 +45,7 @@ export function loadPicture(source: FileSource, path: string): Promise<LoadedPic
     picture = source.readBytes(path).then(
       (bytes) => {
         const size = bytes && pngSize(bytes);
-        return bytes && size ? { url: bytesToUrl(bytes), ...size } : undefined;
+        return bytes && size ? { url: pngUrl(bytes), ...size } : undefined;
       },
       () => undefined
     );
@@ -89,7 +90,7 @@ function refPromise(source: FileSource, ref: PictureRef): Promise<LoadedPicture 
   let picture = fileCache.get(ref.bytes);
   if (!picture) {
     const size = pngSize(ref.bytes);
-    picture = Promise.resolve(size ? { url: bytesToUrl(ref.bytes), ...size } : undefined);
+    picture = Promise.resolve(size ? { url: pngUrl(ref.bytes), ...size } : undefined);
     fileCache.set(ref.bytes, picture);
   }
   return picture;
