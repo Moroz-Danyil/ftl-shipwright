@@ -17,7 +17,8 @@
         "height": 800,
         "minWidth": 960,
         "minHeight": 600,
-        "maximized": true
+        "maximized": true,
+        "backgroundColor": "#101318"
       }
     ],
     "security": {
