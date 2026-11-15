@@ -3,6 +3,8 @@
  * member of that race; hovering or focusing a race shows its description and
  * abilities beside the inspector. Esc or a click elsewhere closes the list.
  * A race already in the crew shows the same details when its name is hovered.
+ * A click on a race, in the list or in the crew, makes it the Info panel's
+ * subject.
  */
 import { useEffect, useRef, useState } from "react";
 import type { RaceCatalogEntry } from "../../../core";
@@ -54,6 +56,7 @@ export function RaceName({ race, title }: { race: string; title: string }) {
   return (
     <span
       className="cr-crew-name"
+      onClick={() => useEditor.getState().pickInfo({ kind: "race", race })}
       onPointerEnter={(e) => entry && panel.show(entry, e.currentTarget)}
       onPointerLeave={panel.hide}
     >
@@ -115,6 +118,7 @@ export function RacePicker({ races }: { races: RaceCatalogEntry[] }) {
                 onClick={() => {
                   close();
                   setCrewAmount(race.name, 1);
+                  useEditor.getState().pickInfo({ kind: "race", race: race.name });
                 }}
                 onPointerEnter={(e) => panel.show(race, e.currentTarget)}
                 onFocus={(e) => panel.show(race, e.currentTarget)}

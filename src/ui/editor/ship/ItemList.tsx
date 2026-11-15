@@ -1,7 +1,7 @@
 /**
  * The game's weapons, drones or augments as a searchable list, one row each
  * with its picture, name and short stats. A click puts the item in the next
- * free slot (or adds the augment); hovering or focusing a row shows its
+ * free slot (or adds the augment) and makes it the Info panel's subject; hovering or focusing a row shows its
  * details in a panel beside the inspector (or beside the slot bar's picker).
  */
 import { useMemo, useState } from "react";
@@ -77,6 +77,7 @@ export function ItemList({
       item.kind === "augment"
         ? addShipAugment(item.entry.name, texts)
         : addLoadoutItem(item.kind, item.entry.name, texts);
+    useEditor.getState().pickInfo({ kind: "item", item: item.kind, name: item.entry.name });
     if (added) onAdded?.();
   };
   return (

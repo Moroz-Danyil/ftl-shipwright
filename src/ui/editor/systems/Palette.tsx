@@ -4,7 +4,8 @@
  * when it is on the ship but bought later, red when the ship lacks it, and
  * shows the room it is in; hovering it shows the system's description and
  * power beside the inspector. Drag a tile onto a room, or click it to put the
- * system in the selected room.
+ * system in the selected room. A press on a tile makes the system the Info
+ * panel's subject.
  */
 import { PALETTE_ATTRIBUTE, clickSystem, pressSystemChip } from "../../../app/systemDrag";
 import { SYSTEM_GROUPS, isInstalled, type SystemGroup } from "../../../app/systems/rules";
@@ -49,11 +50,14 @@ function Tile({ system }: { system: string }) {
         if (e.button !== 0) return;
         e.preventDefault();
         panel.hide();
+        useEditor.getState().pickInfo({ kind: "system", system });
         pressSystemChip(system, { clientX: e.clientX, clientY: e.clientY }, texts);
       }}
       onClick={(e) => {
         // A click from the keyboard (Enter or Space); pointer clicks are handled on release.
-        if (e.detail === 0) clickSystem(system, texts);
+        if (e.detail !== 0) return;
+        clickSystem(system, texts);
+        useEditor.getState().pickInfo({ kind: "system", system });
       }}
     >
       <SystemIcon system={system} size={28} />

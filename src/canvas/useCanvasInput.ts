@@ -69,6 +69,8 @@ export function useCanvasInput(ref: RefObject<HTMLElement | null>, tool: CanvasT
       return;
     }
     if (event.button !== 0) return;
+    // A click on the ship makes the Info panel describe the selection again.
+    useEditor.getState().pickInfo(null);
     event.currentTarget.setPointerCapture?.(event.pointerId);
     toolDown.current = true;
     tool.down(toolPointer(event));

@@ -4,7 +4,8 @@
  * drones are listed in slot order; a click on one selects its slot (as the
  * slot bar does), the arrows move it to an earlier or later slot. Hovering
  * an item shows its details beside the inspector, and hovering a weapon
- * also marks its mount on the ship.
+ * also marks its mount on the ship. A click on an augment makes it the Info
+ * panel's subject.
  */
 import type { Ship } from "../../../core";
 import { moveSlot, removeShipAugment, removeSlot } from "../../../app/loadoutActions";
@@ -173,6 +174,9 @@ export function Augments({ ship }: { ship: Ship }) {
                 <span
                   className="eq-augment"
                   tabIndex={item ? 0 : undefined}
+                  onClick={() =>
+                    useEditor.getState().pickInfo({ kind: "item", item: "augment", name })
+                  }
                   onPointerEnter={(e) => item && panel.show(item, e.currentTarget)}
                   onPointerLeave={panel.hide}
                   onFocus={(e) => item && panel.show(item, e.currentTarget)}

@@ -2,7 +2,8 @@
  * "Systems in this room": a card for each system of the selected room with
  * its level, upgrade limit, installed at the start, artillery weapon, crew
  * station facing, interior picture and remove; with the warning for an
- * unusual mix of systems and the crew cells medbay and clonebay keep.
+ * unusual mix of systems and the crew cells medbay and clonebay keep. A click
+ * on a card makes its system the Info panel's subject.
  */
 import type { Room, Ship } from "../../../core";
 import { turnStation } from "../../../app/layoutActions";
@@ -96,6 +97,7 @@ function SystemCard({ ship, index, room }: { ship: Ship; index: number; room: Ro
       className={isInstalled(system) ? "sy-card" : "sy-card sy-card--later"}
       aria-label={name}
       data-system={system.system}
+      onClick={() => useEditor.getState().pickInfo({ kind: "system", system: system.system })}
     >
       <div className="ed-row">
         <span className="sy-card-title">

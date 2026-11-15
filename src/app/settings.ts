@@ -1,7 +1,8 @@
 /**
  * What the app remembers between runs: the game archive, the mod, the
  * recently used ships, the look of the interface (theme, scale, language), the
- * keyboard shortcuts and whether the tour is still offered.
+ * keyboard shortcuts, whether the tour is still offered and whether the Info
+ * panel is open.
  */
 import type { ModRef } from "../platform/types";
 import { readStored, writeStored, type KeyValueStore } from "../platform/storage";
@@ -16,6 +17,7 @@ const KEYS = {
   language: "shipwright.language",
   shortcuts: "shipwright.shortcuts",
   offerTour: "shipwright.offerTour",
+  infoPanel: "shipwright.infoPanel",
 } as const;
 
 export type Theme = "dark" | "light";
@@ -74,6 +76,15 @@ export function loadOfferTour(store?: KeyValueStore): boolean {
 
 export function saveOfferTour(offer: boolean, store?: KeyValueStore): void {
   writeStored(KEYS.offerTour, offer ? undefined : false, store);
+}
+
+/** Whether the Info panel on the right is open: yes unless it was folded. */
+export function loadInfoPanelOpen(store?: KeyValueStore): boolean {
+  return readStored<unknown>(KEYS.infoPanel, store) !== false;
+}
+
+export function saveInfoPanelOpen(open: boolean, store?: KeyValueStore): void {
+  writeStored(KEYS.infoPanel, open ? undefined : false, store);
 }
 
 /** How many ships the Recent list keeps. */

@@ -6,6 +6,7 @@ import {
   RECENT_LIMIT,
   addRecent,
   loadDatPath,
+  loadInfoPanelOpen,
   loadKeyMap,
   loadLanguage,
   loadMod,
@@ -14,6 +15,7 @@ import {
   loadTheme,
   loadUiScale,
   saveDatPath,
+  saveInfoPanelOpen,
   saveKeyMap,
   saveLanguage,
   saveMod,
@@ -148,6 +150,22 @@ describe("the offer of a tour", () => {
     for (const raw of ["{broken", "0", '"no"', "null"]) {
       store.data.set("shipwright.offerTour", raw);
       expect(loadOfferTour(store)).toBe(true);
+    }
+  });
+});
+
+describe("the Info panel", () => {
+  it("is open until folded; anything but false reads as open", () => {
+    const store = memoryStore();
+    expect(loadInfoPanelOpen(store)).toBe(true);
+    saveInfoPanelOpen(false, store);
+    expect(loadInfoPanelOpen(store)).toBe(false);
+    saveInfoPanelOpen(true, store);
+    expect(store.data.has("shipwright.infoPanel")).toBe(false);
+    expect(loadInfoPanelOpen(store)).toBe(true);
+    for (const raw of ["{broken", "0", '"folded"', "null"]) {
+      store.data.set("shipwright.infoPanel", raw);
+      expect(loadInfoPanelOpen(store)).toBe(true);
     }
   });
 });

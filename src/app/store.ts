@@ -1,7 +1,7 @@
 /**
  * The one store of the app: game data, the open ship with its undo history,
- * the selection, the workspace and tool, the view settings, the look of the
- * interface and the keyboard shortcuts.
+ * the selection, the workspace and tool, the view settings, what the Info
+ * panel describes, the look of the interface and the keyboard shortcuts.
  */
 import { create } from "zustand";
 import type { Animations, Catalogs, FileSource, GameTexts, GameView, Ship } from "../core";
@@ -9,11 +9,13 @@ import { DEFAULT_EXPLOSION_SPEED, type ExplosionSpeed } from "./art/explosion";
 import type { PictureSlot, ShipArt, ShipSnapshot } from "./art/model";
 import type { MovablePicture } from "./art/pictures";
 import type { ModRef } from "../platform/types";
+import type { InfoPick } from "./info";
 import { canRedo, canUndo, createHistory, record, redo, undo, type History } from "./history";
 import { EMPTY_SELECTION, validSelection, type Selection } from "./selection";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "../text";
 import {
   loadDatPath,
+  loadInfoPanelOpen,
   loadKeyMap,
   loadLanguage,
   loadMod,
@@ -21,6 +23,7 @@ import {
   loadRecent,
   loadTheme,
   loadUiScale,
+  saveInfoPanelOpen,
   saveKeyMap,
   saveLanguage,
   saveOfferTour,
@@ -205,6 +208,13 @@ export interface EditorState {
   pictureTarget: PictureTarget | null;
   /** The weapon slot (and so the mount) under the pointer in Ship, to highlight both. */
   hoverWeapon: number | null;
+  /**
+   * The item last clicked in a list of the inspector, which the Info panel
+   * describes until something is selected or another workspace is opened.
+   */
+  infoPick: InfoPick | null;
+  /** The Info panel on the right is open (remembered between runs). */
+  infoPanelOpen: boolean;
   workspace: WorkspaceId;
   /** The chosen tool of each workspace. */
   tools: Record<WorkspaceId, ToolId>;
@@ -256,6 +266,9 @@ export interface EditorState {
   setArtTool(options: Partial<ArtToolOptions>): void;
   openPicturePicker(target: PictureTarget): void;
   setHoverWeapon(index: number | null): void;
+  /** Makes an item clicked in a list the Info panel's subject (`null`: the selection again). */
+  pickInfo(pick: InfoPick | null): void;
+  setInfoPanelOpen(open: boolean): void;
   setWorkspace(workspace: WorkspaceId): void;
   setTool(tool: ToolId): void;
   setLayer(layer: LayerId, visible: boolean): void;
@@ -329,6 +342,8 @@ export function initialEditorState() {
     artTool: { picture: "auto", keepMounts: false, active: null } as ArtToolOptions,
     pictureTarget: null as PictureTarget | null,
     hoverWeapon: null as number | null,
+    infoPick: null as InfoPick | null,
+    infoPanelOpen: loadInfoPanelOpen(),
     workspace: "ship" as WorkspaceId,
     tools: initialTools(),
     view: {
@@ -392,6 +407,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         artTool: { picture: "auto", keepMounts: false, active: null },
         pictureTarget: null,
         hoverWeapon: null,
+        infoPick: null,
         workspace: start?.workspace ?? "ship",
         tools:
           start?.tool && hasTool(start.workspace, start.tool)
@@ -405,7 +421,13 @@ export const useEditor = create<EditorState>()((set, get) => {
     },
 
     closeDocument: () =>
-      set({ doc: undefined, selection: EMPTY_SELECTION, dialog: null, tour: null }),
+      set({
+        doc: undefined,
+        selection: EMPTY_SELECTION,
+        infoPick: null,
+        dialog: null,
+        tour: null,
+      }),
 
     edit: (change, selection) =>
       changeHistory(
@@ -422,9 +444,10 @@ export const useEditor = create<EditorState>()((set, get) => {
       if (doc) set({ doc: { ...doc, saved: snapshot, saveTarget: target, origin } });
     },
 
+    // A selection made by the user is what the Info panel describes next.
     select: (selection) => {
       const ship = get().doc?.history.present.ship;
-      set({ selection: ship ? validSelection(ship, selection) : selection });
+      set({ selection: ship ? validSelection(ship, selection) : selection, infoPick: null });
     },
     setStationSystem: (stationSystem) => set({ stationSystem }),
     setSystemDrag: (systemDrag) => set({ systemDrag }),
@@ -433,8 +456,17 @@ export const useEditor = create<EditorState>()((set, get) => {
     setHoverWeapon: (hoverWeapon) => {
       if (get().hoverWeapon !== hoverWeapon) set({ hoverWeapon });
     },
+    pickInfo: (infoPick) => {
+      if (get().infoPick !== infoPick) set({ infoPick });
+    },
+    setInfoPanelOpen: (infoPanelOpen) => {
+      saveInfoPanelOpen(infoPanelOpen);
+      set({ infoPanelOpen });
+    },
 
-    setWorkspace: (workspace) => set({ workspace }),
+    setWorkspace: (workspace) => {
+      if (workspace !== get().workspace) set({ workspace, infoPick: null });
+    },
 
     setTool: (tool) => {
       const { workspace, tools } = get();
@@ -472,6 +504,7 @@ export const useEditor = create<EditorState>()((set, get) => {
       set({
         tour: { step: 0, before: { workspace, selection } },
         selection: EMPTY_SELECTION,
+        infoPick: null,
         dialog: null,
         systemDrag: null,
         hoverWeapon: null,
