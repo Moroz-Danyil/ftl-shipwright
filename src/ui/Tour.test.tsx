@@ -18,6 +18,7 @@ const BOXES: Record<string, [number, number, number, number]> = {
   "inspector-hull": [0, 50, 300, 700],
   tools: [320, 60, 200, 30],
   canvas: [0, 0, 800, 600],
+  info: [1000, 50, 300, 700],
   slots: [400, 650, 300, 60],
   view: [850, 700, 80, 30],
   undo: [700, 10, 30, 30],
@@ -108,7 +109,9 @@ describe("the tour", () => {
       if (step.id in workspaces)
         expect(state().workspace).toBe(workspaces[step.id as keyof typeof workspaces]);
       if (step.id === "slots") expect(state().workspace).toBe("ship");
-      fireEvent.click(within(card()).getByRole("button", { name: i === 10 ? /Done/ : /Next/ }));
+      fireEvent.click(
+        within(card()).getByRole("button", { name: i === TOUR_STEPS.length - 1 ? /Done/ : /Next/ })
+      );
     });
     expect(state().tour).toBeNull();
     expect(stepShown()).toBeUndefined();

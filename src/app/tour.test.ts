@@ -6,7 +6,7 @@ const area = { width: 1000, height: 800 };
 const card = { width: 300, height: 200 };
 
 describe("tour steps", () => {
-  it("has the eleven steps in order, each with its own part", () => {
+  it("has the twelve steps in order, each with its own part", () => {
     expect(TOUR_STEPS.map((s) => s.id)).toEqual([
       "workspaces",
       "shipInspector",
@@ -14,6 +14,7 @@ describe("tour steps", () => {
       "hullInspector",
       "tools",
       "canvas",
+      "info",
       "slots",
       "view",
       "undo",

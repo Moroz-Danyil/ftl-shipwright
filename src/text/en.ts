@@ -213,7 +213,7 @@ export const en = {
     offer: {
       title: "Take a quick tour first?",
       message:
-        "A short walk through the editor: the workspaces, the inspector, the tools and canvas, the slot bar, the overview and saving. You can take it any time later with the Tutorial button in the top bar.",
+        "A short walk through the editor: the workspaces, the inspector, the tools and canvas, the Info panel, the slot bar, the overview and saving. You can take it any time later with the Tutorial button in the top bar.",
       start: "Start the tour",
       skip: "Skip",
       never: "Don't offer this again",
@@ -255,6 +255,11 @@ export const en = {
         title: "The canvas",
         body: (k: TourKeys) =>
           `The ship on the game's grid. Click to select, drag to move. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
+      },
+      info: {
+        title: "The Info panel",
+        body: () =>
+          "The panel on the right describes what you clicked: a room with its systems and crew, a door, a station, a mount, a gib, a slot, or an item, race or system in a list, with the game's pictures, texts and numbers. With nothing selected it sums up the ship. It only shows; you edit in the inspector. The arrow in its header folds it to a thin strip to give the canvas more room.",
       },
       slots: {
         title: "Weapon and drone slots",

@@ -16,6 +16,7 @@ export type TourStepId =
   | "hullInspector"
   | "tools"
   | "canvas"
+  | "info"
   | "slots"
   | "view"
   | "undo"
@@ -40,6 +41,7 @@ export const TOUR_STEPS: TourStep[] = [
   { id: "hullInspector", target: inspectorTarget("hull"), workspace: "hull" },
   { id: "tools", target: "tools" },
   { id: "canvas", target: "canvas" },
+  { id: "info", target: "info" },
   { id: "slots", target: "slots", workspace: "ship" },
   { id: "view", target: "view" },
   { id: "undo", target: "undo" },
