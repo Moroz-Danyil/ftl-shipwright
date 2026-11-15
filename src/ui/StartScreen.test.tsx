@@ -74,7 +74,7 @@ describe("start screen", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: en.openShip.open }));
 
     expect(await screen.findByRole("tablist", { name: en.topBar.workspaces })).toBeInTheDocument();
-    expect(screen.getByText("The Mini")).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByText("The Mini")).toBeInTheDocument();
     expect(useEditor.getState().recent[0].blueprint).toBe("PLAYER_SHIP_MINI");
   });
 

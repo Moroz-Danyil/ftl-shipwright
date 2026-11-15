@@ -1,0 +1,252 @@
+/* The Info panel on the right of the editor: what was clicked, described */
+.ed-info {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+}
+.ed-info--folded {
+  width: 44px;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+}
+.ed-info-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px 10px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.ed-info-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.ed-info-toggle {
+  width: 30px;
+  height: 30px;
+  color: var(--muted);
+}
+.ed-info-toggle:hover {
+  color: var(--text);
+}
+.ed-info-chevron {
+  display: inline-flex;
+}
+.ed-info-chevron--open {
+  transform: rotate(180deg);
+}
+.ed-info-strip-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  writing-mode: vertical-rl;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.ed-info-strip-label .pict {
+  writing-mode: horizontal-tb;
+}
+.ed-info-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  user-select: text;
+}
+.info-sub {
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.info-pic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 150px;
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--icon-bg);
+  overflow: hidden;
+}
+.info-pic image,
+.info-pic img {
+  image-rendering: pixelated;
+}
+.info-pic-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+/* Sections in the inspector's style, without folding */
+.info-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.info-sec:last-child {
+  border-bottom: 0;
+}
+.info-sec-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.info-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.info-sec .lo-details {
+  padding: 0;
+  background: none;
+}
+.info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--raised);
+}
+.info-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+/* What a system does at each level: long texts wrap under their level */
+.info-levels > div {
+  gap: 10px;
+}
+.info-levels dt {
+  flex: 0 0 auto;
+}
+.info-levels dt::after {
+  display: none;
+}
+.info-levels dd {
+  flex: 1;
+  text-align: right;
+  color: var(--text-soft);
+}
+.info-levels > div[data-reached] dd {
+  color: var(--text);
+  font-weight: 500;
+}
+.info-crew {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.info-crew-pic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--icon-bg);
+}
+.info-crew-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+.info-seat {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  border: 1px dashed var(--edge);
+}
+.info-seat--large {
+  width: 60px;
+  height: 60px;
+}
+.info-empty-mount {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px dashed var(--edge);
+}
+/* A room or door drawn small, in the canvas' colours */
+.info-room {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: visible;
+}
+.info-room-floor {
+  fill: var(--room-floor);
+}
+.info-room-space {
+  fill: var(--canvas);
+}
+.info-room-tile {
+  stroke: var(--room-tile-line);
+  stroke-width: 1;
+}
+.info-room-wall {
+  fill: none;
+  stroke: var(--room-wall);
+  stroke-width: 3;
+}
+.info-door {
+  fill: var(--accent);
+  stroke: var(--room-wall);
+  stroke-width: 1;
+}
+.info-door--airlock {
+  fill: var(--airlock);
+}
+.info-door--loose {
+  fill: var(--problem);
+}
+.info-list,
+.info-steps {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.info-list li[data-airlock] {
+  color: var(--airlock);
+}
+.info-systems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.info-problem {
+  color: var(--problem);
+  font-weight: 600;
+}
+.info-check {
+  color: var(--accent-soft);
+  font-weight: 600;
+}

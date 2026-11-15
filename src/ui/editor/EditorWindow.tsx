@@ -1,10 +1,11 @@
 /**
  * The editor: top bar, inspector on the left, the canvas (with the tool bar
- * over it), status bar; the hangar preview over all of it while it is open.
+ * over it), the Info panel on the right, status bar; the hangar preview over all of it while it is open.
  * While the tour runs, the editor under it takes no pointer, keys or focus.
  */
 import { useEditor } from "../../app/store";
 import { HangarPreview } from "../../canvas/hangar/HangarPreview";
+import { InfoPanel } from "./info/InfoPanel";
 import { ShipCanvas } from "../../canvas/ShipCanvas";
 import { PicturePicker } from "./art/PicturePicker";
 import { Inspector } from "./Inspector";
@@ -27,6 +28,7 @@ export function EditorWindow() {
         <div className="ed-body">
           <Inspector />
           <ShipCanvas />
+          <InfoPanel />
         </div>
         <StatusBar />
         {dialog === "save" && <SaveDialog />}

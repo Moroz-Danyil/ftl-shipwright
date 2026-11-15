@@ -16,7 +16,8 @@ import { HoverPanel } from "../../common/HoverPanel";
 import { useHoverPanel } from "../../common/useHoverPanel";
 import { RacePicture } from "../../common/ItemPictures";
 
-function RaceDetails({ race }: { race: RaceCatalogEntry }) {
+/** A race's title, name, description, abilities and cost; `titled` false leaves the title out. */
+export function RaceDetails({ race, titled = true }: { race: RaceCatalogEntry; titled?: boolean }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const title = gameText(data, race.title) || race.name;
@@ -24,7 +25,7 @@ function RaceDetails({ race }: { race: RaceCatalogEntry }) {
   const powers = race.powers.map((p) => gameText(data, p)).filter(Boolean);
   return (
     <section className="lo-details" aria-label={title}>
-      <span className="lo-details-title">{title}</span>
+      {titled && <span className="lo-details-title">{title}</span>}
       <span className="eyebrow mono">{race.name}</span>
       {desc && <p className="lo-details-text">{desc}</p>}
       {powers.length > 0 && (

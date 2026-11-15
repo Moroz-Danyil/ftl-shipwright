@@ -40,17 +40,18 @@ Shown when no ship is open.
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │ ship name · status   [1 Ship][2 Rooms][3 Hull]   undo redo tutorial overview settings  [Save mod] │
-├───────────────┬──────────────────────────────────────────────────────┤
-│               │ [tool bar: icon name key · icon name key · …]        │
-│   inspector   │                    canvas                            │
-│               │                                    [Layers][Preview] │
-├───────────────┴──────────────────────────────────────────────────────┤
+├───────────────┬────────────────────────────────────────┬─────────────┤
+│               │ [tool bar: icon name key · …]          │ Info     [›]│
+│   inspector   │                canvas                  │ what was    │
+│               │                      [Layers][Preview] │ clicked     │
+├───────────────┴────────────────────────────────────────┴─────────────┤
 │ game data · ship counts · zoom                                        │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 - **Top bar**: the ship's name with an "unsaved changes" mark, the three workspace tabs (keys `1`–`3`), undo and redo, **Tutorial** (starts the tour, see below), the **Overview** button (with a red badge counting the problems, else an amber one counting what to check), settings, and **Save mod**.
 - **Inspector** (left): settings of the current workspace and the selection.
+- **Info panel** (right): describes what was clicked, with pictures and everything the game's data says about it (see below). It only shows; editing stays in the inspector.
 - **Tool bar** (top of the canvas): the tools of the current workspace side by side in one low row, each with a small line icon, its name and its current key in a key chip, the chosen one amber. Hovering or focusing a tool shows what it does in a panel below the bar. The Ship workspace has only Select, and still shows it.
 - **Canvas**: the ship on the game's grid of 35 px cells. The mouse wheel zooms, dragging with the middle button (or Space held) pans. A solid line marks cell 0 on the left and top (rooms cannot go past it); a dashed red frame marks what the player sees of a player ship in the game. A **Layers** menu shows or hides the hull, floor, cloak, shield, grid, rooms, doors, mounts, gibs and crew; **Preview in hangar** opens the game's hangar screen over the whole window (see below).
 - **Crew at the stations**: the crew list is taken member by member in its order (2 human, 1 engi → human, human, engi), and the members man the stations in the order of the ship's systems, each facing its station's direction (a race without its own pictures is drawn as a human). A station nobody is left for shows a faint dashed outline of its cell, an empty seat; the hangar preview shows only the manned stations.
@@ -58,6 +59,25 @@ Shown when no ship is open.
 - **Status bar**: which game data and mod are loaded, counts of rooms and doors, zoom.
 - **Questions** open in the app's own small dialog, never the system's: a title, the message, Cancel and a button named by what it does. Closing a ship with unsaved changes ("Close ship") and deleting rooms that hold systems ("Delete") lose something, so their button is red and the focus starts on Cancel; giving a game ship a new save name ("Rename") starts on Rename. Esc, Cancel and a click outside answer no; Enter presses the focused button.
 - **Crash screen**: should drawing the editor fail, the window shows, in place of the editor, that something went wrong and the error text (selectable, to copy into a report), and logs the error to the console. **Undo and continue** undoes the last step and shows the editor again; **Back to the start screen** closes the ship as the logo does (asking first when there are unsaved changes).
+
+## Info panel
+
+The panel on the right of the editor describes **what was clicked**: the last item clicked in a list of the inspector, else the selection of the current workspace (Ship: rooms, doors, stations and slots; Rooms: rooms, doors and stations; Hull: mounts and gibs), else the ship itself. It follows clicks, not the pointer: the hover panels stay as they are. Selecting something (on the canvas, in the slot bar or in a list of the inspector), a click on the ship and opening another workspace make the selection its subject again.
+
+Each page has a header with the kind and the name of its subject, a large picture on the dark icon chip, and sections in the inspector's style with the values in the rows the stats use:
+
+- **Room**: the room drawn small (its cells, the icon of its system, the crew at its stations); each of its systems with its large icon, the game's description, starting and max power, upgrade limit, whether it is installed at the start or bought later, and what each power level does where the game's texts say it (piloting, doors, sensors, mind control and artillery level by level, shields one barrier per two levels; the levels reached at the start stand out); the crew member at each station (sprite as the canvas draws it, race, facing); position and size; the doors on its walls and what they lead to (another room or space).
+- **System** (a press on a palette tile or a click on a system card, even when it also places the system): as for a room's system, with the room it is in and who mans its station; "not on this ship" for a system the ship lacks.
+- **Door**: ordinary door or airlock (or touching no room), the rooms or space it connects, its wall and position, what a door or an airlock does in the game, and the warnings of the inspector.
+- **Crew station**: the crew member there, large and facing the station's way; its system, room, cell and facing.
+- **Weapon mount**: the weapon drawn on it, large, with the game's description and all its stats; the weapon slot it draws, rotate and mirror, how the weapon slides out, the gib it flies off with, its position.
+- **Gib**: its picture large (with its file name and size), position, velocity, direction and turning ranges, and the mounts that fly off with it.
+- **Weapon or drone slot** (the slot bar or the Weapons and Drones lists) and an **item clicked** in the weapon, drone or augment lists: large picture, the game's title, description and all stats (the details the hover panels show), and where the ship has it (its slots, the mount it is drawn on, how many augments).
+- **Crew race** (clicked in the crew or the Add race list): large sprite, description, abilities, cost and how many the crew has.
+- **Several things selected**: how many of each.
+- **Nothing selected**: the ship's name, class and hull picture; hull, reactor, weapon and drone slots, crew, rooms, doors and systems (with their icons); the overview's counts of problems and things to check with **Open the overview**; for a ship without rooms the next step (the same three steps as the hint on the Rooms canvas, and a button that opens Rooms with the Room tool).
+
+The page scrolls inside the panel and starts at the top for each new subject. The arrow in the panel's header folds it to a thin strip at the window's edge, which gives the canvas the room back; the strip's arrow opens it again. Whether it is open is remembered between runs. The hangar preview, dialogs and the tour cover it like the rest of the window.
 
 ## Tour
 

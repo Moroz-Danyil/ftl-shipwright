@@ -62,7 +62,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe("editor window", () => {
   it("shows the ship, its counts, the zoom and the game data", () => {
-    expect(screen.getByText("The Mini")).toBeInTheDocument();
+    expect(within(screen.getByRole("banner")).getByText("The Mini")).toBeInTheDocument();
     expect(screen.getByText(/PLAYER_SHIP_MINI/)).toHaveTextContent(en.topBar.saved);
     const zoom = Math.round(state().view.camera.scale * 100);
     expect(screen.getByText(en.status.counts(2, 2, zoom))).toBeInTheDocument();

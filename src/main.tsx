@@ -13,6 +13,7 @@ import "./ui/styles/popover.css";
 import "./ui/styles/hangar.css";
 import "./ui/styles/sections.css";
 import "./ui/styles/tour.css";
+import "./ui/styles/info.css";
 import { createTauriPlatform } from "./platform/tauri";
 import { App } from "./ui/App";
 

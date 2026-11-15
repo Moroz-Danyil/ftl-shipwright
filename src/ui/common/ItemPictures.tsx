@@ -5,6 +5,7 @@
 import { raceWalkDownFrame, weaponRestingFrame, type Rect } from "../../core";
 import { dronePicturePaths, findItem } from "../../app/loadout/catalog";
 import { useEditor } from "../../app/store";
+import { stationCrewFrame } from "../../canvas/gameLook";
 import { usePicture } from "../../canvas/pictures";
 
 interface Frame {
@@ -63,6 +64,21 @@ export function WeaponPicture({ name, size = 40 }: { name: string; size?: number
 export function RacePicture({ race, size = 32 }: { race: string; size?: number }) {
   const data = useEditor((s) => s.game.data);
   const frame = data ? raceWalkDownFrame(data.animations, race) : undefined;
+  return <FramePicture frame={frame} size={size} />;
+}
+
+/** A crew member at a station, facing the station's direction (as the canvas draws them). */
+export function StationCrewPicture({
+  race,
+  direction,
+  size = 32,
+}: {
+  race: string;
+  direction: string | undefined;
+  size?: number;
+}) {
+  const data = useEditor((s) => s.game.data);
+  const frame = data ? stationCrewFrame(data.animations, race, direction) : undefined;
   return <FramePicture frame={frame} size={size} />;
 }
 

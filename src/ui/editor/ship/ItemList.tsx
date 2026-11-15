@@ -27,14 +27,15 @@ export function ItemPicture({ item, size = 40 }: { item: CatalogItem; size?: num
   return <AugmentIcon size={size} />;
 }
 
-export function Details({ item }: { item: CatalogItem }) {
+/** An item's title, blueprint name, description and stats; `titled` false leaves the title out. */
+export function Details({ item, titled = true }: { item: CatalogItem; titled?: boolean }) {
   const texts = useTexts();
   const data = useEditor((s) => s.game.data);
   const desc = gameText(data, item.entry.desc);
   const tooltip = item.kind === "weapon" ? gameText(data, item.entry.tooltip) : undefined;
   return (
     <section className="lo-details" aria-label={itemTitle(data, item)}>
-      <span className="lo-details-title">{itemTitle(data, item)}</span>
+      {titled && <span className="lo-details-title">{itemTitle(data, item)}</span>}
       <span className="eyebrow mono">{item.entry.name}</span>
       {desc && <p className="lo-details-text">{desc}</p>}
       {tooltip && tooltip !== desc && <p className="lo-details-text muted">{tooltip}</p>}
