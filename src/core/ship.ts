@@ -6,7 +6,7 @@
  * so `a.layout === b.layout` tells a UI that the layout did not change.
  */
 import { parseShipBlueprint, writeShipBlueprint, type BlueprintWriteOptions } from "./blueprint";
-import { doorMatchesGeometry, doorRooms } from "./geometry";
+import { CELL_SIZE, doorMatchesGeometry, doorRooms, roomsBoundsCells } from "./geometry";
 import { parseLayoutTxt, writeLayoutTxt } from "./layoutTxt";
 import { parseLayoutXml, writeLayoutXml } from "./layoutXml";
 import type {
@@ -39,12 +39,58 @@ export function loadShip(files: ShipFiles): Ship {
   };
 }
 
-/** Writes the three files of a ship. */
+/**
+ * Writes the three files of a ship, with the layout moved so that the rooms
+ * start at cell (0, 0) (see {@link normalizeRoomOrigin}).
+ */
 export function saveShip(ship: Ship, options?: BlueprintWriteOptions): ShipFiles {
+  const written = normalizeRoomOrigin(ship);
   return {
-    blueprintXml: writeShipBlueprint(ship.blueprint, options),
-    layoutTxt: writeLayoutTxt(ship.layout, options),
-    layoutXml: writeLayoutXml(ship.layoutXml, options),
+    blueprintXml: writeShipBlueprint(written.blueprint, options),
+    layoutTxt: writeLayoutTxt(written.layout, options),
+    layoutXml: writeLayoutXml(written.layoutXml, options),
+  };
+}
+
+/**
+ * The ship as the game expects it on disk: the smallest room x and the
+ * smallest room y are 0, as in every ship of the game. The game places the
+ * hull picture from the top-left of the rooms rather than from cell (0, 0),
+ * so a layout whose rooms start elsewhere shows its rooms off the hull.
+ *
+ * Rooms and doors move by `(-minX, -minY)` cells and `X_OFFSET`/`Y_OFFSET`
+ * grow by `(minX, minY)`, so every room keeps its place on the screen. The
+ * hull picture's `img` x/y, measured from the anchor, move by
+ * `(-minX, -minY) * 35` pixels, so the hull keeps its place too. Everything
+ * else is measured from a room (stations), from the rooms' bounding box (the
+ * shield ellipse) or from the hull picture (floor, cloak, mounts, gibs) and
+ * stays as it is.
+ * Returns `ship` itself when the rooms already start at (0, 0) or there are
+ * no rooms.
+ */
+export function normalizeRoomOrigin(ship: Ship): Ship {
+  const bounds = roomsBoundsCells(ship.layout);
+  if (!bounds || (bounds.x === 0 && bounds.y === 0)) return ship;
+  const dx = bounds.x;
+  const dy = bounds.y;
+  const { layout, layoutXml } = ship;
+  return {
+    ...ship,
+    layout: {
+      ...layout,
+      xOffset: (layout.xOffset ?? 0) + dx,
+      yOffset: (layout.yOffset ?? 0) + dy,
+      rooms: layout.rooms.map((r) => ({ ...r, x: r.x - dx, y: r.y - dy })),
+      doors: layout.doors.map((d) => ({ ...d, x: d.x - dx, y: d.y - dy })),
+    },
+    layoutXml: {
+      ...layoutXml,
+      img: {
+        ...layoutXml.img,
+        x: layoutXml.img.x - dx * CELL_SIZE,
+        y: layoutXml.img.y - dy * CELL_SIZE,
+      },
+    },
   };
 }
 

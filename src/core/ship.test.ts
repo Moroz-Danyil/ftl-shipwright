@@ -1,4 +1,15 @@
 import { describe, expect, it } from "vitest";
+import {
+  cloakPositionPx,
+  doorSegmentPx,
+  floorPositionPx,
+  gibPositionPx,
+  hullRectPx,
+  mountPositionPx,
+  roomRectPx,
+  shieldEllipsePx,
+  stationCellPx,
+} from "./geometry";
 import type { Ship } from "./model";
 import {
   addDoor,
@@ -7,6 +18,7 @@ import {
   addSystem,
   createShip,
   loadShip,
+  normalizeRoomOrigin,
   removeDoor,
   removeMount,
   removeRoom,
@@ -147,5 +159,127 @@ describe("immutable edits", () => {
     expect([s.layout.xOffset, s.layout.yOffset]).toEqual([3, 4]);
     s = updateBlueprint(s, { health: 20, texts: { name: { kind: "text", text: "Test" } } });
     expect(saveShip(s).blueprintXml).toContain("<name>Test</name>");
+  });
+});
+
+/** Every place on the screen the editor and the game draw something of the ship at. */
+function screenPlaces(ship: Ship) {
+  const { layout, layoutXml: xml } = ship;
+  return {
+    rooms: layout.rooms.map((r) => roomRectPx(layout, r)),
+    doors: layout.doors.map((d) => doorSegmentPx(layout, d)),
+    stations: ship.blueprint.systems.map((s) =>
+      s.slot?.number === undefined
+        ? undefined
+        : stationCellPx(layout, layout.rooms[s.room], s.slot.number)
+    ),
+    hull: hullRectPx(layout, xml),
+    floor: floorPositionPx(layout, xml),
+    cloak: cloakPositionPx(layout, xml),
+    ellipse: shieldEllipsePx(layout),
+    mounts: xml.mounts.map((m) => mountPositionPx(layout, xml, m)),
+    gibs: xml.gibs.map((g) => gibPositionPx(layout, xml, g)),
+  };
+}
+
+/** The ship of the user's case: one 2×2 room at cell (7, 5), the hull at (-15, 51). */
+function roomAt7x5(): Ship {
+  let s = createShip({ name: "PLAYER_SHIP_HARD", layout: "new_ship", img: "new_ship" });
+  s = addRoom(s, { x: 7, y: 5, w: 2, h: 2 });
+  s = { ...s, layoutXml: { ...s.layoutXml, img: { x: -15, y: 51, w: 440, h: 325 } } };
+  return deepFreeze(s);
+}
+
+describe("rooms written from cell (0, 0)", () => {
+  it("moves a room at (7, 5) to (0, 0), the anchor by (7, 5) and the hull picture back", () => {
+    const ship = roomAt7x5();
+    const files = saveShip(ship);
+    const written = loadShip(files);
+    expect(written.layout.rooms).toEqual([{ id: 0, x: 0, y: 0, w: 2, h: 2 }]);
+    expect(written.layoutXml.img).toEqual({ x: -15 - 7 * 35, y: 51 - 5 * 35, w: 440, h: 325 });
+    expect([written.layout.xOffset, written.layout.yOffset]).toEqual([7, 5]);
+    expect(files.layoutTxt).toContain("X_OFFSET\n7\nY_OFFSET\n5\n");
+    expect(files.layoutXml).toContain('<img x="-260" y="-124" w="440" h="325"/>');
+    // The editor's ship is not changed.
+    expect(ship.layout.rooms[0]).toMatchObject({ x: 7, y: 5 });
+  });
+
+  it("keeps every room, door, station and picture at the same place on the screen", () => {
+    let s = createShip({ name: "T", layout: "t", img: "t" });
+    s = addRoom(s, { x: 4, y: 3, w: 2, h: 2 });
+    s = addRoom(s, { x: 6, y: 2, w: 2, h: 1 });
+    s = addDoor(s, { x: 6, y: 3, vertical: true });
+    s = addDoor(s, { x: 5, y: 5, vertical: false });
+    s = addSystem(s, {
+      system: "pilot",
+      power: 1,
+      room: 1,
+      slot: { number: 1, direction: "right" },
+    });
+    s = addSystem(s, { system: "shields", power: 2, room: 0, slot: { number: 3 } });
+    s = addMount(s, { x: 40, y: 12, rotate: false, mirror: false, gib: 1, slide: "up" });
+    s = setAnchor(s, 2, 1);
+    s = {
+      ...s,
+      layout: { ...s.layout, ellipse: { halfWidth: 150, halfHeight: 90, offsetX: 5, offsetY: -8 } },
+      layoutXml: {
+        ...s.layoutXml,
+        img: { x: 100, y: 60, w: 300, h: 200 },
+        floorOffset: { x: 30, y: 20 },
+        cloakOffset: { x: -10, y: -10 },
+        gibs: [
+          {
+            velocity: { min: 0, max: 1 },
+            direction: { min: 0, max: 90 },
+            angular: { min: -1, max: 1 },
+            x: 12,
+            y: 34,
+          },
+        ],
+      },
+    };
+    deepFreeze(s);
+    const reloaded = loadShip(saveShip(s));
+    expect(Math.min(...reloaded.layout.rooms.map((r) => r.x))).toBe(0);
+    expect(Math.min(...reloaded.layout.rooms.map((r) => r.y))).toBe(0);
+    expect(screenPlaces(reloaded)).toEqual(screenPlaces(s));
+    // Measured from the hull picture or from a room: written as they were.
+    expect(reloaded.layoutXml.floorOffset).toEqual({ x: 30, y: 20 });
+    expect(reloaded.layoutXml.mounts).toEqual(s.layoutXml.mounts);
+    expect(reloaded.layoutXml.gibs).toEqual(s.layoutXml.gibs);
+    expect(reloaded.layout.ellipse).toEqual(s.layout.ellipse);
+    expect(reloaded.blueprint.systems).toEqual(s.blueprint.systems);
+    // Doors keep their rooms.
+    expect(reloaded.layout.doors.map((d) => [d.roomA, d.roomB])).toEqual(
+      s.layout.doors.map((d) => [d.roomA, d.roomB])
+    );
+    expect(validateShip(reloaded)).toEqual(validateShip(s));
+  });
+
+  it("moves rooms at negative or mixed positions, each axis on its own", () => {
+    let s = createShip({ name: "T", layout: "t", img: "t" });
+    s = addRoom(s, { x: -3, y: 2, w: 1, h: 1 });
+    s = addRoom(s, { x: 1, y: -1, w: 2, h: 1 });
+    s = addDoor(s, { x: -3, y: 2, vertical: true });
+    s = { ...s, layoutXml: { ...s.layoutXml, img: { x: 0, y: 0, w: 10, h: 10 } } };
+    deepFreeze(s);
+    const n = normalizeRoomOrigin(s);
+    expect(n.layout.rooms.map((r) => [r.x, r.y])).toEqual([
+      [0, 3],
+      [4, 0],
+    ]);
+    expect(n.layout.doors[0]).toMatchObject({ x: 0, y: 3 });
+    expect([n.layout.xOffset, n.layout.yOffset]).toEqual([-3, -1]);
+    expect(n.layoutXml.img).toMatchObject({ x: 105, y: 35 });
+    expect(screenPlaces(n)).toEqual(screenPlaces(s));
+  });
+
+  it("leaves a ship whose rooms start at (0, 0), and an empty ship, as they are", () => {
+    const s = threeRooms();
+    expect(normalizeRoomOrigin(s)).toBe(s);
+    const empty = createShip({ name: "E", layout: "e", img: "e" });
+    expect(normalizeRoomOrigin(empty)).toBe(empty);
+    const onlyY = deepFreeze(updateRoom(threeRooms(), 0, { y: 0 }));
+    expect(normalizeRoomOrigin(onlyY)).toBe(onlyY);
   });
 });

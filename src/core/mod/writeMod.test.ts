@@ -4,6 +4,8 @@ import { findShipBlueprints, parseShipBlueprint } from "../blueprint";
 import { createGameView } from "../data/gameView";
 import { loadShipFromGame } from "../data/loadShip";
 import { decodeText, memorySource, zipSource } from "../data/sources";
+import { parseLayoutTxt } from "../layoutTxt";
+import { parseLayoutXml } from "../layoutXml";
 import { miniGame } from "../testing/miniGame";
 import {
   BLUEPRINT_APPEND_PATH,
@@ -119,6 +121,34 @@ describe("buildShipMod", () => {
     ]);
     expect(decodeText(files[1].bytes)).toContain("\r\n");
     expect(shipPicturePaths(renamed).gib(3)).toBe("img/ship/mini_gib3.png");
+  });
+
+  it("writes the layout with the rooms starting at cell (0, 0)", async () => {
+    const game = miniGame();
+    const { ship } = (await loadShipFromGame(createGameView(game), "PLAYER_SHIP_MINI"))!;
+    // The same ship with every room and door 7 cells right and 5 down.
+    const moved = {
+      ...ship,
+      layout: {
+        ...ship.layout,
+        rooms: ship.layout.rooms.map((r) => ({ ...r, x: r.x + 7, y: r.y + 5 })),
+        doors: ship.layout.doors.map((d) => ({ ...d, x: d.x + 7, y: d.y + 5 })),
+      },
+    };
+    const files = await buildShipMod({ ship: moved, pictures: await miniPictures(), game });
+    const txt = parseLayoutTxt(decodeText(files[1].bytes));
+    const xml = parseLayoutXml(decodeText(files[2].bytes));
+    expect(txt.rooms).toEqual(ship.layout.rooms);
+    expect(txt.doors).toEqual(ship.layout.doors);
+    expect([txt.xOffset, txt.yOffset]).toEqual([
+      (ship.layout.xOffset ?? 0) + 7,
+      (ship.layout.yOffset ?? 0) + 5,
+    ]);
+    expect(xml.img).toEqual({
+      ...ship.layoutXml.img,
+      x: ship.layoutXml.img.x - 245,
+      y: ship.layoutXml.img.y - 175,
+    });
   });
 
   it("merges into an existing append (folder save)", async () => {

@@ -91,6 +91,28 @@ img/ship/interior/<name>.png only for interiors that are not in the game
 - Saving into a folder that already holds a mod: a blueprint with the same name in its `data/blueprints.xml.append` is replaced in place; otherwise the new one is added at the end (before a closing `</FTL>` if the file is wrapped in one). Other content of that file is left untouched.
 - Pictures that are the game's own (same path, same bytes) don't need to be copied.
 
+### Rooms are written from cell (0, 0)
+
+In every ship of the game the smallest room x and the smallest room y are both 0 [69/69 layouts]. The game places the hull picture from the top-left of the rooms, not from cell (0, 0): the hull's corner is at `((X_OFFSET + minX) · 35 + img.x, (Y_OFFSET + minY) · 35 + img.y)`, where `minX`/`minY` are the smallest room x and y. For the game's own ships this is the same as the rule in [ship-format.md](ship-format.md#2-the-grid-and-the-anchor); a layout whose rooms start elsewhere is not.
+
+The rule explains a ship saved from the editor with its only room, 2 × 2, at cell (7, 5), the hull at `img x="-15" y="51"` (440 × 325) and both offsets 0. Measured from the anchor:
+
+|                      | Room (px)  | Hull corner (px) | Room on the hull                                         |
+| -------------------- | ---------- | ---------------- | -------------------------------------------------------- |
+| editor               | (245, 175) | (-15, 51)        | inside, at (260, 124)                                    |
+| game, file as it was | (245, 175) | (230, 226)       | 15 px left of and 51 px above the hull's corner, outside |
+
+which is what the game showed: the room up and to the left, off the hull. The game's battle view also showed the whole ship shifted from where the editor drew it; that would follow if the game also draws the rooms from their top-left, which the data alone can't tell **(confirm in game)**. For a layout whose rooms start at (0, 0) both readings give the same picture.
+
+So the editor writes every layout with the rooms moved to start at (0, 0), keeping everything where it is on the screen:
+
+- rooms and doors move by `(-minX, -minY)` cells;
+- `X_OFFSET`/`Y_OFFSET` grow by `(minX, minY)`;
+- `img` x/y (measured from the anchor) move by `(-minX · 35, -minY · 35)` px;
+- nothing else changes: crew stations are counted inside their room, the shield ellipse is centred on the rooms' bounding box, and the floor and cloak offsets, the weapon mounts and the gibs are measured from the hull picture's corner [section 2 of ship-format.md], which stays where it was.
+
+The example ship is written as `ROOM 0 0 0 2 2`, `X_OFFSET 7`, `Y_OFFSET 5` and `<img x="-260" y="-124" .../>`: room and hull corner are at (245, 175) and (-15, 51) from the old anchor in the game as in the editor. The ship in the editor's memory keeps its numbers; opening the written files shows the same ship at the same place, with the anchor at (7, 5). The game's own ships already start at (0, 0) and are written unchanged.
+
 ## 9. Fonts
 
 The game draws its texts with bitmap fonts in `fonts/*.font` (`HL1`, `HL2`, `JustinFont8`, `JustinFont10`, `JustinFont11Bold`, `JustinFont12Bold`, `c&c`, `c&cnew`, `num_font`; `fonts/ja/` holds the Japanese fonts in the same format, `fonts/zh-Hans/` a TrueType font). A `.font` file is big-endian:

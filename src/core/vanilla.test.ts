@@ -23,7 +23,7 @@ import {
 } from "./geometry";
 import { parseLayoutTxt, writeLayoutTxt } from "./layoutTxt";
 import { parseLayoutXml, writeLayoutXml } from "./layoutXml";
-import { addDoor, addRoom, loadShip, saveShip, updateSystem } from "./ship";
+import { addDoor, addRoom, loadShip, normalizeRoomOrigin, saveShip, updateSystem } from "./ship";
 import {
   HAS_GAME_DATA,
   findShipPicture,
@@ -88,8 +88,11 @@ describe.skipIf(!HAS_GAME_DATA)("vanilla data", () => {
           layoutTxt: readData(`${loc.layout}.txt`),
           layoutXml: readData(`${loc.layout}.xml`),
         });
+        // The game's rooms already start at cell (0, 0): nothing is moved when written.
+        expect(normalizeRoomOrigin(ship)).toBe(ship);
         const files = saveShip(ship, { lineEnding: "\r\n" });
         expect(files.layoutTxt).toBe(writeLayoutTxt(ship.layout, { lineEnding: "\r\n" }));
+        expect(files.layoutXml).toBe(writeLayoutXml(ship.layoutXml, { lineEnding: "\r\n" }));
         expect(loadShip(files)).toStrictEqual(ship);
       }
     });

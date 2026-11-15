@@ -8,6 +8,7 @@ import { writeLayoutTxt } from "../layoutTxt";
 import { writeLayoutXml } from "../layoutXml";
 import type { Ship } from "../model";
 import type { WriteOptions } from "../options";
+import { normalizeRoomOrigin } from "../ship";
 import { encodeText, normalizePath, type FileSource } from "../data/sources";
 import { elements, parseXml } from "../xml";
 
@@ -87,10 +88,13 @@ function sameBytes(a: Uint8Array, b: Uint8Array): boolean {
 /**
  * The files of a mod that adds (or replaces) one ship:
  * `data/blueprints.xml.append`, `data/<layout>.txt`, `data/<layout>.xml` and
- * the pictures, minus pictures identical to the game's own.
+ * the pictures, minus pictures identical to the game's own. The layout is
+ * written with the rooms starting at cell (0, 0) ({@link normalizeRoomOrigin}).
  */
 export async function buildShipMod(input: BuildShipModInput): Promise<ModFile[]> {
-  const { ship, pictures, game, options } = input;
+  const { pictures, game, options } = input;
+  // The layout is written the way the game reads it: rooms from cell (0, 0).
+  const ship = normalizeRoomOrigin(input.ship);
   const lineEnding = options?.lineEnding ?? "\n";
   const blueprintXml = writeShipBlueprint(ship.blueprint, options);
   const appendText =

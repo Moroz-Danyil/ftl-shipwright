@@ -96,7 +96,8 @@ All are pure functions on strings. `parseLayoutTxt` never throws; the XML reader
 | `parseShipBlueprint(xml)` / `writeShipBlueprint(bp)` | one `<shipBlueprint>` element                                                                |
 | `findShipBlueprints(fileText)`                       | every ship blueprint in a blueprints file, with its position; commented-out ones are skipped |
 | `replaceShipBlueprint(fileText, location, xml)`      | puts a rewritten blueprint back without touching the rest of the file                        |
-| `loadShip(files)` / `saveShip(ship)`                 | the three files of a ship together                                                           |
+| `loadShip(files)` / `saveShip(ship)`                 | the three files of a ship together; `saveShip` writes the rooms from cell (0, 0)             |
+| `normalizeRoomOrigin(ship)`                          | the ship moved so its rooms start at cell (0, 0), at the same place on the screen            |
 
 Writers take `{ lineEnding?: "\n" | "\r\n", indent?: string }` (default `"\n"` and a tab).
 
@@ -143,10 +144,10 @@ Everything that touches files is async. Paths use forward slashes and are matche
 
 ## Writing a mod (`mod/`)
 
-| Function                                  |                                                                             |
-| ----------------------------------------- | --------------------------------------------------------------------------- |
-| `buildShipMod({ ship, pictures, game? })` | the files of the mod; pictures identical to the game's are left out         |
-| `buildShipModForFolder(input, folder)`    | the same, merged into the folder's existing `data/blueprints.xml.append`    |
-| `mergeBlueprintAppend(existing, xml)`     | replaces the ship with the same name in place, otherwise adds it at the end |
-| `zipMod(files)`                           | `.ftl` bytes                                                                |
-| `shipPicturePaths(ship)`                  | where each picture goes in the mod                                          |
+| Function                                  |                                                                                              |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `buildShipMod({ ship, pictures, game? })` | the files of the mod (rooms from cell (0, 0)); pictures identical to the game's are left out |
+| `buildShipModForFolder(input, folder)`    | the same, merged into the folder's existing `data/blueprints.xml.append`                     |
+| `mergeBlueprintAppend(existing, xml)`     | replaces the ship with the same name in place, otherwise adds it at the end                  |
+| `zipMod(files)`                           | `.ftl` bytes                                                                                 |
+| `shipPicturePaths(ship)`                  | where each picture goes in the mod                                                           |
