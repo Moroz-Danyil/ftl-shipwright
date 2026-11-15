@@ -261,24 +261,21 @@ describe("start screen", () => {
     fireEvent.click(within(types).getByRole("radio", { name: "Engi" }));
     fireEvent.click(layout("C"));
     expect(takes("Engi", "C")).toBeInTheDocument();
-    // The Lanius and the Crystal have no layout C: there is no C to pick, and
-    // the choice moves to their layout B.
-    const noC = () =>
-      expect(
-        within(layouts).queryByRole("radio", { name: en.hangarSlot.layout("C") })
-      ).not.toBeInTheDocument();
-    fireEvent.click(within(types).getByRole("radio", { name: "Crystal" }));
-    noC();
-    expect(within(layouts).getAllByRole("radio")).toHaveLength(2);
-    expect(layout("B")).toBeChecked();
-    expect(takes("Crystal", "B")).toBeInTheDocument();
-    fireEvent.click(within(types).getByRole("radio", { name: "Engi" }));
-    expect(layout("C")).toBeEnabled();
-    expect(layout("B")).toBeChecked();
-    fireEvent.click(layout("C"));
+    // The Lanius and the Crystal have no layout C: with C chosen they are not offered.
+    const offered = (name: string) => within(types).queryByRole("radio", { name });
+    expect(within(types).getAllByRole("radio")).toHaveLength(8);
+    expect(offered("Lanius")).not.toBeInTheDocument();
+    expect(offered("Crystal")).not.toBeInTheDocument();
+    fireEvent.click(layout("B"));
+    expect(within(types).getAllByRole("radio")).toHaveLength(10);
     fireEvent.click(within(types).getByRole("radio", { name: "Lanius" }));
-    noC();
-    expect(layout("B")).toBeChecked();
+    expect(takes("Lanius", "B")).toBeInTheDocument();
+    // Choosing C with the Lanius picked moves to the first type that has C.
+    fireEvent.click(layout("C"));
+    expect(takes("Kestrel", "C")).toBeInTheDocument();
+    expect(offered("Lanius")).not.toBeInTheDocument();
+    fireEvent.click(layout("B"));
+    fireEvent.click(within(types).getByRole("radio", { name: "Lanius" }));
     expect(takes("Lanius", "B")).toBeInTheDocument();
 
     fireEvent.click(within(dialog).getByRole("button", { name: en.newShip.create }));

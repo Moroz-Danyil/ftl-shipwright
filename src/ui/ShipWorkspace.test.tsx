@@ -515,12 +515,10 @@ describe("Ship workspace: info", () => {
     expect(steps()).toBe(2);
   });
 
-  it("offers no layout C for the Lanius and the Crystal", async () => {
+  it("offers the Lanius and the Crystal only with layouts A and B", async () => {
     await setUp();
-    const noC = () =>
-      expect(
-        within(slotGroup()).queryByRole("radio", { name: en.hangarSlot.layout("C") })
-      ).not.toBeInTheDocument();
+    const offered = (name: string) =>
+      within(slotGroup()).queryByRole("radio", { name, checked: undefined });
     // Without a slot no type is chosen, and A, B and C wait for one.
     expect(layoutRadio("C")).toBeDisabled();
 
@@ -528,15 +526,18 @@ describe("Ship workspace: info", () => {
     await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CIRCLE"));
     fireEvent.click(layoutRadio("C"));
     await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CIRCLE_3"));
-    // A type without layout C moves the ship to its layout B.
-    fireEvent.click(typeRadio("Lanius"));
-    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_ANAEROBIC_2"));
-    noC();
-    expect(layoutRadio("B")).toBeChecked();
+    // With layout C the types without it are not offered.
+    expect(offered("Lanius")).not.toBeInTheDocument();
+    expect(offered("Crystal")).not.toBeInTheDocument();
+    fireEvent.click(layoutRadio("B"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CIRCLE_2"));
     fireEvent.click(typeRadio("Crystal"));
     await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CRYSTAL_2"));
-    noC();
+    // Choosing C with the Crystal picked moves to the first type that has C.
+    fireEvent.click(layoutRadio("C"));
+    await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_HARD_3"));
     fireEvent.click(layoutRadio("A"));
+    fireEvent.click(typeRadio("Crystal"));
     await waitFor(() => expect(bp().name).toBe("PLAYER_SHIP_CRYSTAL"));
     expect(within(slotGroup()).getByText("Crystal · layout A · PLAYER_SHIP_CRYSTAL")).toBeVisible();
   });
