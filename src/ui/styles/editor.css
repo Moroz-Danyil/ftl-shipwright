@@ -290,8 +290,8 @@
 .cv-empty-hint {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 64px;
+  transform: translateX(-50%);
   width: min(420px, calc(100% - 48px));
   display: flex;
   flex-direction: column;
@@ -456,6 +456,14 @@
   fill: none;
   stroke: var(--grid);
   stroke-width: 1;
+}
+.cv-spot-cell {
+  fill: var(--accent);
+  fill-opacity: 0.15;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
 }
 /* Rooms past the frame's right or bottom edge (amber) or above or left of it (red) */
 .cv-room-out-part {

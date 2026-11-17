@@ -1,6 +1,7 @@
 /**
  * Layout edits on the open ship, each one undo step: moving, adding and
- * deleting rooms, doors and stations, with the selection that follows.
+ * deleting rooms, doors and stations, with the selection that follows, and
+ * centring the ship on the game's screen.
  */
 import type { Rect, Ship, StationDirection } from "../core";
 import type { Texts } from "../text";
@@ -14,6 +15,7 @@ import {
   outOfView,
   type PlaceProblem,
 } from "./layout/rooms";
+import { centreOnScreen } from "./layout/screen";
 import { placeStation, setStationDirection } from "./layout/stations";
 import { EMPTY_SELECTION, isEmptySelection, selectionOf } from "./selection";
 import { useEditor } from "./store";
@@ -85,6 +87,17 @@ export function addRoomAt(rect: Rect, texts?: Texts): PlaceProblem | undefined {
   useEditor.getState().edit(() => result.ship, selectionOf({ kind: "room", id }));
   warnOutOfView(result.ship, [id], texts);
   return undefined;
+}
+
+/**
+ * Puts the ship (rooms and hull) where the game places its own ships on the
+ * screen; nothing is recorded when it is there already.
+ */
+export function centreShipOnScreen(): void {
+  const ship = present();
+  if (!ship) return;
+  const next = centreOnScreen(ship);
+  if (next !== ship) useEditor.getState().edit(() => next);
 }
 
 /** Changes the position or size of a room from the inspector; returns the problem when refused. */

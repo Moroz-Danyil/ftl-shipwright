@@ -11,7 +11,7 @@ import {
 import { HAS_GAME_DATA, readData, vanillaShips } from "../core/testing/gameData";
 import { directionTo, draggedDirection, fanPath, pointAt } from "./directionFan";
 import { doorKind } from "./doors";
-import { shipBounds } from "./fit";
+import { openingBounds, shipBounds } from "./fit";
 import { hitTest } from "./hitTest";
 import { pngSize } from "./pictures";
 import { isPlayerShip, viewLimitCells, viewLimitPx } from "./viewLimit";
@@ -179,9 +179,29 @@ describe("fit", () => {
     expect(shipBounds(ship)).toEqual({ x: -30, y: 20, w: 200, h: 100 });
   });
 
-  it("shows the game's frame size for an empty ship", () => {
+  it("shows the game's frame for an empty ship", () => {
     const ship = createShip({ name: "E", layout: "e", img: "e" });
     expect(shipBounds(ship)).toEqual({ x: 0, y: 0, w: 665, h: 455 });
+    const moved = { ...ship, layout: { ...ship.layout, xOffset: 9, yOffset: 6, horizontal: 35 } };
+    expect(shipBounds(moved)).toEqual({ x: -35, y: 0, w: 665, h: 455 });
+    expect(openingBounds(moved)).toEqual({ x: -35, y: 0, w: 665, h: 455 });
+  });
+
+  it("opens centred on the rooms and the hull, wide enough for the shield", () => {
+    // The shield reaches 75 px further left than the hull, but only 15 px further right.
+    const ship = loadShip({
+      blueprintXml: '<shipBlueprint name="A" layout="a" img="a"/>',
+      layoutTxt: "X_OFFSET 1 Y_OFFSET 1 ELLIPSE 100 30 -30 0 ROOM 0 0 0 2 2",
+      layoutXml: '<img x="-20" y="-10" w="110" h="90"/>',
+    });
+    // Hull and rooms: (15, 25) 110 × 90, middle (70, 70). The shield: (-60, 40) 200 × 60,
+    // so the view spans 130 px on both sides of the middle.
+    const bounds = openingBounds(ship);
+    expect(bounds.x + bounds.w / 2).toBe(70);
+    expect(bounds.y + bounds.h / 2).toBe(70);
+    expect(bounds).toEqual({ x: -60, y: 25, w: 260, h: 90 });
+    const camera = fitRect(bounds, { width: 800, height: 600 });
+    expect(shipToScreen(camera, { x: 70, y: 70 })).toEqual({ x: 400, y: 300 });
   });
 });
 

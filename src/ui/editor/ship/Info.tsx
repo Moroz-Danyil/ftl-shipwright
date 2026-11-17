@@ -1,9 +1,11 @@
 /**
  * The ship's info: name, class and description as the hangar shows them,
  * then the save name: the hangar slot the ship takes (its blueprint name)
- * and the names of its files.
+ * and the names of its files, then the ship's place on the game's screen.
  */
 import type { Ship } from "../../../core";
+import { centreShipOnScreen } from "../../../app/layoutActions";
+import { offCentrePx } from "../../../app/layout/screen";
 import { renameShip, setShipText } from "../../../app/loadoutActions";
 import { slotName, slotOf } from "../../../app/hangar";
 import { gameText } from "../../../app/loadout/catalog";
@@ -79,6 +81,29 @@ export function Info({ ship }: { ship: Ship }) {
           />
         </Help>
       </SubHeading>
+      <ScreenPosition ship={ship} />
     </Section>
+  );
+}
+
+/** How far the ship sits from where the game places its own ships, and Centre on screen. */
+function ScreenPosition({ ship }: { ship: Ship }) {
+  const texts = useTexts();
+  const off = offCentrePx(ship);
+  const x = Math.round(off.x);
+  const y = Math.round(off.y);
+  // Within a pixel is as close as whole pixels allow.
+  const centred = Math.abs(x) <= 1 && Math.abs(y) <= 1;
+  return (
+    <SubHeading title={texts.hangar.screen} icon="position">
+      <Help topic="centreOnScreen">
+        <button type="button" className="btn btn--small" onClick={centreShipOnScreen}>
+          {texts.hangar.centre}
+        </button>
+      </Help>
+      <span className="muted" data-testid="screen-position">
+        {centred ? texts.hangar.centred : texts.hangar.offCentre(x, y)}
+      </span>
+    </SubHeading>
   );
 }

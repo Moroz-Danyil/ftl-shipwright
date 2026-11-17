@@ -1,9 +1,9 @@
 import { hullRectPx, roomsBoundsPx, shieldEllipsePx, type Rect, type Ship } from "../core";
+import { shipBoxPx } from "../app/layout/screen";
 import { unionRects } from "./viewport";
-import { VIEW_LIMIT_COLUMNS, VIEW_LIMIT_ROWS } from "./viewLimit";
-import { CELL_SIZE } from "../core";
+import { viewLimitPx } from "./viewLimit";
 
-/** What "fit ship" shows: the hull picture, the rooms and the shield; an empty ship shows the game's frame size. */
+/** What "fit ship" shows: the hull picture, the rooms and the shield; an empty ship shows the game's frame. */
 export function shipBounds(ship: Ship): Rect {
   const hull = hullRectPx(ship.layout, ship.layoutXml);
   const ellipse = shieldEllipsePx(ship.layout);
@@ -13,12 +13,20 @@ export function shipBounds(ship: Ship): Rect {
     w: 2 * ellipse.rx,
     h: 2 * ellipse.ry,
   };
-  return (
-    unionRects([hull, roomsBoundsPx(ship.layout), shield]) ?? {
-      x: 0,
-      y: 0,
-      w: VIEW_LIMIT_COLUMNS * CELL_SIZE,
-      h: VIEW_LIMIT_ROWS * CELL_SIZE,
-    }
-  );
+  return unionRects([hull, roomsBoundsPx(ship.layout), shield]) ?? viewLimitPx(ship.layout);
+}
+
+/**
+ * What a ship just opened shows: centred on its rooms and hull together
+ * (the middle of the game's frame for an empty ship), and wide enough to
+ * hold the shield on both sides of that middle too.
+ */
+export function openingBounds(ship: Ship): Rect {
+  const all = shipBounds(ship);
+  const box = shipBoxPx(ship) ?? all;
+  const cx = box.x + box.w / 2;
+  const cy = box.y + box.h / 2;
+  const halfW = Math.max(cx - all.x, all.x + all.w - cx);
+  const halfH = Math.max(cy - all.y, all.y + all.h - cy);
+  return { x: cx - halfW, y: cy - halfH, w: 2 * halfW, h: 2 * halfH };
 }

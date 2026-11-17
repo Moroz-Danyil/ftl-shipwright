@@ -3,7 +3,9 @@ import { en } from "../text/en";
 import { createFakePlatform } from "../testing/fakePlatform";
 import { openTestShip, pilot, shields } from "../testing/layoutFixtures";
 import { runCommand } from "./commands";
+import { offCentrePx } from "./layout/screen";
 import {
+  centreShipOnScreen,
   changeRoomValues,
   deleteSelected,
   nudgeSelection,
@@ -107,5 +109,23 @@ describe("inspector edits", () => {
     expect(await deleteSelected({ platform: createFakePlatform(), texts: en })).toBe(true);
     expect(ship().blueprint.systems[1].slot).toBeUndefined();
     expect(steps()).toBe(3);
+  });
+});
+
+describe("centring the ship on the game's screen", () => {
+  beforeEach(() => openTestShip([pilot, shields]));
+
+  it("centres the ship in one undo step, and records nothing when it is centred", () => {
+    const before = ship();
+    expect(Math.abs(offCentrePx(before).x)).toBeGreaterThan(1);
+    centreShipOnScreen();
+    const off = offCentrePx(ship());
+    expect(Math.abs(off.x)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(off.y)).toBeLessThanOrEqual(0.5);
+    expect(steps()).toBe(1);
+    centreShipOnScreen();
+    expect(steps()).toBe(1);
+    state().undo();
+    expect(ship()).toBe(before);
   });
 });

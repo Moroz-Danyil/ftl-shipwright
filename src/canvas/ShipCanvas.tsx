@@ -1,7 +1,8 @@
 /**
  * The ship on the game's grid, with zoom, pan and the current tool, and the
  * workspace's tools in a bar at the top. In Rooms, a ship without rooms gets
- * a hint where to start. Objects flashed after a click in the Overview are
+ * a hint where to start and the cell where the game places ships marked. A ship opens
+ * centred on its rooms and hull. Objects flashed after a click in the Overview are
  * brought into view.
  */
 import { useEffect, useRef } from "react";
@@ -10,7 +11,7 @@ import { useTexts } from "../text";
 import { CanvasControls } from "./CanvasControls";
 import { EmptyShipHint } from "./EmptyShipHint";
 import { setCanvasElement } from "./canvasElement";
-import { shipBounds } from "./fit";
+import { openingBounds } from "./fit";
 import { ShipScene } from "./ShipScene";
 import { SlotBar } from "./SlotBar";
 import { ToolBar } from "./ToolBar";
@@ -60,7 +61,7 @@ export function ShipCanvas() {
     if (!doc || !size || size.width <= 0 || size.height <= 0) return;
     if (fittedDoc.current === doc.id) return;
     fittedDoc.current = doc.id;
-    useEditor.getState().setCamera(fitRect(shipBounds(doc.history.present.ship), size));
+    useEditor.getState().setCamera(fitRect(openingBounds(doc.history.present.ship), size));
   }, [doc, size]);
 
   if (!doc) return null;

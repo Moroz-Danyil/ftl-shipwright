@@ -258,7 +258,7 @@ export const en = {
       shipInspector: {
         title: "Ship: the ship itself",
         body: () =>
-          "The inspector on the left shows the ship's info and save name, its stats, the crew, and its weapons, drones and augments. Hover a field to see what it means for the game.",
+          "The inspector on the left shows the ship's info, save name and place on the game's screen, its stats, the crew, and its weapons, drones and augments. Hover a field to see what it means for the game.",
       },
       roomsInspector: {
         title: "Rooms: systems and rooms",
@@ -387,7 +387,8 @@ export const en = {
     /** The first steps shown on the Rooms canvas while the ship has no rooms. */
     emptyShip: {
       title: "Start with the rooms",
-      rooms: (key: string) => `Choose Room (${key}) and drag on the grid to draw the first room.`,
+      rooms: (key: string) =>
+        `Choose Room (${key}) and drag on the grid to draw the first room. The marked cell is where the game places the middle of its own ships.`,
       doors: (key: string) => `Then add doors with Door (${key}): click a wall between two rooms.`,
       systems: "Then put systems in the rooms: drag them from the tiles in the inspector.",
     },
@@ -649,6 +650,16 @@ export const en = {
     saveName: "Save name",
     blueprintName: "Blueprint name",
     baseName: "File name (layout and pictures)",
+    screen: "On the game's screen",
+    centre: "Centre on screen",
+    centred: "The ship sits where the game places its own ships.",
+    offCentre: (x: number, y: number) => {
+      const parts = [
+        x > 0 ? `${x} px right of` : x < 0 ? `${-x} px left of` : "",
+        y > 0 ? `${y} px below` : y < 0 ? `${-y} px above` : "",
+      ].filter((p) => p !== "");
+      return `The ship's middle is ${parts.join(" and ")} where the game places the middle of its own ships.`;
+    },
     invalidId: "Use only letters, digits and underscores.",
     confirmRename: {
       title: "Change the save name?",
@@ -805,6 +816,10 @@ export const en = {
     shipDescription: {
       title: "Description",
       body: "The text the hangar shows when the ship is selected.",
+    },
+    centreOnScreen: {
+      title: "Centre on screen",
+      body: "Centres the ship where the game places its own ships: the middle of its rooms and hull picture together goes 65 px left of and 50 px above the middle of the dashed red frame (the part of the screen the game shows, 19 × 13 tiles, also used by Preview in hangar), where the game's player ships sit on average. When that would put rooms outside the frame, the ship stops at the frame's edge instead; rooms wider or taller than the frame start at its left or top edge and reach past the right or bottom one, where they are out of sight but cause no crash. It sets the layout's X_OFFSET and Y_OFFSET in whole tiles and HORIZONTAL and VERTICAL for the pixels left over; the rooms, doors and pictures stay where they are on the ship. One undo step.",
     },
     blueprintName: {
       title: "Blueprint name",
@@ -1186,14 +1201,14 @@ export const en = {
       onScreen: {
         title: "Nothing above or left of the screen",
         explain:
-          "These rooms reach above or left of the red frame, the part of the screen the game shows; the game may crash with rooms there. Move them in Rooms.",
+          "These rooms reach above or left of the red frame, the part of the screen the game shows; the game may crash with rooms there. Move them in Rooms, or use Centre on screen in Ship › Info.",
         value: "Inside the frame's top and left edges",
         notPlayer: "Only for player ships",
       },
       inView: {
         title: "Everything visible in battle",
         explain:
-          "These rooms reach past the right or bottom edge of the red frame, the part of the screen the game shows. The game handles them, but that part of the ship is not visible in battle; it is better to keep the ship inside the frame. Move them in Rooms.",
+          "These rooms reach past the right or bottom edge of the red frame, the part of the screen the game shows. The game handles them, but that part of the ship is not visible in battle; it is better to keep the ship inside the frame. Move them in Rooms, or use Centre on screen in Ship › Info.",
         value: "Inside the frame",
         notPlayer: "Only for player ships",
       },

@@ -5,6 +5,7 @@
  * the shield ellipse and is 2 · half-width × 2 · half-height.
  */
 import { anchorPx, roomsBoundsPx, updateLayout, updateLayoutXml, type Ship } from "../../core";
+import { shipSpotPx } from "../layout/screen";
 import type { PictureRef, PictureSlot, ShipSnapshot } from "./model";
 
 export type PictureSize = { width: number; height: number };
@@ -17,7 +18,8 @@ const IMAGE_NAME = { floor: "floorImage", cloak: "cloakImage", shield: "shieldIm
 
 /**
  * Sets the hull picture. `<img w h>` takes the picture's size; a ship that had
- * no hull picture gets it centred on its rooms.
+ * no hull picture gets it centred on its rooms, or without rooms on the
+ * spot where the game places its own ships.
  */
 export function setHullPicture(
   snapshot: ShipSnapshot,
@@ -29,8 +31,9 @@ export function setHullPicture(
   if (!art.hull) {
     const rooms = roomsBoundsPx(ship.layout);
     const anchor = anchorPx(ship.layout);
-    const cx = rooms ? rooms.x + rooms.w / 2 : anchor.x;
-    const cy = rooms ? rooms.y + rooms.h / 2 : anchor.y;
+    const spot = shipSpotPx(ship);
+    const cx = rooms ? rooms.x + rooms.w / 2 : spot.x;
+    const cy = rooms ? rooms.y + rooms.h / 2 : spot.y;
     x = Math.round(cx - size.width / 2 - anchor.x);
     y = Math.round(cy - size.height / 2 - anchor.y);
   }

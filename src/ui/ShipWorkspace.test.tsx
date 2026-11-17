@@ -453,6 +453,28 @@ describe("Ship workspace: info", () => {
     expect(screen.getByRole("button", { name: en.canvas.preview })).toBeInTheDocument();
   });
 
+  it("centres the ship on the game's screen in one undo step, explained on hover", async () => {
+    await setUp();
+    const info = within(inspector()).getByRole("region", { name: en.sections.info });
+    const place = within(info).getByRole("group", { name: en.hangar.screen });
+    const status = within(place).getByTestId("screen-position");
+    expect(status).not.toHaveTextContent(en.hangar.centred);
+    const button = within(place).getByRole("button", { name: en.hangar.centre });
+    fireEvent.focus(button);
+    expect(
+      within(screen.getByRole("tooltip")).getByText(en.help.centreOnScreen.body)
+    ).toBeInTheDocument();
+    const before = state().doc!.history.present.ship;
+    fireEvent.click(button);
+    expect(status).toHaveTextContent(en.hangar.centred);
+    expect(steps()).toBe(1);
+    fireEvent.click(button);
+    expect(steps()).toBe(1);
+    act(() => state().undo());
+    expect(state().doc!.history.present.ship).toBe(before);
+    expect(status).not.toHaveTextContent(en.hangar.centred);
+  });
+
   it("asks before giving a game ship a new save name", async () => {
     const texts = en.hangar.confirmRename;
     await setUp({ kind: "game" });

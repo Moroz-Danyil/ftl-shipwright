@@ -1,8 +1,10 @@
 /**
- * The game's 35 px grid and, for player ships, the dashed frame of what the
- * game shows.
+ * The game's 35 px grid, for player ships the dashed frame of what the game
+ * shows, and on a ship without rooms the cell where the game places the
+ * middle of its own ships.
  */
-import { CELL_SIZE, type Rect, type Ship } from "../core";
+import { CELL_SIZE, cellToPx, pxToCell, type Rect, type Ship } from "../core";
+import { shipSpotPx } from "../app/layout/screen";
 import { isPlayerShip, viewLimitPx } from "./viewLimit";
 
 /** Grid lines covering `area` (ship pixels); lines fall on multiples of the cell size. */
@@ -15,6 +17,24 @@ export function GridLines({ area }: { area: Rect }) {
   for (let x = x0; x <= x1; x += CELL_SIZE) lines.push(`M${x} ${y0}V${y1}`);
   for (let y = y0; y <= y1; y += CELL_SIZE) lines.push(`M${x0} ${y}H${x1}`);
   return <path className="cv-grid" d={lines.join("")} vectorEffect="non-scaling-stroke" />;
+}
+
+/** The cell where the game places the middle of its own ships: a first room there sits as they do. */
+export function SpotCell({ ship }: { ship: Ship }) {
+  const spot = shipSpotPx(ship);
+  const cell = pxToCell(ship.layout, spot.x, spot.y);
+  const p = cellToPx(ship.layout, cell.x, cell.y);
+  return (
+    <rect
+      className="cv-spot-cell"
+      data-testid="spot-cell"
+      x={p.x}
+      y={p.y}
+      width={CELL_SIZE}
+      height={CELL_SIZE}
+      vectorEffect="non-scaling-stroke"
+    />
+  );
 }
 
 export function ViewLimitFrame({ ship }: { ship: Ship }) {

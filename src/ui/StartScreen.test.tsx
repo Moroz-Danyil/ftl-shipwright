@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { addRoomAt } from "../app/layoutActions";
+import { frameMiddlePx, offCentrePx, shipBoxPx } from "../app/layout/screen";
+import { shipToScreen } from "../canvas/viewport";
 import { currentTool, resetEditorStore, useEditor } from "../app/store";
 import { miniGame } from "../core/testing/miniGame";
 import { en } from "../text/en";
@@ -230,6 +232,65 @@ describe("start screen", () => {
     expect(screen.queryByRole("note", { name: en.canvas.emptyShip.title })).toBeNull();
     act(() => useEditor.getState().undo());
     expect(screen.getByRole("note", { name: en.canvas.emptyShip.title })).toBeInTheDocument();
+  });
+
+  describe("on an 800 × 600 canvas", () => {
+    beforeEach(() => {
+      vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({
+        x: 0,
+        y: 0,
+        left: 0,
+        top: 0,
+        right: 800,
+        bottom: 600,
+        width: 800,
+        height: 600,
+        toJSON: () => ({}),
+      });
+    });
+    afterEach(() => vi.restoreAllMocks());
+
+    it("starts an empty hull where the game places its ships, its frame in the middle of the canvas", async () => {
+      const platform = await withMiniGame();
+      render(<App platform={platform} />);
+      const ns = openNewShip();
+      ns.next();
+      fireEvent.keyDown(within(ns.dialog()).getByLabelText(en.newShip.name), { key: "Enter" });
+      await screen.findByRole("note", { name: en.canvas.emptyShip.title });
+      const ship = () => useEditor.getState().doc!.history.present.ship;
+      expect(ship().layout).toMatchObject({ xOffset: 7, yOffset: 5, horizontal: 5, vertical: -15 });
+      expect(offCentrePx(ship())).toEqual({ x: 0, y: 0 });
+      // The cell where the game places the middle of its ships is marked: cell (0, 0).
+      const cell = screen.getByTestId("spot-cell");
+      expect([cell.getAttribute("x"), cell.getAttribute("y")]).toEqual(["245", "175"]);
+      await waitFor(() => expect(useEditor.getState().view.camera.x).not.toBe(0));
+      const middle = shipToScreen(useEditor.getState().view.camera, frameMiddlePx(ship()));
+      expect(middle.x).toBeCloseTo(400);
+      expect(middle.y).toBeCloseTo(300);
+      // A first room drawn on the marked cell sits where the game places its ships.
+      act(() => void addRoomAt({ x: 0, y: 0, w: 1, h: 1 }));
+      expect(offCentrePx(ship())).toEqual({ x: 0, y: 0 });
+      expect(screen.queryByTestId("spot-cell")).toBeNull();
+    });
+
+    it("opens a game ship framed in the middle of the canvas: its rooms and hull together", async () => {
+      const platform = await withMiniGame();
+      render(<App platform={platform} />);
+      fireEvent.click(screen.getByRole("button", { name: new RegExp(en.start.openShip) }));
+      const dialog = screen.getByRole("dialog", { name: en.openShip.title });
+      fireEvent.click(within(dialog).getByRole("option", { name: /The Mini/ }));
+      fireEvent.click(within(dialog).getByRole("button", { name: en.openShip.open }));
+      await waitFor(() => expect(useEditor.getState().doc).toBeDefined());
+      await waitFor(() => expect(useEditor.getState().view.camera.x).not.toBe(0));
+      const ship = useEditor.getState().doc!.history.present.ship;
+      const box = shipBoxPx(ship)!;
+      const at = shipToScreen(useEditor.getState().view.camera, {
+        x: box.x + box.w / 2,
+        y: box.y + box.h / 2,
+      });
+      expect(at.x).toBeCloseTo(400);
+      expect(at.y).toBeCloseTo(300);
+    });
   });
 
   it("puts a new ship in a hangar slot of the type and layout chosen", async () => {

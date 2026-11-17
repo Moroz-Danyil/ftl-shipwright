@@ -14,7 +14,7 @@ import { currentTool, useEditor } from "../app/store";
 import { gibRectPx } from "./artHitTest";
 import { FlashRings } from "./FlashRings";
 import { GibFan } from "./GibFan";
-import { GridLines, ViewLimitFrame } from "./GridLayer";
+import { GridLines, SpotCell, ViewLimitFrame } from "./GridLayer";
 import { MountsLayer } from "./MountsLayer";
 import { OffScreenRooms } from "./OffScreenRooms";
 import { ShipPictures } from "./ShipPictures";
@@ -74,6 +74,9 @@ export function ShipScene({ area, overlay, explosion }: Props) {
       {!playing && (
         <>
           {layers.grid && area.w > 0 && <GridLines area={area} />}
+          {workspace === "rooms" && ship.layout.rooms.length === 0 && !view.hangarPreview && (
+            <SpotCell ship={ship} />
+          )}
           {layers.rooms && <Rooms layout={ship.layout} selected={selection.rooms} ids={ids} />}
           {layers.rooms && <OffScreenRooms ship={ship} />}
           {layers.interiors && <Interiors ship={ship} source={snapshot.art.source} />}

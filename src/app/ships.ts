@@ -16,6 +16,7 @@ import type { Platform } from "../platform/types";
 import type { Texts } from "../text";
 import { artFromPaths } from "./art/model";
 import { NEW_SHIP } from "./details/rules";
+import { centreOnScreen } from "./layout/screen";
 import { reasonOf } from "./errors";
 import { addRecent, saveRecent, type RecentShip, type ShipOrigin } from "./settings";
 import { useEditor, type GameData, type SaveTarget } from "./store";
@@ -144,7 +145,8 @@ export async function createNewShip(
         saved: false,
       });
     } else {
-      const empty = createShip(ids);
+      // Placed where the game places its own ships: around cell (0, 0).
+      const empty = centreOnScreen(createShip(ids));
       const ship: Ship = {
         ...empty,
         blueprint: {
@@ -156,7 +158,7 @@ export async function createNewShip(
           droneSlots: NEW_SHIP.droneSlots,
         },
       };
-      // An empty hull starts where its first rooms are drawn.
+      // An empty hull starts where its first rooms are drawn, around cell (0, 0).
       store.openDocument({
         ship,
         art: { source: data.view, gibs: [] },
