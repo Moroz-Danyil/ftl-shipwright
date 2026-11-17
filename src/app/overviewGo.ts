@@ -66,6 +66,7 @@ export const OVERVIEW_TARGETS: Record<OverviewItemId, TargetRule> = {
   reach: {},
   airlocks: {},
   onScreen: { section: "room-position", field: "roomPosition" },
+  inView: { section: "room-position", field: "roomPosition" },
   stations: (issues) => ({ section: ROOM_SYSTEMS_SECTION, field: stationField(systemOf(issues)) }),
   systemRooms: (issues) => ({ section: "rooms-palette", field: systemTileField(systemOf(issues)) }),
   oneSystem: { section: ROOM_SYSTEMS_SECTION },

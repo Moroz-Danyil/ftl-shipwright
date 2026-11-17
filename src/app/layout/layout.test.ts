@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDoor } from "../../core";
+import { addDoor, setAnchor, updateBlueprint, updateLayout } from "../../core";
 import { EMPTY_SELECTION } from "../selection";
 import { cellPx as at, medbay, pilot, shields, testShip } from "../../testing/layoutFixtures";
 import { addDoorOnWall, doorAt, doorsOfRoom, isDoorWall, nearestWall } from "./doors";
@@ -10,7 +10,11 @@ import {
   doorsMovingWith,
   moveRooms,
   placementProblem,
+  outOfView,
   rectFromCells,
+  roomArea,
+  shownCell,
+  shownOrigin,
 } from "./rooms";
 import {
   nearestWallDirection,
@@ -26,13 +30,59 @@ import {
 describe("room placement rules", () => {
   const rooms = testShip().layout.rooms;
 
-  it("refuses cells left of or above cell 0, overlaps and empty rooms", () => {
+  it("allows any cell, negative ones too, and refuses overlaps and empty rooms", () => {
     expect(placementProblem(rooms, [{ x: 0, y: 1, w: 2, h: 1 }])).toBeUndefined();
-    expect(placementProblem(rooms, [{ x: -1, y: 1, w: 1, h: 1 }])).toBe("belowZero");
-    expect(placementProblem(rooms, [{ x: 0, y: -1, w: 1, h: 1 }])).toBe("belowZero");
+    expect(placementProblem(rooms, [{ x: -1, y: 1, w: 1, h: 1 }])).toBeUndefined();
+    expect(placementProblem(rooms, [{ x: -3, y: -2, w: 2, h: 2 }])).toBeUndefined();
+    expect(placementProblem(rooms, [{ x: -1, y: -1, w: 2, h: 2 }])).toBe("overlap");
     expect(placementProblem(rooms, [{ x: 1, y: 0, w: 2, h: 1 }])).toBe("overlap");
     expect(placementProblem(rooms, [{ x: 5, y: 5, w: 0, h: 1 }])).toBe("tooSmall");
     expect(placementProblem(rooms, [{ x: 1, y: 0, w: 2, h: 1 }], new Set([0, 1]))).toBeUndefined();
+  });
+
+  it("keeps a player ship's rooms below and right of the frame's top and left edges", () => {
+    // Anchor (1, 1), no shift: the frame spans cells -1 to 18 across and -1 to 12 down.
+    const area = roomArea(testShip())!;
+    expect(area).toEqual({ left: -1, top: -1, right: 18, bottom: 12 });
+    const at = (x: number, y: number, w = 1, h = 1) =>
+      placementProblem(rooms, [{ x, y, w, h }], new Set(), area);
+    expect(at(-1, -1)).toBeUndefined();
+    expect(at(-2, 3)).toBe("offScreen");
+    expect(at(5, -2)).toBe("offScreen");
+    // Past the right and bottom edges rooms are allowed (they are only out of sight in battle).
+    expect(at(16, 11, 2, 1)).toBeUndefined();
+    expect(at(17, 3, 2, 1)).toBeUndefined();
+    expect(at(5, 12)).toBeUndefined();
+    expect(at(30, 20)).toBeUndefined();
+    // Other ships have no frame.
+    expect(roomArea(updateBlueprint(testShip(), { name: "AUTO_T" }))).toBeUndefined();
+  });
+
+  it("counts a cell only partly inside a fractional edge as outside", () => {
+    // VERTICAL -10 puts the top edge at 13 - 1 + 10 / 35 - 13 = -0.71: row -1 sticks out.
+    const ship = updateLayout(testShip(), { vertical: -10 });
+    const area = roomArea(ship)!;
+    expect(placementProblem(rooms, [{ x: 5, y: 0, w: 1, h: 1 }], new Set(), area)).toBeUndefined();
+    expect(placementProblem(rooms, [{ x: 5, y: -1, w: 1, h: 1 }], new Set(), area)).toBe(
+      "offScreen"
+    );
+    // VERTICAL 10 puts the bottom edge at 11.71: row 11 is past it, out of sight.
+    const low = addRoomChecked(updateLayout(testShip(), { vertical: 10 }), {
+      x: 5,
+      y: 11,
+      w: 1,
+      h: 1,
+    }).ship!;
+    expect(outOfView(low, [3])).toBe(true);
+    expect(outOfView(low, [0, 1, 2])).toBe(false);
+  });
+
+  it("never lets rooms go left of or above ship pixel 0, which would save a negative offset", () => {
+    // HORIZONTAL 40 moves the frame's left edge to -2.14, but cell -2 is left of pixel 0.
+    const ship = updateLayout(testShip(), { horizontal: 40 });
+    expect(roomArea(ship)!.left).toBe(-1);
+    expect(addRoomChecked(ship, { x: -2, y: 3, w: 1, h: 1 }).problem).toBe("offScreen");
+    expect(addRoomChecked(ship, { x: -1, y: 3, w: 1, h: 1 }).ship).toBeDefined();
   });
 
   it("spans a rectangle between two cells in either order", () => {
@@ -47,6 +97,30 @@ describe("room placement rules", () => {
     ship = addRoomChecked(ship, { x: 0, y: 3, w: 2, h: 1 }).ship!;
     expect(ship.layout.rooms[3]).toEqual({ id: 3, x: 0, y: 3, w: 2, h: 1 });
     expect(ship.layout.doors[4]).toMatchObject({ roomA: 3, roomB: -1 });
+  });
+
+  it("draws a room left of and above the others, inside the frame", () => {
+    const ship = addRoomChecked(testShip(), rectFromCells({ x: -1, y: 1 }, { x: -1, y: -1 })).ship!;
+    expect(ship.layout.rooms[3]).toEqual({ id: 3, x: -1, y: -1, w: 1, h: 3 });
+    expect(addRoomChecked(testShip(), { x: -2, y: -1, w: 1, h: 1 }).problem).toBe("offScreen");
+    // With more room on the screen, further.
+    const moved = setAnchor(testShip(), 4, 3);
+    expect(addRoomChecked(moved, { x: -4, y: -3, w: 2, h: 2 }).ship!.layout.rooms[3]).toMatchObject(
+      {
+        x: -4,
+        y: -3,
+      }
+    );
+  });
+
+  it("shows positions from the leftmost and the topmost room", () => {
+    const ship = testShip();
+    expect(shownOrigin(ship.layout)).toEqual({ x: 0, y: 0 });
+    const more = addRoomChecked(ship, { x: -1, y: -1, w: 1, h: 1 }).ship!;
+    expect(shownOrigin(more.layout)).toEqual({ x: -1, y: -1 });
+    expect(shownCell(more.layout, more.layout.rooms[0])).toEqual({ x: 1, y: 1 });
+    expect(shownCell(more.layout, more.layout.rooms[3])).toEqual({ x: 0, y: 0 });
+    expect(shownOrigin({ rooms: [] })).toEqual({ x: 0, y: 0 });
   });
 });
 
@@ -72,9 +146,26 @@ describe("moving rooms", () => {
     expect(both.layout.doors[1]).toMatchObject({ x: 4, y: 0, roomA: 2, roomB: -1 });
   });
 
-  it("refuses moves past cell 0 or onto other rooms, and leaves the ship alone", () => {
+  it("moves rooms into negative cells with their doors, but not off the screen", () => {
     const ship = testShip();
-    expect(moveRooms(ship, [0], -1, 0)).toEqual({ problem: "belowZero" });
+    const moved = moveRooms(ship, [0, 1, 2], -1, -1).ship!;
+    expect(moved.layout.rooms.map((r) => [r.x, r.y])).toEqual([
+      [-1, -1],
+      [1, -1],
+      [3, -1],
+    ]);
+    expect(moved.layout.doors[0]).toMatchObject({ x: 1, y: -1, roomA: 0, roomB: 1 });
+    expect(moved.layout.doors[2]).toMatchObject({ x: -1, y: -1, roomA: 0, roomB: -1 });
+    expect(moveRooms(ship, [0], -1, 0).ship!.layout.rooms[0]).toMatchObject({ x: -1, y: 0 });
+    expect(moveRooms(ship, [0, 1, 2], -2, 0)).toEqual({ problem: "offScreen" });
+    // Past the right edge: allowed, and out of sight.
+    const right = moveRooms(ship, [2], 14, 0).ship!;
+    expect(right.layout.rooms[2]).toMatchObject({ x: 18 });
+    expect(outOfView(right, [2])).toBe(true);
+  });
+
+  it("refuses moves onto other rooms, and leaves the ship alone", () => {
+    const ship = testShip();
     expect(moveRooms(ship, [2], -1, 0)).toEqual({ problem: "overlap" });
     expect(moveRooms(ship, [1, 2], -1, 0)).toEqual({ problem: "overlap" });
     expect(moveRooms(ship, [0, 1, 2], 1, 0).ship!.layout.rooms[0].x).toBe(1);
@@ -89,7 +180,16 @@ describe("moving rooms", () => {
     expect(resized.layout.rooms[0]).toMatchObject({ w: 2, h: 2 });
     expect(resized.layout.doors[2]).toBe(ship.layout.doors[2]);
     expect(changeRoom(ship, 0, { w: 3 }).problem).toBe("overlap");
-    expect(changeRoom(ship, 0, { x: -2 }).problem).toBe("belowZero");
+    expect(changeRoom(ship, 0, { x: -1 }).ship!.layout.rooms[0]).toMatchObject({ x: -1, y: 0 });
+    expect(changeRoom(ship, 0, { x: -2 }).problem).toBe("offScreen");
+    expect(changeRoom(ship, 2, { y: -1, h: 3 }).ship!.layout.rooms[2]).toEqual({
+      id: 2,
+      x: 4,
+      y: -1,
+      w: 1,
+      h: 3,
+    });
+    expect(changeRoom(ship, 2, { h: 13 }).ship!.layout.rooms[2]).toMatchObject({ h: 13 });
     expect(changeRoom(ship, 0, { h: 0 }).problem).toBe("tooSmall");
   });
 });
@@ -120,6 +220,17 @@ describe("doors", () => {
     expect(again.ship).toBe(added.ship);
     expect(again.index).toBe(4);
     expect(doorAt(ship.layout, { x: 2, y: 0, vertical: true })).toBe(0);
+  });
+
+  it("finds and adds a door between rooms at negative cells", () => {
+    let neg = addRoomChecked(ship, { x: -1, y: -1, w: 1, h: 1 }).ship!;
+    neg = addRoomChecked(neg, { x: 0, y: -1, w: 2, h: 1 }).ship!;
+    const wall = nearestWall(neg.layout, at(-0.05, -0.5));
+    expect(wall).toEqual({ x: 0, y: -1, vertical: true });
+    const added = addDoorOnWall(neg, wall!);
+    expect(added.ship.layout.doors[added.index]).toEqual({ ...wall, roomA: 3, roomB: 4 });
+    expect(nearestWall(neg.layout, at(-0.6, -0.9))).toEqual({ x: -1, y: -1, vertical: false });
+    expect(doorsOfRoom(added.ship.layout, 4)).toEqual([added.index]);
   });
 
   it("counts the doors on a room's walls", () => {

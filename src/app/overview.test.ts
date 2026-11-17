@@ -79,7 +79,8 @@ describe("the ship overview", () => {
       rooms: "Rooms: 4",
       doors: "Doors: 3",
       airlocks: "Airlocks: 2",
-      onScreen: "Inside the frame",
+      onScreen: "Inside the frame's top and left edges",
+      inView: "Inside the frame",
       coreSystems: "Systems: 4",
       hull: "Set",
       floor: "Set",
@@ -94,7 +95,7 @@ describe("the ship overview", () => {
 
   it("puts every check in exactly one item of its own workspace", () => {
     const codes = Object.keys(ITEM_OF_CHECK) as CheckCode[];
-    expect(codes).toHaveLength(31);
+    expect(codes).toHaveLength(32);
     for (const code of codes) {
       const sections = Object.entries(OVERVIEW_ITEMS).filter(([, ids]) =>
         (ids as readonly string[]).includes(ITEM_OF_CHECK[code])
@@ -156,20 +157,29 @@ describe("the ship overview", () => {
     );
   });
 
-  it("finds rooms outside the frame the game shows, on player ships only", () => {
+  it("finds rooms above or left of the frame (a problem) and past its right or bottom edge (a check)", () => {
     let ship = addRoom(completeShip(), { x: 17, y: 0, w: 2, h: 1 });
     ship = addRoom(ship, { x: 0, y: -2, w: 1, h: 1 });
     const onScreen = item("onScreen", { ship });
-    expect(onScreen.status).toBe("check");
+    expect(onScreen.status).toBe("problem");
+    expect(onScreen.explanation).toBe(en.overview.items.onScreen.explain);
     expect(onScreen.details).toEqual([
-      { text: "Outside the part of the screen the game shows: rooms 4 and 5." },
+      { text: "Above or left of the part of the screen the game shows: room 5." },
     ]);
-    expect(onScreen.selection.rooms).toEqual([4, 5]);
+    expect(onScreen.selection.rooms).toEqual([5]);
+    const inView = item("inView", { ship });
+    expect(inView.status).toBe("check");
+    expect(inView.explanation).toBe(en.overview.items.inView.explain);
+    expect(inView.details).toEqual([
+      { text: "Past the right or bottom edge of the screen: room 4." },
+    ]);
+    expect(inView.selection.rooms).toEqual([4]);
     const enemy = updateBlueprint(ship, { name: "AUTO_T" });
     expect(item("onScreen", { ship: enemy })).toMatchObject({
       status: "ok",
       value: "Only for player ships",
     });
+    expect(item("inView", { ship: enemy })).toMatchObject({ status: "ok" });
   });
 
   it("names the core systems the ship starts without", () => {

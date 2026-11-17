@@ -67,6 +67,8 @@ async function setUp(shipSystems: ShipSystem[]) {
   await waitFor(() =>
     expect(screen.getByTestId("ship-svg").querySelector(".cv-grid")).not.toBeNull()
   );
+  // The pointer positions are worked out from the camera, so wait until the ship is fitted.
+  await waitFor(() => expect(state().view.camera.x).not.toBe(0));
   act(() => state().setWorkspace("rooms"));
 }
 

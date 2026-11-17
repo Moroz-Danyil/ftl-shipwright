@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { Point } from "../core";
+import { addRoom, loadShip, memorySource, saveShip, type Point } from "../core";
+import { hangarShipOffset } from "../canvas/hangar/hangarLayout";
 import { selectionOf } from "../app/selection";
 import { useEditor } from "../app/store";
 import { en } from "../text/en";
@@ -121,12 +122,98 @@ describe("Rooms on the canvas", () => {
     expect(ship().layout.rooms).toHaveLength(3);
     expect(screen.getByText(en.layout.problems.overlap)).toBeInTheDocument();
 
-    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(6.5, 0.5) });
-    fireEvent.pointerMove(canvas(), screenAt(7.5, -0.5));
-    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "false");
-    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(7.5, -0.5) });
-    expect(screen.getByText(en.layout.problems.belowZero)).toBeInTheDocument();
     expect(steps()).toBe(0);
+  });
+
+  it("draws rooms left of and above the first room, and shows their place from it", () => {
+    press("KeyW");
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(-0.5, -0.5) });
+    fireEvent.pointerMove(canvas(), screenAt(-0.5, 1.5));
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "true");
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(-0.5, 1.5) });
+    expect(ship().layout.rooms[3]).toEqual({ id: 3, x: -1, y: -1, w: 1, h: 3 });
+    expect(steps()).toBe(1);
+    expect(screen.getByTestId("room-3")).toBeInTheDocument();
+    // The new room is the leftmost and topmost: it is at 0, 0, and room 0 at 1, 1.
+    expect(within(inspector()).getByLabelText(en.inspector.x)).toHaveValue(0);
+    expect(within(inspector()).getByLabelText(en.inspector.y)).toHaveValue(0);
+    press("KeyQ");
+    click(0.5, 0.5);
+    expect(within(inspector()).getByLabelText(en.inspector.x)).toHaveValue(1);
+    expect(within(inspector()).getByLabelText(en.inspector.y)).toHaveValue(1);
+  });
+
+  it("draws a room past the right edge in amber and says it is out of sight in battle", () => {
+    press("KeyW");
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(17.5, 3.5) });
+    fireEvent.pointerMove(canvas(), screenAt(18.5, 3.5));
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "true");
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(18.5, 3.5) });
+    expect(ship().layout.rooms[3]).toMatchObject({ x: 17, y: 3, w: 2, h: 1 });
+    expect(screen.getByText(en.layout.outOfView)).toBeInTheDocument();
+    const marked = screen.getByTestId("room-out-3");
+    expect(marked.querySelector(".cv-room-out")).not.toBeNull();
+    expect(marked.querySelector(".cv-room-out-part")).toHaveAttribute(
+      "clip-path",
+      "url(#cv-outside-frame)"
+    );
+    // Rooms inside are not marked; a room above the frame (from an opened ship) is marked red.
+    expect(screen.queryByTestId("room-out-0")).toBeNull();
+    act(() => state().edit((s) => addRoom(s, { x: 6, y: -3, w: 1, h: 1 })));
+    expect(screen.getByTestId("room-off-4").querySelector(".cv-room-off")).not.toBeNull();
+  });
+
+  it("refuses a room above the frame the game shows, in red, and says why", () => {
+    press("KeyW");
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(2.5, -0.5) });
+    fireEvent.pointerMove(canvas(), screenAt(3.5, -1.5));
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "false");
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(3.5, -1.5) });
+    expect(ship().layout.rooms).toHaveLength(3);
+    expect(screen.getByText(en.layout.problems.offScreen)).toBeInTheDocument();
+    expect(steps()).toBe(0);
+    // The inspector refuses it too.
+    press("KeyQ");
+    click(4.5, 0.5);
+    commitField(en.inspector.y, "-2");
+    expect(within(inspector()).getByRole("alert")).toHaveTextContent(en.layout.problems.offScreen);
+    expect(ship().layout.rooms[2]).toMatchObject({ x: 4, y: 0 });
+  });
+
+  it("saves rooms at negative cells and shows them at the same place when reopened", () => {
+    press("KeyW");
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(-0.5, -0.5) });
+    fireEvent.pointerMove(canvas(), screenAt(1.5, -0.5));
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(1.5, -0.5) });
+    const drawn = ship();
+    expect(drawn.layout.rooms[3]).toMatchObject({ x: -1, y: -1 });
+    const place = () =>
+      [0, 1, 2, 3].map((id) => {
+        const rect = screen.getByTestId(`room-${id}`).querySelector("rect")!;
+        return [rect.getAttribute("x"), rect.getAttribute("y")];
+      });
+    const frame = () => {
+      const r = screen.getByTestId("view-limit");
+      return [r.getAttribute("x"), r.getAttribute("y")];
+    };
+    const before = { rooms: place(), frame: frame(), hangar: hangarShipOffset(drawn.layout) };
+
+    const reopened = loadShip(saveShip(drawn));
+    expect(reopened.layout.rooms[3]).toMatchObject({ x: 0, y: 0 });
+    expect(reopened.layout.rooms[0]).toMatchObject({ x: 1, y: 1 });
+    // The anchor moved to the top-left room, and it is never negative.
+    expect([reopened.layout.xOffset, reopened.layout.yOffset]).toEqual([0, 0]);
+    act(() =>
+      state().openDocument({
+        ship: reopened,
+        art: { source: memorySource({}), gibs: [] },
+        saved: true,
+      })
+    );
+    act(() => state().setWorkspace("rooms"));
+    expect({ rooms: place(), frame: frame(), hangar: hangarShipOffset(reopened.layout) }).toEqual(
+      before
+    );
   });
 
   it("says why a dragged room cannot go where it is dropped", () => {
@@ -156,10 +243,16 @@ describe("Rooms inspector", () => {
     click(4.5, 0.5);
     commitField(en.inspector.y, "2");
     expect(ship().layout.rooms[2]).toMatchObject({ y: 2 });
+    // Left of every other room: it becomes the leftmost one, at 0.
     commitField(en.inspector.x, "-1");
-    expect(within(inspector()).getByRole("alert")).toHaveTextContent(en.layout.problems.belowZero);
-    expect(within(inspector()).getByLabelText(en.inspector.x)).toHaveValue(4);
-    expect(steps()).toBe(1);
+    expect(ship().layout.rooms[2]).toMatchObject({ x: -1, y: 2 });
+    expect(within(inspector()).getByLabelText(en.inspector.x)).toHaveValue(0);
+    commitField(en.inspector.y, "0");
+    commitField(en.inspector.width, "2");
+    expect(within(inspector()).getByRole("alert")).toHaveTextContent(en.layout.problems.overlap);
+    expect(within(inspector()).getByLabelText(en.inspector.width)).toHaveValue(1);
+    expect(ship().layout.rooms[2]).toMatchObject({ x: -1, y: 0, w: 1 });
+    expect(steps()).toBe(3);
   });
 
   it("shows the palette when nothing is selected, and the tool help folded", () => {

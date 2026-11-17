@@ -78,7 +78,7 @@ describe("the Ship overview dialog", () => {
       "Hull",
     ]);
     const rooms = within(sections[1]).getAllByRole("listitem");
-    expect(rooms).toHaveLength(13);
+    expect(rooms).toHaveLength(14);
     expect(rooms[0]).toHaveTextContent(`${t.items.rooms.title}Rooms: 4`);
     expect(within(rooms[0]).getByRole("img", { name: t.status.ok })).toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: /^Go there/ })).toBeNull();

@@ -1,5 +1,6 @@
 /** Save mod: as one `.ftl` file or into a mod folder. */
 import { useState } from "react";
+import { roomsOffScreen } from "../../app/checks";
 import { overviewCounts, useOverview } from "../../app/overview";
 import { saveShipMod } from "../../app/saveMod";
 import { useEditor, type SaveTarget } from "../../app/store";
@@ -15,7 +16,9 @@ export function SaveDialog() {
   const [busy, setBusy] = useState(false);
   const close = () => useEditor.getState().openDialog(null);
   if (!doc) return null;
-  const layout = doc.history.present.ship.blueprint.layout;
+  const ship = doc.history.present.ship;
+  const layout = ship.blueprint.layout;
+  const offScreen = roomsOffScreen(ship).length;
   const last = doc.saveTarget;
 
   const askPath = (kind: SaveTarget["kind"]) =>
@@ -47,6 +50,11 @@ export function SaveDialog() {
     >
       {problems + checks > 0 && (
         <div className="dlg-warning">{texts.save.overviewWarning(problems, checks)}</div>
+      )}
+      {offScreen > 0 && (
+        <div className="dlg-warning" role="alert">
+          {texts.save.offScreen(offScreen)}
+        </div>
       )}
       <div className="choice-row">
         <button type="button" className="choice" disabled={busy} onClick={() => void save("ftl")}>

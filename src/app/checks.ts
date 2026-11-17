@@ -9,11 +9,18 @@ import {
   validateShip,
   type Catalogs,
   type GameTexts,
+  type Rect,
   type Ship,
   type ShipText,
   type ValidationCode,
 } from "../core";
-import { isPlayerShip, viewLimitCells } from "../canvas/viewLimit";
+import {
+  beyondBottomRight,
+  beyondTopLeft,
+  isPlayerShip,
+  roomAreaCells,
+  type CellBox,
+} from "../canvas/viewLimit";
 import type { ShipArt } from "./art/model";
 import { isHangarSlot } from "./hangar";
 import { crewTotal } from "./details/rules";
@@ -30,7 +37,7 @@ import type { WorkspaceId } from "./workspaces";
 export type TextCheckCode = "no-name" | "no-class" | "no-description";
 export type HangarCheckCode = "not-in-hangar";
 export type LayoutCheckCode =
-  "no-rooms" | "rooms-cut-off" | "rooms-off-screen" | "missing-core-system";
+  "no-rooms" | "rooms-cut-off" | "rooms-off-screen" | "rooms-out-of-view" | "missing-core-system";
 export type SystemCheckCode = "several-installed" | "unusual-mix" | "cloak-interior-size";
 export type ArtCheckCode =
   "no-hull" | "no-shield" | "no-ship-icon" | "few-mounts" | "gib-no-picture" | "mount-gib-missing";
@@ -145,21 +152,32 @@ export function roomsCutOff(ship: Ship): number[] {
     .sort((a, b) => a - b);
 }
 
-/** The rooms of a player ship that lie, even partly, outside the view limit frame. */
-export function roomsOffScreen(ship: Ship): number[] {
+/** The ids of a player ship's rooms that `test` picks with the screen's frame, sorted. */
+function roomsBy(ship: Ship, test: (area: CellBox, r: Rect) => boolean): number[] {
   if (!isPlayerShip(ship.blueprint.name)) return [];
-  const frame = viewLimitCells(ship.layout);
-  const slack = 1e-6;
+  const area = roomAreaCells(ship.layout);
   return ship.layout.rooms
-    .filter(
-      (r) =>
-        r.x < frame.left - slack ||
-        r.y < frame.top - slack ||
-        r.x + r.w > frame.right + slack ||
-        r.y + r.h > frame.bottom + slack
-    )
+    .filter((r) => test(area, r))
     .map((r) => r.id)
     .sort((a, b) => a - b);
+}
+
+/**
+ * The rooms of a player ship that reach, even partly, above or left of the
+ * part of the screen the game shows (or of ship pixel 0, which would be saved
+ * as a negative offset); the game may crash with them.
+ */
+export function roomsOffScreen(ship: Ship): number[] {
+  return roomsBy(ship, beyondTopLeft);
+}
+
+/**
+ * The other rooms of a player ship that reach past the right or bottom edge
+ * of the screen: the game handles them, but that part is not visible in
+ * battle.
+ */
+export function roomsOutOfView(ship: Ship): number[] {
+  return roomsBy(ship, (area, r) => !beyondTopLeft(area, r) && beyondBottomRight(area, r));
 }
 
 /** The Rooms checks of the editor: no rooms, rooms cut off or off screen, the core systems. */
@@ -171,7 +189,15 @@ export function layoutChecks(ship: Ship): CheckIssue[] {
   if (cutOff.length > 0) issues.push({ code: "rooms-cut-off", rooms: cutOff, workspace: "rooms" });
   const offScreen = roomsOffScreen(ship);
   if (offScreen.length > 0)
-    issues.push({ code: "rooms-off-screen", rooms: offScreen, workspace: "rooms" });
+    issues.push({
+      code: "rooms-off-screen",
+      rooms: offScreen,
+      workspace: "rooms",
+      severity: "problem",
+    });
+  const outOfView = roomsOutOfView(ship);
+  if (outOfView.length > 0)
+    issues.push({ code: "rooms-out-of-view", rooms: outOfView, workspace: "rooms" });
   for (const system of CORE_SYSTEMS) {
     const installed = ship.blueprint.systems.some((s) => s.system === system && isInstalled(s));
     if (!installed)

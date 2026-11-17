@@ -6,6 +6,7 @@
  */
 import { CELL_SIZE, doorRooms, stationCellToXY, type Room, type Ship } from "../../../core";
 import { doorsOfRoom } from "../../../app/layout/doors";
+import { shownCell } from "../../../app/layout/rooms";
 import { DIRECTIONS, isStationSystem, stationOf } from "../../../app/layout/stations";
 import { systemLevels } from "../../../app/info";
 import { gameText } from "../../../app/loadout/catalog";
@@ -217,6 +218,7 @@ export function RoomInfo({ ship, id }: { ship: Ship; id: number }) {
   const stations = indices.filter((i) => isStationSystem(ship.blueprint.systems[i].system));
   const doors = doorsOfRoom(ship.layout, room.id);
   const side = (other: number) => (other === -1 ? t.airlockTo : texts.inspector.side(other));
+  const at = shownCell(ship.layout, room);
   return (
     <>
       <InfoHead kind={t.kinds.room} title={texts.inspector.room(room.id)} />
@@ -245,7 +247,7 @@ export function RoomInfo({ ship, id }: { ship: Ship; id: number }) {
       <InfoSection title={t.sections.position} icon="position">
         <Facts
           rows={[
-            [t.position, t.cellsAt(room.x, room.y)],
+            [t.position, t.cellsAt(at.x, at.y)],
             [t.size, t.cells(room.w, room.h)],
             [texts.inspector.roomId, room.id],
           ]}
@@ -363,6 +365,7 @@ export function DoorInfo({ ship, index }: { ship: Ship; index: number }) {
   const side = (id: number) => (id === -1 ? texts.inspector.space : texts.inspector.side(id));
   const room = ship.layout.rooms.find((r) => r.id === a);
   const large = kind === "airlock" && room !== undefined && (room.w > 2 || room.h > 2);
+  const at = shownCell(ship.layout, door);
   return (
     <>
       <InfoHead
@@ -378,7 +381,7 @@ export function DoorInfo({ ship, index }: { ship: Ship; index: number }) {
             [t.kind, t.doorKinds[kind]],
             [t.connects, kind === "loose" ? undefined : `${side(a)} · ${side(b)}`],
             [t.wall, door.vertical ? texts.inspector.verticalWall : texts.inspector.horizontalWall],
-            [t.position, t.cellsAt(door.x, door.y)],
+            [t.position, t.cellsAt(at.x, at.y)],
           ]}
         />
         {kind === "inner" && <InfoText>{t.innerAbout}</InfoText>}

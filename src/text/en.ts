@@ -278,7 +278,7 @@ export const en = {
       canvas: {
         title: "The canvas",
         body: (k: TourKeys) =>
-          `The ship on the game's grid. Click to select, drag to move. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
+          `The ship on the game's grid. The dashed red frame is the part of a player ship the game shows: rooms cannot go above or left of it, and rooms past its right or bottom edge are drawn amber because they are not visible in battle. Click to select, drag to move. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
       },
       info: {
         title: "The Info panel",
@@ -341,7 +341,7 @@ export const en = {
       },
       room: {
         title: "Room tool",
-        body: "Drag on the grid to draw a room. Rooms snap to cells and never cross the solid edge at 0 or overlap. Right-click or Esc cancels.",
+        body: "Drag on the grid to draw a room. Rooms snap to cells, never overlap and never go above or left of the red frame (the part of the screen the game shows); past its right or bottom edge they are drawn amber, as that part is not visible in battle. Right-click or Esc cancels.",
       },
       door: {
         title: "Door tool",
@@ -410,7 +410,8 @@ export const en = {
 
   layout: {
     problems: {
-      belowZero: "Rooms cannot go left of or above cell 0.",
+      offScreen:
+        "Rooms cannot go above or left of the game's screen (the red frame): the game may crash.",
       overlap: "Rooms cannot overlap other rooms.",
       tooSmall: "A room is at least 1 × 1 cell.",
     },
@@ -421,6 +422,8 @@ export const en = {
       confirm: "Delete",
     },
     noStationSystem: "This room has no system with a crew station.",
+    outOfView:
+      "Outside the game's screen: this part of the ship will not be visible in battle. It is better to keep the ship inside the red frame.",
   },
 
   systems: {
@@ -697,7 +700,7 @@ export const en = {
   help: {
     roomPosition: {
       title: "Room position",
-      body: "Where the room's top-left corner is, in tiles from the top-left of the ship's layout. One tile is 35 px.",
+      body: "Where the room's top-left corner is, in tiles from the leftmost and the topmost room (they are at 0), as the saved layout writes it. Rooms can go anywhere below and right of the red frame's top and left edges (the part of the screen the game shows); a room moved left of or above the others becomes the new 0. One tile is 35 px.",
     },
     roomSize: {
       title: "Room size",
@@ -1041,7 +1044,9 @@ export const en = {
       "no-rooms": () => "The ship has no rooms.",
       "rooms-cut-off": (i: IssueRefs) => `Crew cannot walk to ${rooms(i.rooms)}.`,
       "rooms-off-screen": (i: IssueRefs) =>
-        `Outside the part of the screen the game shows: ${rooms(i.rooms)}.`,
+        `Above or left of the part of the screen the game shows: ${rooms(i.rooms)}.`,
+      "rooms-out-of-view": (i: IssueRefs) =>
+        `Past the right or bottom edge of the screen: ${rooms(i.rooms)}.`,
       "missing-core-system": (i: IssueRefs) => `The ship starts without ${i.systemName ?? "?"}.`,
       "room-overlap": (i: IssueRefs) => `Rooms ${list(i.rooms)} overlap.`,
       "room-ids": (i: IssueRefs) =>
@@ -1179,9 +1184,16 @@ export const en = {
         value: (n: number) => `Airlocks: ${n}`,
       },
       onScreen: {
-        title: "Everything on screen",
+        title: "Nothing above or left of the screen",
         explain:
-          "These rooms lie outside the red frame, the part of the screen the game shows. Move the rooms (or the ship's offsets) in Rooms.",
+          "These rooms reach above or left of the red frame, the part of the screen the game shows; the game may crash with rooms there. Move them in Rooms.",
+        value: "Inside the frame's top and left edges",
+        notPlayer: "Only for player ships",
+      },
+      inView: {
+        title: "Everything visible in battle",
+        explain:
+          "These rooms reach past the right or bottom edge of the red frame, the part of the screen the game shows. The game handles them, but that part of the ship is not visible in battle; it is better to keep the ship inside the frame. Move them in Rooms.",
         value: "Inside the frame",
         notPlayer: "Only for player ships",
       },
@@ -1264,6 +1276,8 @@ export const en = {
     folder: "Mod folder",
     folderHint:
       "Writes the files into a folder. A mod already in it keeps its other ships and files.",
+    offScreen: (rooms: number) =>
+      `${plural(rooms, "room lies", "rooms lie")} above or left of the game's screen (the red frame). The game may crash with this ship; move them back inside first.`,
     overviewWarning: (problems: number, checks: number) => {
       const found = [
         ...(problems > 0 ? [plural(problems, "problem", "problems")] : []),

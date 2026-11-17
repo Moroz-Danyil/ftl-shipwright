@@ -1,11 +1,15 @@
 /**
- * The rules for placing rooms: whole cells, never left of or above cell 0,
- * never overlapping another room. Moving rooms takes along the doors that
- * only touch the moved rooms.
+ * The rules for placing rooms: whole cells (negative ones too), for a
+ * player ship never above or left of the part of the screen the game shows,
+ * never overlapping another room. Rooms past its right or bottom edge are
+ * allowed; they are not visible in battle. Moving rooms takes along the doors
+ * that only touch the moved rooms. Positions are shown counted from the
+ * top-left of the rooms, the way a saved layout writes them.
  */
 import {
   addRoom,
   doorSides,
+  roomsBoundsCells,
   syncDoorRooms,
   updateLayout,
   type Point,
@@ -14,9 +18,16 @@ import {
   type Ship,
   type ShipLayout,
 } from "../../core";
+import {
+  beyondBottomRight,
+  beyondTopLeft,
+  isPlayerShip,
+  roomAreaCells,
+  type CellBox,
+} from "../../canvas/viewLimit";
 
 /** Why rooms cannot go somewhere. */
-export type PlaceProblem = "belowZero" | "overlap" | "tooSmall";
+export type PlaceProblem = "offScreen" | "overlap" | "tooSmall";
 
 /** The result of a room edit: the changed ship, or why it was refused. */
 export type EditResult =
@@ -27,22 +38,55 @@ export function rectsOverlap(a: Rect, b: Rect): boolean {
 }
 
 /**
+ * Where a ship's rooms may go: for a player ship the cells of the game's
+ * screen frame ({@link roomAreaCells}), else anywhere (`undefined`).
+ */
+export function roomArea(ship: Ship): CellBox | undefined {
+  return isPlayerShip(ship.blueprint.name) ? roomAreaCells(ship.layout) : undefined;
+}
+
+/**
  * Why the rectangles (cells) cannot be rooms, or `undefined` when they can.
  * Rooms whose ids are in `ignore` (the ones being moved) do not count as
- * obstacles.
+ * obstacles; with an `area`, no rectangle may reach past its top or left
+ * edge.
  */
 export function placementProblem(
   rooms: Room[],
   rects: Rect[],
-  ignore: ReadonlySet<number> = new Set()
+  ignore: ReadonlySet<number> = new Set(),
+  area?: CellBox
 ): PlaceProblem | undefined {
-  for (const r of rects) {
-    if (r.w < 1 || r.h < 1) return "tooSmall";
-    if (r.x < 0 || r.y < 0) return "belowZero";
-  }
+  for (const r of rects) if (r.w < 1 || r.h < 1) return "tooSmall";
+  if (area && rects.some((r) => beyondTopLeft(area, r))) return "offScreen";
   for (const r of rects)
     for (const room of rooms) if (!ignore.has(room.id) && rectsOverlap(r, room)) return "overlap";
   return undefined;
+}
+
+/**
+ * The cell that positions are shown from: the smallest room x and the
+ * smallest room y, or (0, 0) without rooms. A saved layout starts its rooms
+ * there, so a position counted from it is the one the file gets.
+ */
+export function shownOrigin(layout: Pick<ShipLayout, "rooms">): Point {
+  const b = roomsBoundsCells(layout);
+  return b ? { x: b.x, y: b.y } : { x: 0, y: 0 };
+}
+
+/** A cell as the inspector shows it: counted from {@link shownOrigin}. */
+export function shownCell(layout: Pick<ShipLayout, "rooms">, cell: Point): Point {
+  const o = shownOrigin(layout);
+  return { x: cell.x - o.x, y: cell.y - o.y };
+}
+
+/** True when one of these rooms of a player ship reaches past the right or bottom edge of the screen. */
+export function outOfView(ship: Ship, ids: number[]): boolean {
+  const area = roomArea(ship);
+  return (
+    area !== undefined &&
+    ship.layout.rooms.some((r) => ids.includes(r.id) && beyondBottomRight(area, r))
+  );
 }
 
 /** The rooms with these ids, shifted by whole cells. */
@@ -81,7 +125,12 @@ export function moveProblem(
   dx: number,
   dy: number
 ): PlaceProblem | undefined {
-  return placementProblem(ship.layout.rooms, shiftedRooms(ship.layout, ids, dx, dy), new Set(ids));
+  return placementProblem(
+    ship.layout.rooms,
+    shiftedRooms(ship.layout, ids, dx, dy),
+    new Set(ids),
+    roomArea(ship)
+  );
 }
 
 /**
@@ -112,7 +161,7 @@ export function rectFromCells(a: Point, b: Point): Rect {
 
 /** Adds a room (it gets the next id) when the rectangle is free. */
 export function addRoomChecked(ship: Ship, rect: Rect): EditResult {
-  const problem = placementProblem(ship.layout.rooms, [rect]);
+  const problem = placementProblem(ship.layout.rooms, [rect], new Set(), roomArea(ship));
   if (problem) return { problem };
   return { ship: syncDoorRooms(addRoom(ship, rect)) };
 }
@@ -131,7 +180,7 @@ export function changeRoom(ship: Ship, id: number, patch: Partial<Rect>): EditRe
     w: patch.w ?? room.w,
     h: patch.h ?? room.h,
   };
-  const problem = placementProblem(ship.layout.rooms, [target], new Set([id]));
+  const problem = placementProblem(ship.layout.rooms, [target], new Set([id]), roomArea(ship));
   if (problem) return { problem };
   const moved = moveRooms(ship, [id], target.x - room.x, target.y - room.y);
   if (!moved.ship) return moved;

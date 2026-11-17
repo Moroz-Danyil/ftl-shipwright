@@ -2,12 +2,18 @@
  * Layout edits on the open ship, each one undo step: moving, adding and
  * deleting rooms, doors and stations, with the selection that follows.
  */
-import type { Rect, StationDirection } from "../core";
+import type { Rect, Ship, StationDirection } from "../core";
 import type { Texts } from "../text";
 import type { CommandContext } from "./commands";
 import { addDoorOnWall, type WallSegment } from "./layout/doors";
 import { deleteSelection, systemsInRooms } from "./layout/remove";
-import { addRoomChecked, changeRoom, moveRooms, type PlaceProblem } from "./layout/rooms";
+import {
+  addRoomChecked,
+  changeRoom,
+  moveRooms,
+  outOfView,
+  type PlaceProblem,
+} from "./layout/rooms";
 import { placeStation, setStationDirection } from "./layout/stations";
 import { EMPTY_SELECTION, isEmptySelection, selectionOf } from "./selection";
 import { useEditor } from "./store";
@@ -20,23 +26,35 @@ export function problemText(texts: Texts, problem: PlaceProblem): string {
 }
 
 /**
+ * With `texts`, says so when the placed rooms reach past the right or bottom
+ * edge of the screen (allowed, but not visible in battle).
+ */
+function warnOutOfView(ship: Ship, ids: number[], texts: Texts | undefined): void {
+  if (texts && outOfView(ship, ids))
+    useEditor.getState().setNotice({ kind: "info", text: texts.layout.outOfView });
+}
+
+/**
  * Moves the selected rooms by whole cells (doors follow as the rules say).
  * Returns the problem when the move is refused.
  */
-export function moveSelectedRooms(dx: number, dy: number): PlaceProblem | undefined {
+export function moveSelectedRooms(dx: number, dy: number, texts?: Texts): PlaceProblem | undefined {
   const ship = present();
   const { selection, edit } = useEditor.getState();
   if (!ship || selection.rooms.length === 0) return undefined;
   const result = moveRooms(ship, selection.rooms, dx, dy);
   if (result.problem) return result.problem;
-  if (result.ship !== ship) edit(() => result.ship);
+  if (result.ship !== ship) {
+    edit(() => result.ship);
+    warnOutOfView(result.ship, selection.rooms, texts);
+  }
   return undefined;
 }
 
 /** Arrow keys: moves the selected rooms by one cell, or says why it cannot. */
 export function nudgeSelection(dx: number, dy: number, texts: Texts): boolean {
   if (useEditor.getState().selection.rooms.length === 0) return false;
-  const problem = moveSelectedRooms(dx, dy);
+  const problem = moveSelectedRooms(dx, dy, texts);
   if (problem) useEditor.getState().setNotice({ kind: "info", text: problemText(texts, problem) });
   return true;
 }
@@ -58,23 +76,31 @@ export async function deleteSelected(context: CommandContext): Promise<boolean> 
 }
 
 /** Adds a room and selects it. Returns the problem when the rectangle is not free. */
-export function addRoomAt(rect: Rect): PlaceProblem | undefined {
+export function addRoomAt(rect: Rect, texts?: Texts): PlaceProblem | undefined {
   const ship = present();
   if (!ship) return undefined;
   const result = addRoomChecked(ship, rect);
   if (result.problem) return result.problem;
   const id = ship.layout.rooms.length;
   useEditor.getState().edit(() => result.ship, selectionOf({ kind: "room", id }));
+  warnOutOfView(result.ship, [id], texts);
   return undefined;
 }
 
 /** Changes the position or size of a room from the inspector; returns the problem when refused. */
-export function changeRoomValues(id: number, patch: Partial<Rect>): PlaceProblem | undefined {
+export function changeRoomValues(
+  id: number,
+  patch: Partial<Rect>,
+  texts?: Texts
+): PlaceProblem | undefined {
   const ship = present();
   if (!ship) return undefined;
   const result = changeRoom(ship, id, patch);
   if (result.problem) return result.problem;
-  if (result.ship !== ship) useEditor.getState().edit(() => result.ship);
+  if (result.ship !== ship) {
+    useEditor.getState().edit(() => result.ship);
+    warnOutOfView(result.ship, [id], texts);
+  }
   return undefined;
 }
 

@@ -1,5 +1,6 @@
 /** The selected door: position, orientation, the two sides and warnings. */
 import { doorRooms, type Door, type Ship } from "../../../core";
+import { shownCell } from "../../../app/layout/rooms";
 import { doorKind } from "../../../canvas/doors";
 import { useTexts } from "../../../text";
 
@@ -19,6 +20,7 @@ export function DoorPanel({ ship, door, index }: { ship: Ship; door: Door; index
   const side = (id: number) => (id === -1 ? texts.inspector.space : texts.inspector.side(id));
   const room = ship.layout.rooms.find((r) => r.id === a);
   const large = kind === "airlock" && room !== undefined && (room.w > 2 || room.h > 2);
+  const at = shownCell(ship.layout, door);
   return (
     <>
       <div className="ed-heading">
@@ -26,8 +28,8 @@ export function DoorPanel({ ship, door, index }: { ship: Ship; door: Door; index
         <span className="ed-heading-title">{texts.inspector.door(index)}</span>
       </div>
       <div className="ed-grid2">
-        <Value label={texts.inspector.x} value={door.x} />
-        <Value label={texts.inspector.y} value={door.y} />
+        <Value label={texts.inspector.x} value={at.x} />
+        <Value label={texts.inspector.y} value={at.y} />
         <Value
           label={texts.inspector.wall}
           value={door.vertical ? texts.inspector.verticalWall : texts.inspector.horizontalWall}

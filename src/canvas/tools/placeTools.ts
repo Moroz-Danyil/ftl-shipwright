@@ -1,13 +1,15 @@
 /**
  * The tools that add things: Room (drag a rectangle of cells), Door (click a
  * wall) and Station (click a cell of a room with a station system). A room
- * that cannot go where it is drawn shows red while dragging, and on release
- * the notice says why.
+ * that cannot go where it is drawn (over another room, or above or left of
+ * the game's screen) shows red while dragging, and on release the notice
+ * says why; one past the screen's right or bottom edge is added with a
+ * notice that it will not be visible in battle.
  */
 import { pxToCell, roomAtCell, type Point } from "../../core";
 import { addDoorAt, addRoomAt, placeStationAt, problemText } from "../../app/layoutActions";
 import { doorAt, nearestWall } from "../../app/layout/doors";
-import { placementProblem, rectFromCells } from "../../app/layout/rooms";
+import { placementProblem, rectFromCells, roomArea } from "../../app/layout/rooms";
 import { stationCellAt, stationSystemsInRoom } from "../../app/layout/stations";
 import { useEditor } from "../../app/store";
 import type { CanvasTool, ToolContext } from "./types";
@@ -25,7 +27,7 @@ export function createRoomTool(context: ToolContext): CanvasTool {
     context.setOverlay({
       kind: "ghost",
       cells: [rect],
-      ok: !placementProblem(s.layout.rooms, [rect]),
+      ok: !placementProblem(s.layout.rooms, [rect], new Set(), roomArea(s)),
     });
   };
   const stop = () => {
@@ -55,7 +57,7 @@ export function createRoomTool(context: ToolContext): CanvasTool {
       const a = start;
       const b = end;
       stop();
-      const problem = a && b ? addRoomAt(rectFromCells(a, b)) : undefined;
+      const problem = a && b ? addRoomAt(rectFromCells(a, b), context.texts) : undefined;
       if (problem) context.say(problemText(context.texts, problem));
     },
     leave() {

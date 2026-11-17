@@ -340,6 +340,27 @@ describe("editor window", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  it("warns before saving a ship with rooms off the game's screen, and still saves it", async () => {
+    // As a ship opened from a mod could have it: a room far above the frame.
+    act(() => state().edit((s) => addRoom(s, { x: 0, y: -12, w: 1, h: 1 })));
+    const overview = screen.getByRole("button", { name: /Overview/ });
+    expect(overview).toHaveAccessibleName(expect.stringMatching(/problem/));
+    fireEvent.click(screen.getByRole("button", { name: en.topBar.saveMod }));
+    const dialog = screen.getByRole("dialog", { name: en.save.title });
+    expect(within(dialog).getByRole("alert")).toHaveTextContent(en.save.offScreen(1));
+    platform.answers.pickSavePath.push("out/mini.ftl");
+    fireEvent.click(within(dialog).getByRole("button", { name: new RegExp(en.save.ftl) }));
+    await waitFor(() => expect(platform.disk.has("out/mini.ftl")).toBe(true));
+  });
+
+  it("warns only with the Overview's counts for rooms past the right edge of the screen", () => {
+    act(() => state().edit((s) => addRoom(s, { x: 30, y: 0, w: 1, h: 1 })));
+    fireEvent.click(screen.getByRole("button", { name: en.topBar.saveMod }));
+    const dialog = screen.getByRole("dialog", { name: en.save.title });
+    expect(dialog).toHaveTextContent(/to check/);
+    expect(within(dialog).queryByRole("alert")).toBeNull();
+  });
+
   it("asks in its own dialog before closing a ship with unsaved changes", async () => {
     act(() => state().edit((s) => addRoom(s, { x: 4, y: 0, w: 1, h: 1 })));
     const close = screen.getByRole("button", { name: en.topBar.closeShip });

@@ -113,6 +113,10 @@ So the editor writes every layout with the rooms moved to start at (0, 0), keepi
 
 The example ship is written as `ROOM 0 0 0 2 2`, `X_OFFSET 7`, `Y_OFFSET 5` and `<img x="-260" y="-124" .../>`: room and hull corner are at (245, 175) and (-15, 51) from the old anchor in the game as in the editor. The ship in the editor's memory keeps its numbers; opening the written files shows the same ship at the same place, with the anchor at (7, 5). The game's own ships already start at (0, 0) and are written unchanged.
 
+### Rooms off the screen
+
+No ship of the game has a negative `X_OFFSET` or `Y_OFFSET` (the smallest is 0) [69/69 layouts], and every player ship's rooms lie inside the 19 × 13 cell frame the game shows [28/28 player layouts]. A copy of the Kestrel B with two rooms drawn above that frame was written with `Y_OFFSET -1` (`VERTICAL -16`, rooms from cell (0, 0)), and the game crashed with it **(observed)**. Rooms built past the frame's right and bottom edges did not crash the game; that part of the ship is not visible in battle **(observed)**. So the editor keeps a player ship's rooms below and right of the frame's top and left edges, a cell only partly inside a fractional edge counting as outside, and never left of or above ship pixel 0, which is the cell that becomes `X_OFFSET`/`Y_OFFSET` 0 when the layout is written. With the frame's left edge at cell `-X_OFFSET - HORIZONTAL / 35`, rooms inside that edge alone would already give an offset of 0 or more for any `HORIZONTAL` below 35; the pixel-0 limit covers larger values. The Overview lists rooms above or left of the frame as a problem and rooms past its right or bottom edge as something to check.
+
 ## 9. Fonts
 
 The game draws its texts with bitmap fonts in `fonts/*.font` (`HL1`, `HL2`, `JustinFont8`, `JustinFont10`, `JustinFont11Bold`, `JustinFont12Bold`, `c&c`, `c&cnew`, `num_font`; `fonts/ja/` holds the Japanese fonts in the same format, `fonts/zh-Hans/` a TrueType font). A `.font` file is big-endian:

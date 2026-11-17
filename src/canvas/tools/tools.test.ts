@@ -164,16 +164,38 @@ describe("Room tool", () => {
     expect(ship().layout.rooms[3]).toEqual({ id: 3, x: 6, y: 0, w: 1, h: 1 });
   });
 
-  it("refuses overlaps and cells below 0 in red, and says why", () => {
+  it("draws a room into negative cells inside the frame, and refuses one off the screen", () => {
+    const tool = createRoomTool(context);
+    drag(tool, { x: -0.5, y: -0.5 }, { x: 1.5, y: -0.5 });
+    expect(overlay).toEqual({ kind: "ghost", cells: [{ x: -1, y: -1, w: 3, h: 1 }], ok: true });
+    tool.up(at(1.5, -0.5));
+    expect(ship().layout.rooms[3]).toEqual({ id: 3, x: -1, y: -1, w: 3, h: 1 });
+    expect(said).toEqual([]);
+    // Above the frame (its top edge is cell row -1): red, and the notice says why.
+    drag(tool, { x: 5.5, y: -0.5 }, { x: 5.5, y: -1.5 });
+    expect(overlay).toMatchObject({ kind: "ghost", ok: false });
+    tool.up(at(5.5, -1.5));
+    expect(said).toEqual([en.layout.problems.offScreen]);
+    expect(ship().layout.rooms).toHaveLength(4);
+  });
+
+  it("adds a room past the frame's right edge, and says it will not be visible in battle", () => {
+    const tool = createRoomTool(context);
+    // The frame's right edge is cell column 18.
+    drag(tool, { x: 17.5, y: 0.5 }, { x: 18.5, y: 0.5 });
+    expect(overlay).toMatchObject({ kind: "ghost", ok: true });
+    tool.up(at(18.5, 0.5));
+    expect(ship().layout.rooms[3]).toEqual({ id: 3, x: 17, y: 0, w: 2, h: 1 });
+    expect(said).toEqual([]);
+    expect(state().notice).toEqual({ kind: "info", text: en.layout.outOfView });
+  });
+
+  it("refuses overlaps in red, and says why", () => {
     const tool = createRoomTool(context);
     drag(tool, { x: 0.5, y: 2.5 }, { x: 2.5, y: 1.5 });
     expect(overlay).toMatchObject({ kind: "ghost", ok: false });
     tool.up(at(2.5, 1.5));
     expect(said).toEqual([en.layout.problems.overlap]);
-    drag(tool, { x: 6.5, y: 0.5 }, { x: 6.5, y: -0.5 });
-    expect(overlay).toMatchObject({ kind: "ghost", ok: false });
-    tool.up(at(6.5, -0.5));
-    expect(said).toEqual([en.layout.problems.overlap, en.layout.problems.belowZero]);
     expect(ship().layout.rooms).toHaveLength(3);
     expect(undoAvailable(state())).toBe(false);
     // The pointer alone (no drag) shows red over a room too.
@@ -186,7 +208,7 @@ describe("Room tool", () => {
     drag(tool, { x: 6.5, y: 0.5 }, { x: 7.5, y: 1.5 });
     expect(overlay).toMatchObject({ ok: true });
     tool.up(at(7.5, 1.5));
-    expect(said).toHaveLength(2);
+    expect(said).toHaveLength(1);
     expect(ship().layout.rooms).toHaveLength(4);
   });
 

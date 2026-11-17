@@ -14,8 +14,9 @@ import { currentTool, useEditor } from "../app/store";
 import { gibRectPx } from "./artHitTest";
 import { FlashRings } from "./FlashRings";
 import { GibFan } from "./GibFan";
-import { CellZeroEdge, GridLines, ViewLimitFrame } from "./GridLayer";
+import { GridLines, ViewLimitFrame } from "./GridLayer";
 import { MountsLayer } from "./MountsLayer";
+import { OffScreenRooms } from "./OffScreenRooms";
 import { ShipPictures } from "./ShipPictures";
 import { shownLayers } from "./shownLayers";
 import { Doors, Rooms } from "./ShipShapes";
@@ -72,13 +73,9 @@ export function ShipScene({ area, overlay, explosion }: Props) {
       <ShipPictures ship={ship} art={snapshot.art} layers={layers} explosion={explosion} />
       {!playing && (
         <>
-          {layers.grid && area.w > 0 && (
-            <>
-              <GridLines area={area} />
-              <CellZeroEdge ship={ship} area={area} />
-            </>
-          )}
+          {layers.grid && area.w > 0 && <GridLines area={area} />}
           {layers.rooms && <Rooms layout={ship.layout} selected={selection.rooms} ids={ids} />}
+          {layers.rooms && <OffScreenRooms ship={ship} />}
           {layers.interiors && <Interiors ship={ship} source={snapshot.art.source} />}
           {layers.doors && <Doors layout={ship.layout} selected={selection.doors} plain={false} />}
           {layers.systemIcons && <SystemIcons ship={ship} />}

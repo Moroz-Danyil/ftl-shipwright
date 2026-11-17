@@ -139,7 +139,7 @@ export function createSelectTool(context: ToolContext, moveRooms = true): Canvas
       if (g.kind === "press" && g.collapse) state().select(selectionOf(g.target));
       else if (g.kind === "emptyPress" && !g.shift) state().select(EMPTY_SELECTION);
       else if (g.kind === "move" && (g.dx !== 0 || g.dy !== 0)) {
-        const problem = moveSelectedRooms(g.dx, g.dy);
+        const problem = moveSelectedRooms(g.dx, g.dy, context.texts);
         if (problem) context.say(problemText(context.texts, problem));
       } else if (g.kind === "box") {
         const found = targetsInBox(s, boxBetween(g.start, g.end));

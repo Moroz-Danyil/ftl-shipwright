@@ -31,8 +31,9 @@ export function nearestWall(
   const anchor = anchorPx(layout);
   const fx = (p.x - anchor.x) / CELL_SIZE;
   const fy = (p.y - anchor.y) / CELL_SIZE;
-  const vertical = { x: Math.round(fx), y: Math.floor(fy), vertical: true };
-  const horizontal = { x: Math.floor(fx), y: Math.round(fy), vertical: false };
+  // `|| 0` turns the -0 that rounding gives just left of or above cell 0 into 0.
+  const vertical = { x: Math.round(fx) || 0, y: Math.floor(fy), vertical: true };
+  const horizontal = { x: Math.floor(fx), y: Math.round(fy) || 0, vertical: false };
   const candidates = [
     { wall: vertical, distance: Math.abs(fx - vertical.x) },
     { wall: horizontal, distance: Math.abs(fy - horizontal.y) },

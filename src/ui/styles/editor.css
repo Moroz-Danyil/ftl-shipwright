@@ -457,10 +457,26 @@
   stroke: var(--grid);
   stroke-width: 1;
 }
-.cv-edge {
+/* Rooms past the frame's right or bottom edge (amber) or above or left of it (red) */
+.cv-room-out-part {
+  fill: var(--accent);
+  fill-opacity: 0.35;
+}
+.cv-room-out {
   fill: none;
-  stroke: var(--edge);
+  stroke: var(--accent);
   stroke-width: 2;
+  stroke-dasharray: 5 3;
+}
+.cv-room-off-part {
+  fill: var(--view-limit);
+  fill-opacity: 0.4;
+}
+.cv-room-off {
+  fill: none;
+  stroke: var(--view-limit);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
 }
 .cv-view-limit {
   fill: none;

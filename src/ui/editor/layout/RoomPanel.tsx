@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { Rect, Room, Ship } from "../../../core";
 import { changeRoomValues, problemText } from "../../../app/layoutActions";
 import { doorsOfRoom } from "../../../app/layout/doors";
+import { shownOrigin } from "../../../app/layout/rooms";
 import { useSystemName } from "../../../app/names";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
@@ -28,18 +29,28 @@ function Position({ ship, room }: { ship: Ship; room: Room }) {
   const texts = useTexts();
   const [message, setMessage] = useState<string>();
   const doors = doorsOfRoom(ship.layout, room.id).length;
+  // X and Y are counted from the top-left of the rooms, as the saved layout writes them.
+  const origin = shownOrigin(ship.layout);
   const apply = (patch: Partial<Rect>) => {
-    const problem = changeRoomValues(room.id, patch);
+    const problem = changeRoomValues(room.id, patch, texts);
     setMessage(problem && problemText(texts, problem));
   };
   return (
     <Section id="room-position" title={texts.sections.position} icon="position">
       <div className="ed-grid2">
         <Help topic="roomPosition">
-          <NumberField label={texts.inspector.x} value={room.x} onCommit={(x) => apply({ x })} />
+          <NumberField
+            label={texts.inspector.x}
+            value={room.x - origin.x}
+            onCommit={(x) => apply({ x: x + origin.x })}
+          />
         </Help>
         <Help topic="roomPosition">
-          <NumberField label={texts.inspector.y} value={room.y} onCommit={(y) => apply({ y })} />
+          <NumberField
+            label={texts.inspector.y}
+            value={room.y - origin.y}
+            onCommit={(y) => apply({ y: y + origin.y })}
+          />
         </Help>
         <Help topic="roomSize">
           <NumberField
