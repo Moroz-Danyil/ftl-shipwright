@@ -18,6 +18,7 @@ import {
 } from "../../app/hangar";
 import { createNewShip, newShipIds } from "../../app/ships";
 import { useEditor } from "../../app/store";
+import { isPlayerShip } from "../../canvas/viewLimit";
 import { useTexts } from "../../text";
 import { Dialog } from "../common/Dialog";
 import { HangarSlotPicker } from "../common/HangarSlotPicker";
@@ -214,6 +215,11 @@ export function NewShipDialog() {
               />
             </div>
             <span className="ns-summary">{summary}</span>
+            {copy && source !== undefined && !isPlayerShip(source) && (
+              <span className="ns-summary muted" data-testid="ns-enemy-placement">
+                {texts.newShip.enemyPlacement}
+              </span>
+            )}
             <details
               className="ns-own"
               open={ownOpen}

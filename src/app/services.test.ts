@@ -2,9 +2,15 @@ import { unzipSync, zipSync } from "fflate";
 import { beforeEach, describe, expect, it } from "vitest";
 import { addRoom, decodeText, encodeText, memorySource, parseLayoutTxt } from "../core";
 import { testShip } from "../testing/layoutFixtures";
-import { miniGame } from "../core/testing/miniGame";
+import { MINI_LAYOUT_TXT, miniGame } from "../core/testing/miniGame";
 import { en } from "../text/en";
-import { DAT_PATH, withMiniGame, withMiniShipOpen } from "../testing/editorFixtures";
+import {
+  DAT_PATH,
+  freshEditorStore,
+  withMiniGame,
+  withMiniShipOpen,
+} from "../testing/editorFixtures";
+import { offCentrePx } from "./layout/screen";
 import { createFakePlatform } from "../testing/fakePlatform";
 import { loadGameData, loadGameIntoStore } from "./gameData";
 import { readPictureFiles, saveShipMod } from "./saveMod";
@@ -96,6 +102,44 @@ describe("opening ships", () => {
       path: "img/ship/mini_base.png",
     });
     expect(hasUnsavedChanges(state())).toBe(true);
+  });
+
+  it("keeps a player ship's place on the screen in a copy", async () => {
+    await withMiniGame();
+    await createNewShip(en, { name: "Tiny", copyOf: "PLAYER_SHIP_MINI" });
+    const layout = currentShip(state())!.layout;
+    expect([layout.xOffset, layout.yOffset, layout.horizontal, layout.vertical]).toEqual([
+      1,
+      1,
+      undefined,
+      0,
+    ]);
+  });
+
+  it("places a copy of an enemy ship the way the game places player ships", async () => {
+    freshEditorStore();
+    const platform = createFakePlatform({ [DAT_PATH]: miniGame() });
+    // An enemy ship with the mini layout, added by a mod.
+    await platform.writeFile(
+      "mods/enemy.ftl",
+      zipSync({
+        "data/blueprints.xml.append": encodeText(
+          '<FTL><shipBlueprint name="AUTO_TEST" layout="mini" img="mini"/></FTL>'
+        ),
+      })
+    );
+    expect(
+      await loadGameIntoStore(platform, en, DAT_PATH, { kind: "zip", path: "mods/enemy.ftl" })
+    ).toBe(true);
+    expect(await createNewShip(en, { name: "Drone", copyOf: "AUTO_TEST" })).toBe(true);
+    const ship = currentShip(state())!;
+    expect(ship.layout).not.toMatchObject({ xOffset: 1, yOffset: 1 });
+    expect(Math.abs(offCentrePx(ship).x)).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(offCentrePx(ship).y)).toBeLessThanOrEqual(0.5);
+    // Everything else is the enemy's: rooms, doors and pictures keep their numbers.
+    expect(ship.layout.rooms).toEqual(parseLayoutTxt(MINI_LAYOUT_TXT).rooms);
+    expect(ship.layoutXml.img).toEqual({ x: -10, y: -10, w: 160, h: 60 });
+    expect(state().doc!.history.past).toHaveLength(0);
   });
 
   it("starts an empty ship", async () => {

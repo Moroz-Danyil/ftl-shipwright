@@ -149,6 +149,8 @@ export const en = {
       `Takes the place of the ${type}, layout ${letter} · files ${base}`,
     /** The own blueprint name and file name, e.g. "Saved as MY_SHIP · files new_ship". */
     savedAs: (id: string, base: string) => `Saved as ${id} · files ${base}`,
+    enemyPlacement:
+      "An enemy ship: the copy is placed on the game's screen the way the game places player ships, as Centre on screen does.",
     ownNameFold: "Own blueprint name",
     notInGame: "not shown in the plain game",
     useOwnName: "Use an own blueprint name",

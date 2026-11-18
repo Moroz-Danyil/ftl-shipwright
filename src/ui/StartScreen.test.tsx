@@ -7,7 +7,10 @@ import { shipToScreen } from "../canvas/viewport";
 import { currentTool, resetEditorStore, useEditor } from "../app/store";
 import { miniGame } from "../core/testing/miniGame";
 import { en } from "../text/en";
-import { DAT_PATH, withMiniGame } from "../testing/editorFixtures";
+import { DAT_PATH, freshEditorStore, withMiniGame } from "../testing/editorFixtures";
+import { loadGameIntoStore } from "../app/gameData";
+import { encodeText } from "../core";
+import { zipSync } from "fflate";
 import { createFakePlatform } from "../testing/fakePlatform";
 import { App } from "./App";
 
@@ -291,6 +294,31 @@ describe("start screen", () => {
       expect(at.x).toBeCloseTo(400);
       expect(at.y).toBeCloseTo(300);
     });
+  });
+
+  it("says that a copy of an enemy ship is placed like a player ship", async () => {
+    freshEditorStore();
+    const platform = createFakePlatform({ [DAT_PATH]: miniGame() });
+    await platform.writeFile(
+      "mods/enemy.ftl",
+      zipSync({
+        "data/blueprints.xml.append": encodeText(
+          '<FTL><shipBlueprint name="AUTO_TEST" layout="mini" img="mini"/></FTL>'
+        ),
+      })
+    );
+    await loadGameIntoStore(platform, en, DAT_PATH, { kind: "zip", path: "mods/enemy.ftl" });
+    render(<App platform={platform} />);
+    const ns = openNewShip();
+    fireEvent.click(ns.card(en.newShip.copy));
+    ns.next();
+    fireEvent.click(within(ns.dialog()).getByRole("option", { name: /The Mini/ }));
+    ns.next();
+    expect(within(ns.dialog()).queryByText(en.newShip.enemyPlacement)).toBeNull();
+    ns.back();
+    fireEvent.click(within(ns.dialog()).getByRole("option", { name: /AUTO_TEST/ }));
+    ns.next();
+    expect(within(ns.dialog()).getByText(en.newShip.enemyPlacement)).toBeInTheDocument();
   });
 
   it("puts a new ship in a hangar slot of the type and layout chosen", async () => {

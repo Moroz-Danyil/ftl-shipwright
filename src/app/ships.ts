@@ -16,6 +16,7 @@ import type { Platform } from "../platform/types";
 import type { Texts } from "../text";
 import { artFromPaths } from "./art/model";
 import { NEW_SHIP } from "./details/rules";
+import { isPlayerShip } from "../canvas/viewLimit";
 import { centreOnScreen } from "./layout/screen";
 import { reasonOf } from "./errors";
 import { addRecent, saveRecent, type RecentShip, type ShipOrigin } from "./settings";
@@ -131,7 +132,7 @@ export async function createNewShip(
     if (input.copyOf) {
       const loaded = await loadFrom(data.view, input.copyOf, texts);
       const original = loaded.ship;
-      const ship: Ship = {
+      const copied: Ship = {
         ...original,
         blueprint: {
           ...original.blueprint,
@@ -139,6 +140,8 @@ export async function createNewShip(
           texts: { ...original.blueprint.texts, name: nameText },
         },
       };
+      // An enemy layout sits on the screen in its own way: the copy is placed like a player ship.
+      const ship = isPlayerShip(input.copyOf) ? copied : centreOnScreen(copied);
       store.openDocument({
         ship,
         art: artFromPaths(data.view, loaded.pictures),
