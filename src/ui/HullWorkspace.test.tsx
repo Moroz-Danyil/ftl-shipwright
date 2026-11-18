@@ -153,6 +153,34 @@ describe("Hull: mounts and gibs", () => {
     expect(steps()).toBe(5);
   });
 
+  it("duplicates, copies and pastes a mount with the keys and the inspector", () => {
+    act(() =>
+      state().edit((s) =>
+        addMount(s, { x: 40, y: 40, rotate: true, mirror: true, gib: 1, slide: "up" })
+      )
+    );
+    act(() => state().select({ ...state().selection, mounts: [0] }));
+    act(() => {
+      fireEvent.keyDown(window, { code: "KeyD", ctrlKey: true });
+    });
+    const mounts = () => snap().ship.layoutXml.mounts;
+    expect(mounts()[1]).toEqual({ x: 50, y: 50, rotate: true, mirror: true, gib: 1, slide: "up" });
+    expect(screen.getByTestId("mount-2")).toHaveAttribute("data-selected", "true");
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.clipboard.duplicate }));
+    expect(mounts()[2]).toMatchObject({ x: 60, y: 60 });
+    act(() => {
+      fireEvent.keyDown(window, { code: "KeyX", ctrlKey: true });
+    });
+    expect(mounts()).toHaveLength(2);
+    // Pasted under the pointer: ship pixel (125, 115) is hull pixel (100, 100).
+    fireEvent.pointerMove(canvas(), screenAt({ x: 125, y: 115 }));
+    act(() => {
+      fireEvent.keyDown(window, { code: "KeyV", ctrlKey: true });
+    });
+    expect(mounts()[2]).toMatchObject({ x: 100, y: 100, mirror: true, slide: "up" });
+    expect(steps()).toBe(5);
+  });
+
   it("shows, selects and edits gibs with the Gib tool", async () => {
     press("KeyG");
     expect(await screen.findByTestId("gib-2")).toBeInTheDocument();

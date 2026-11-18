@@ -298,7 +298,7 @@ export const en = {
       undo: {
         title: "Undo and redo",
         body: (k: TourKeys) =>
-          `Every change can be undone. Undo: ${k.undo.join(" or ")}. Redo: ${k.redo.join(" or ")}.`,
+          `Every change can be undone. Undo: ${k.undo.join(" or ")}. Redo: ${k.redo.join(" or ")}. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms in Rooms and mounts and gibs in Hull, also into another ship; Ctrl+D duplicates them.`,
       },
       overview: {
         title: "Overview",
@@ -337,7 +337,7 @@ export const en = {
     rooms: {
       select: {
         title: "Select tool",
-        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell. Drag a handle on the edge or corner of a selected room to resize it. Delete removes the selection.",
+        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell. Drag a handle on the edge or corner of a selected room to resize it. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms with their doors and systems (pasted rooms follow the pointer until a click places them; a system the ship already has stays out), Ctrl+D duplicates them. Delete removes the selection.",
       },
       room: {
         title: "Room tool",
@@ -355,7 +355,7 @@ export const en = {
     hull: {
       select: {
         title: "Select tool",
-        body: "Click a mount to select it, drag it to move it. Arrows move the selection by 1 px, Shift + arrows by 10 px.",
+        body: "Click a mount to select it, drag it to move it. Arrows move the selection by 1 px, Shift + arrows by 10 px. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste mounts and gibs (under the pointer), Ctrl+D duplicates them.",
       },
       movePicture: {
         title: "Move picture tool",
@@ -363,11 +363,11 @@ export const en = {
       },
       mount: {
         title: "Mount tool",
-        body: "Click the hull picture to add a weapon mount (at most 8); drag a mount to move it. [ rotates and ] mirrors the selected mount.",
+        body: "Click the hull picture to add a weapon mount (at most 8); drag a mount to move it. [ rotates and ] mirrors the selected mount; Ctrl+D duplicates it.",
       },
       gib: {
         title: "Gib tool",
-        body: "Click an explosion piece to select it, drag it to move it.",
+        body: "Click an explosion piece to select it, drag it to move it. Ctrl+D duplicates it.",
       },
     },
   } satisfies Record<WorkspaceId, Partial<Record<ToolId, { title: string; body: string }>>>,
@@ -427,6 +427,36 @@ export const en = {
       "Outside the game's screen: this part of the ship will not be visible in battle. It is better to keep the ship inside the red frame.",
     /** The size of a room being resized, in cells. */
     sizeCells: (w: number, h: number) => `${w} × ${h}`,
+  },
+
+  /** Copy, cut, paste and duplicate (the editor's own clipboard). */
+  clipboard: {
+    rooms: (rooms: number, systems: number, doors: number) => {
+      const parts = [
+        systems > 0 && plural(systems, "system", "systems"),
+        doors > 0 && plural(doors, "door", "doors"),
+      ].filter(Boolean);
+      const what = plural(rooms, "room", "rooms");
+      return parts.length > 0 ? `${what} with ${parts.join(" and ")}` : what;
+    },
+    art: (mounts: number, gibs: number) =>
+      [mounts > 0 && plural(mounts, "mount", "mounts"), gibs > 0 && plural(gibs, "gib", "gibs")]
+        .filter(Boolean)
+        .join(" and "),
+    copied: (what: string) => `Copied ${what}. Ctrl+V pastes them.`,
+    cut: (what: string) => `Cut ${what}. Ctrl+V pastes them.`,
+    place: "Click where the rooms go; Esc or a right click cancels.",
+    noFreePlace:
+      "There is no free place next to the rooms. Point at the canvas and paste again to place them by hand.",
+    gibsLeftOut: (n: number) =>
+      `${plural(n, "gib was", "gibs were")} not pasted: ${n === 1 ? "its picture comes" : "their pictures come"} from another ship's files.`,
+    /** Systems a pasted room goes without, because the ship has them already. */
+    systemsLeftOut: (names: string[]) =>
+      names.length === 1
+        ? `${names[0]} is already on the ship, so the copy has no ${names[0]}.`
+        : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]} are already on the ship, so the copy goes without them.`,
+    duplicate: "Duplicate",
+    duplicateKey: "Ctrl+D",
   },
 
   systems: {
@@ -1357,6 +1387,7 @@ export const en = {
       move: "moves the selection",
       workspace: "opens a workspace",
       mount: "turns the selected mount",
+      clipboard: "copies, cuts, pastes or duplicates the selection",
     },
     fixedTitle: "Fixed keys",
     fixedKeys: [
@@ -1369,6 +1400,8 @@ export const en = {
       ["Save", "Ctrl+S"],
       ["Pick a workspace", "1 · 2 · 3"],
       ["Rotate / mirror the selected mount", "[ · ]"],
+      ["Copy · cut · paste", "Ctrl+C · Ctrl+X · Ctrl+V"],
+      ["Duplicate", "Ctrl+D"],
     ] as Array<[string, string]>,
   },
 

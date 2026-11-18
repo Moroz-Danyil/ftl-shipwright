@@ -1,12 +1,14 @@
 /**
  * The one store of the app: game data, the open ship with its undo history,
  * the selection, the workspace and tool, the view settings, what the Info
- * panel describes, the look of the interface and the keyboard shortcuts.
+ * panel describes, the editor's clipboard and the rooms being pasted, the
+ * look of the interface and the keyboard shortcuts.
  */
 import { create } from "zustand";
 import type { Animations, Catalogs, FileSource, GameTexts, GameView, Ship } from "../core";
 import { DEFAULT_EXPLOSION_SPEED, type ExplosionSpeed } from "./art/explosion";
 import type { PictureSlot, ShipArt, ShipSnapshot } from "./art/model";
+import type { Clipboard, Offset, RoomsClip } from "./clipboard";
 import type { MovablePicture } from "./art/pictures";
 import type { ModRef } from "../platform/types";
 import type { InfoPick } from "./info";
@@ -205,6 +207,12 @@ export interface TourState {
   before: { workspace: WorkspaceId; selection: Selection };
 }
 
+/** Rooms being pasted in Rooms: they follow the pointer, shifted by whole cells, until a click places them. */
+export interface Pasting {
+  clip: RoomsClip;
+  offset: Offset;
+}
+
 /** A yes/no question asked in the app's own dialog. */
 export interface ConfirmRequest {
   title: string;
@@ -267,6 +275,10 @@ export interface EditorState {
   notice?: Notice;
   /** The field and objects flashed after a click in the Overview, while they flash. */
   flash: Flash | null;
+  /** The editor's own clipboard: kept while the app runs, across the ships opened. */
+  clipboard: Clipboard;
+  /** The rooms being pasted, while they follow the pointer. */
+  pasting: Pasting | null;
 
   setGame(game: Partial<GameState>): void;
   setRecent(recent: RecentShip[]): void;
@@ -327,6 +339,9 @@ export interface EditorState {
   /** Answers the question on screen. */
   answerConfirm(yes: boolean): void;
   setNotice(notice: Notice | undefined): void;
+  setClipboard(clipboard: Clipboard): void;
+  /** Starts, moves or (with `null`) ends the pasting of rooms. */
+  setPasting(pasting: Pasting | null): void;
   /** Flashes a field or section and objects for {@link FLASH_MS}. */
   startFlash(target: Omit<Flash, "key">): void;
   /**
@@ -407,6 +422,8 @@ export function initialEditorState() {
     tourOffered: false,
     notice: undefined,
     flash: null as Flash | null,
+    clipboard: {} as Clipboard,
+    pasting: null as Pasting | null,
   };
 }
 
@@ -465,6 +482,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         tour: null,
         tourOffered: get().tourOffered || offerTour,
         flash: null,
+        pasting: null,
       });
     },
 
@@ -476,6 +494,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         dialog: null,
         tour: null,
         flash: null,
+        pasting: null,
       }),
 
     edit: (change, selection) =>
@@ -532,12 +551,13 @@ export const useEditor = create<EditorState>()((set, get) => {
     },
 
     setWorkspace: (workspace) => {
-      if (workspace !== get().workspace) set({ workspace, infoPick: null });
+      if (workspace !== get().workspace) set({ workspace, infoPick: null, pasting: null });
     },
 
     setTool: (tool) => {
       const { workspace, tools } = get();
-      if (hasTool(workspace, tool)) set({ tools: { ...tools, [workspace]: tool } });
+      if (hasTool(workspace, tool) && tools[workspace] !== tool)
+        set({ tools: { ...tools, [workspace]: tool }, pasting: null });
     },
 
     setLayer: (layer, visible) =>
@@ -564,6 +584,8 @@ export const useEditor = create<EditorState>()((set, get) => {
       open.resolve(yes);
     },
     setNotice: (notice) => set({ notice }),
+    setClipboard: (clipboard) => set({ clipboard }),
+    setPasting: (pasting) => set({ pasting }),
     startFlash: (target) => {
       const flash: Flash = { ...target, key: nextFlashKey++ };
       set({ flash });
@@ -582,6 +604,7 @@ export const useEditor = create<EditorState>()((set, get) => {
         dialog: null,
         systemDrag: null,
         hoverWeapon: null,
+        pasting: null,
         view: { ...view, hangarPreview: false, panHeld: false },
       });
     },

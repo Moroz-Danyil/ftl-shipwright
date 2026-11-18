@@ -1,7 +1,9 @@
 /**
- * The selected explosion piece: position, motion ranges, picture and Delete.
+ * The selected explosion piece: position, motion ranges, picture, Duplicate
+ * and Delete.
  */
 import type { Gib, Range, Ship } from "../../../core";
+import { DuplicateButton } from "../DuplicateButton";
 import { changeGib, deleteSelectedArt } from "../../../app/artActions";
 import { pictureName } from "../../../app/art/model";
 import { useEditor } from "../../../app/store";
@@ -91,7 +93,8 @@ export function GibPanel({ ship, index }: { ship: Ship; index: number }) {
           {texts.art.change}
         </button>
       </div>
-      <div>
+      <div className="ed-buttons">
+        <DuplicateButton />
         <button type="button" className="btn btn--danger" onClick={() => deleteSelectedArt()}>
           {texts.art.delete}
         </button>

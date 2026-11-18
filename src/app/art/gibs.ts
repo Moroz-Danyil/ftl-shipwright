@@ -21,6 +21,21 @@ export function addGib(snapshot: ShipSnapshot, picture: PictureRef | null): Ship
   return { ship: updateLayoutXml(snapshot.ship, { gibs }), art };
 }
 
+/** Adds gibs after the last one, each with its picture. */
+export function appendGibs(
+  snapshot: ShipSnapshot,
+  items: Array<{ gib: Gib; picture: PictureRef | null }>
+): ShipSnapshot {
+  if (items.length === 0) return snapshot;
+  const count = snapshot.ship.layoutXml.gibs.length;
+  const gibs = [...snapshot.ship.layoutXml.gibs, ...items.map((i) => i.gib)];
+  const pictures = padded(snapshot, count).concat(items.map((i) => i.picture));
+  return {
+    ship: updateLayoutXml(snapshot.ship, { gibs }),
+    art: { ...snapshot.art, gibs: pictures },
+  };
+}
+
 /** The gib pictures, one per gib (missing ones `null`). */
 function padded(snapshot: ShipSnapshot, length: number): Array<PictureRef | null> {
   const out = snapshot.art.gibs.slice(0, length);

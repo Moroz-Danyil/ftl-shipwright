@@ -1,10 +1,12 @@
 /**
  * Mouse handling of the canvas: the wheel zooms smoothly around the cursor, the middle
  * button (or the left button while Space is held) pans, a right click cancels
- * the current drag, and everything else goes to the current tool.
+ * the current drag, and everything else goes to the current tool. Where the
+ * pointer rests is remembered for pasting under it.
  */
 import { useEffect, useRef, useState, type PointerEvent, type RefObject } from "react";
 import type { Point } from "../core";
+import { setCanvasPointer } from "../app/pointer";
 import { useEditor } from "../app/store";
 import type { CanvasTool, ToolPointer } from "./tools/types";
 import { clampScale, easeScale, panBy, screenToShip, wheelFactor, zoomAt } from "./viewport";
@@ -77,6 +79,7 @@ export function useCanvasInput(ref: RefObject<HTMLElement | null>, tool: CanvasT
   };
 
   const onPointerMove = (event: PointerEvent<HTMLElement>) => {
+    setCanvasPointer(localPoint(event.currentTarget, event.clientX, event.clientY));
     if (!last.current) {
       tool.move(toolPointer(event));
       return;
@@ -115,7 +118,10 @@ export function useCanvasInput(ref: RefObject<HTMLElement | null>, tool: CanvasT
       onPointerMove,
       onPointerUp,
       onPointerCancel,
-      onPointerLeave: () => tool.leave(),
+      onPointerLeave: () => {
+        setCanvasPointer(null);
+        tool.leave();
+      },
       onContextMenu: (event: { preventDefault(): void }) => event.preventDefault(),
     },
   };

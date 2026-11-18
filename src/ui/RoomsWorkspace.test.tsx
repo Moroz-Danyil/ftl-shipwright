@@ -255,6 +255,73 @@ describe("Rooms on the canvas", () => {
   });
 });
 
+describe("Rooms: copy and paste", () => {
+  const ctrl = (code: string) => press(code, { ctrlKey: true });
+  const ghostRects = () => [...screen.getByTestId("ghost").querySelectorAll("rect")];
+
+  it("pastes copied rooms that follow the pointer until a click places them", () => {
+    click(4.5, 0.5);
+    ctrl("KeyC");
+    expect(state().clipboard.rooms?.rooms).toEqual([{ x: 4, y: 0, w: 1, h: 1 }]);
+    fireEvent.pointerMove(canvas(), screenAt(6.5, 3.5));
+    ctrl("KeyV");
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "true");
+    const before = ghostRects()[0].getAttribute("x");
+    fireEvent.pointerMove(canvas(), screenAt(8.5, 3.5));
+    expect(ghostRects()[0].getAttribute("x")).not.toBe(before);
+    // Over a room it shows red, and a click there is refused.
+    fireEvent.pointerMove(canvas(), screenAt(0.5, 0.5));
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "false");
+    click(0.5, 0.5);
+    expect(screen.getByText(en.layout.problems.overlap)).toBeInTheDocument();
+    expect(steps()).toBe(0);
+    fireEvent.pointerMove(canvas(), screenAt(8.5, 3.5));
+    click(8.5, 3.5);
+    expect(ship().layout.rooms[3]).toEqual({ id: 3, x: 8, y: 3, w: 1, h: 1 });
+    expect(state().selection.rooms).toEqual([3]);
+    expect(steps()).toBe(1);
+    expect(screen.queryByTestId("ghost")).not.toBeInTheDocument();
+  });
+
+  it("cancels pasting with Esc or a right click", () => {
+    click(4.5, 0.5);
+    fireEvent.pointerMove(canvas(), screenAt(8.5, 3.5));
+    ctrl("KeyD");
+    expect(screen.getByTestId("ghost")).toBeInTheDocument();
+    press("Escape");
+    expect(screen.queryByTestId("ghost")).not.toBeInTheDocument();
+    ctrl("KeyD");
+    fireEvent.pointerDown(canvas(), { button: 2, ...screenAt(8.5, 3.5) });
+    expect(state().pasting).toBeNull();
+    expect(steps()).toBe(0);
+  });
+
+  it("duplicates from the inspector next to the original", () => {
+    click(4.5, 0.5);
+    fireEvent.click(within(inspector()).getByRole("button", { name: en.clipboard.duplicate }));
+    expect(ship().layout.rooms[3]).toEqual({ id: 3, x: 5, y: 0, w: 1, h: 1 });
+    expect(steps()).toBe(1);
+  });
+
+  it("leaves the keys to a text field, and does nothing while a dialog is open", () => {
+    click(4.5, 0.5);
+    const field = within(inspector()).getByLabelText(en.inspector.x);
+    field.focus();
+    act(() => {
+      fireEvent.keyDown(field, { code: "KeyC", ctrlKey: true });
+      fireEvent.keyDown(field, { code: "KeyD", ctrlKey: true });
+    });
+    expect(state().clipboard).toEqual({});
+    expect(steps()).toBe(0);
+    field.blur();
+    act(() => state().openDialog("settings"));
+    ctrl("KeyC");
+    ctrl("KeyD");
+    expect(state().clipboard).toEqual({});
+    expect(steps()).toBe(0);
+  });
+});
+
 describe("Rooms inspector", () => {
   it("edits a room's values and refuses invalid ones with a message", () => {
     click(4.5, 0.5);

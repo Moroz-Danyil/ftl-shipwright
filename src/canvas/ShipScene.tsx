@@ -1,7 +1,8 @@
 /**
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
  * interiors, doors, system icons, crew, mounts, the selected gib's direction
- * fan (Hull), the selected room's resize handles (Rooms), the objects flashed after a click in the Overview and the
+ * fan (Hull), the selected room's resize handles and the rooms being pasted
+ * (Rooms), the objects flashed after a click in the Overview and the
  * current tool's overlay.
  * In Hull the hull, floor, shield and mounts are always shown (the cloak
  * follows its layer); the Gib tool shows only the hull and the gibs, and
@@ -9,6 +10,7 @@
  */
 import { useMemo } from "react";
 import type { Rect } from "../core";
+import { pasteProblem, shiftedClip } from "../app/clipboard";
 import { singleTarget } from "../app/selection";
 import { currentTool, useEditor } from "../app/store";
 import { gibRectPx } from "./artHitTest";
@@ -44,6 +46,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
   const data = useEditor((s) => s.game.data);
   const art = workspace === "hull";
   const equipment = workspace === "ship";
+  const pasting = useEditor((s) => s.pasting);
   const hoverWeapon = useEditor((s) => s.hoverWeapon);
   const setHoverWeapon = useEditor((s) => s.setHoverWeapon);
   const layers = useMemo(
@@ -65,6 +68,14 @@ export function ShipScene({ area, overlay, explosion }: Props) {
       : overlay?.kind === "direction" && overlay.gib === fanGib
         ? overlay.direction
         : ship.layoutXml.gibs[fanGib]?.direction;
+  const shownOverlay: Overlay | null =
+    pasting && workspace === "rooms"
+      ? {
+          kind: "ghost",
+          cells: shiftedClip(pasting.clip, pasting.offset),
+          ok: !pasteProblem(ship, pasting.clip, pasting.offset),
+        }
+      : overlay;
 
   return (
     <>
@@ -128,7 +139,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
           {!gibView && <ViewLimitFrame ship={ship} />}
           <FlashRings ship={ship} art={snapshot.art} />
           <RoomHandles />
-          <ToolOverlay ship={ship} art={snapshot.art} overlay={overlay} />
+          <ToolOverlay ship={ship} art={snapshot.art} overlay={shownOverlay} />
           <SystemDropTarget ship={ship} />
         </>
       )}

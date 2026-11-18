@@ -4,6 +4,7 @@
  * tool help, each in a section that folds away.
  */
 import { deleteSelectedArt } from "../../../app/artActions";
+import { DuplicateButton } from "../DuplicateButton";
 import type { MovablePicture } from "../../../app/art/pictures";
 import { selectionSize, singleTarget } from "../../../app/selection";
 import { currentTool, useEditor } from "../../../app/store";
@@ -73,13 +74,16 @@ export function ArtInspector() {
       {several > 1 && selectionSize(selection) === several && (
         <div className="ed-row">
           <span>{texts.art.several(selection.mounts.length, selection.gibs.length)}</span>
-          <button
-            type="button"
-            className="btn btn--small btn--danger"
-            onClick={() => deleteSelectedArt()}
-          >
-            {texts.art.delete}
-          </button>
+          <span className="ed-buttons">
+            <DuplicateButton small />
+            <button
+              type="button"
+              className="btn btn--small btn--danger"
+              onClick={() => deleteSelectedArt()}
+            >
+              {texts.art.delete}
+            </button>
+          </span>
         </div>
       )}
       {tool === "movePicture" && <MoveOptions />}

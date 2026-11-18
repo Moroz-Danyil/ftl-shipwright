@@ -24,6 +24,8 @@ function fixedAction(texts: Texts, command: CommandId): string {
   if (command.startsWith("move")) return actions.move;
   if (command.startsWith("workspace.")) return actions.workspace;
   if (command.startsWith("mount.")) return actions.mount;
+  if (command === "copy" || command === "cut" || command === "paste" || command === "duplicate")
+    return actions.clipboard;
   if (command === "redo" || command === "save" || command === "cancel" || command === "pan")
     return actions[command];
   return actions.delete;

@@ -6,6 +6,12 @@ import type { Texts } from "../text";
 import { cancelGesture } from "./gesture";
 import type { CommandId, MoveDirection } from "./keys";
 import { deleteSelectedArt, nudgeArt, turnSelectedMounts } from "./artActions";
+import {
+  copySelection,
+  cutSelection,
+  duplicateSelection,
+  pasteClipboard,
+} from "./clipboardActions";
 import { deleteSelected, nudgeSelection } from "./layoutActions";
 import { removeSelectedSlots } from "./loadoutActions";
 import { saveShipMod } from "./saveMod";
@@ -47,7 +53,11 @@ export function runCommand(command: CommandId, context: CommandContext): boolean
     if (state.workspace === "ship") return removeSelectedSlots();
     if (state.workspace !== "rooms") return false;
     void deleteSelected(context);
-  } else if (command.startsWith("move.") || command.startsWith("moveFar.")) {
+  } else if (command === "copy") return copySelection(context.texts);
+  else if (command === "cut") return cutSelection(context);
+  else if (command === "paste") return pasteClipboard(context.texts);
+  else if (command === "duplicate") return duplicateSelection(context.texts);
+  else if (command.startsWith("move.") || command.startsWith("moveFar.")) {
     const far = command.startsWith("moveFar.");
     const [dx, dy] = STEPS[command.slice(command.indexOf(".") + 1) as MoveDirection];
     if (state.workspace === "hull") return nudgeArt(dx * (far ? 10 : 1), dy * (far ? 10 : 1));

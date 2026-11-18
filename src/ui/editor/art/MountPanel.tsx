@@ -1,9 +1,10 @@
 /**
  * The selected weapon mount: its number (the weapon slot drawn on it), the
  * weapon equipped there, its order, rotate and mirror, how the weapon slides
- * out, the gib it flies off with, its position and Delete.
+ * out, the gib it flies off with, its position, Duplicate and Delete.
  */
 import type { Ship } from "../../../core";
+import { DuplicateButton } from "../DuplicateButton";
 import {
   deleteSelectedArt,
   linkMountGib,
@@ -136,7 +137,8 @@ export function MountPanel({ ship, index }: { ship: Ship; index: number }) {
           />
         </Help>
       </div>
-      <div>
+      <div className="ed-buttons">
+        <DuplicateButton />
         <button type="button" className="btn btn--danger" onClick={() => deleteSelectedArt()}>
           {texts.art.delete}
         </button>

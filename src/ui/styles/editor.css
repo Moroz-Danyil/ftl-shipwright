@@ -233,6 +233,12 @@
   justify-content: space-between;
   gap: 12px;
 }
+/* Buttons side by side, such as Duplicate and Delete */
+.ed-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
 
 /* Status bar */
 .ed-status {

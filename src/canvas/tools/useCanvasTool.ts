@@ -3,7 +3,8 @@
  * look it asks for. The Select tool moves and resizes rooms only in Rooms and
  * picks mounts and gibs in Hull; in Ship and
  * Hull a plain click on a room opens it in Rooms. Every Hull tool also turns
- * the selected gib's direction with its fan.
+ * the selected gib's direction with its fan, and every Rooms tool places
+ * rooms being pasted.
  */
 import { useEffect, useMemo, useState } from "react";
 import { setGestureCancel } from "../../app/gesture";
@@ -18,6 +19,7 @@ import {
   createMovePictureTool,
   withGibDirection,
 } from "./artTools";
+import { withPaste } from "./pasteTool";
 import { createDoorTool, createRoomTool, createStationTool } from "./placeTools";
 import { withRoomResize } from "./resizeTool";
 import { withRoomClick } from "./roomClick";
@@ -42,7 +44,9 @@ export function createTool(
   workspace: WorkspaceId = "rooms"
 ): CanvasTool {
   const tool = createPlainTool(id, context, workspace);
-  return workspace === "hull" ? withGibDirection(tool, context) : tool;
+  if (workspace === "hull") return withGibDirection(tool, context);
+  if (workspace === "rooms") return withPaste(tool, context);
+  return tool;
 }
 
 function createPlainTool(id: ToolId, context: ToolContext, workspace: WorkspaceId): CanvasTool {

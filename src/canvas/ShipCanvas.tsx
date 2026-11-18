@@ -6,6 +6,7 @@
  * brought into view.
  */
 import { useEffect, useRef } from "react";
+import { setCanvasPointer } from "../app/pointer";
 import { currentTool, useEditor } from "../app/store";
 import { useTexts } from "../text";
 import { CanvasControls } from "./CanvasControls";
@@ -38,7 +39,10 @@ export function ShipCanvas() {
 
   useEffect(() => {
     setCanvasElement(ref.current);
-    return () => setCanvasElement(null);
+    return () => {
+      setCanvasElement(null);
+      setCanvasPointer(null);
+    };
   }, [hasDoc]);
 
   // Objects flashed after a click in the Overview are brought into view, once per flash.
