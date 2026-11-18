@@ -592,6 +592,24 @@
   stroke: var(--problem);
   stroke-width: 2.5;
 }
+/* The size of a room being resized: dark text on a light edge, readable on any floor. */
+.cv-ghost-size {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  fill: #14171c;
+  stroke: rgba(255, 255, 255, 0.85);
+  paint-order: stroke;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+/* The resize handles of the selected room */
+.cv-handle {
+  fill: var(--accent);
+  stroke: var(--accent-ink);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
 .cv-wall {
   fill: rgba(242, 169, 59, 0.35);
   stroke: var(--accent);

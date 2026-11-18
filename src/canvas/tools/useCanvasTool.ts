@@ -1,6 +1,7 @@
 /**
- * The current tool of the canvas, with the overlay it draws. The Select tool
- * moves rooms only in Rooms and picks mounts and gibs in Hull; in Ship and
+ * The current tool of the canvas, with the overlay it draws and the pointer
+ * look it asks for. The Select tool moves and resizes rooms only in Rooms and
+ * picks mounts and gibs in Hull; in Ship and
  * Hull a plain click on a room opens it in Rooms. Every Hull tool also turns
  * the selected gib's direction with its fan.
  */
@@ -18,6 +19,7 @@ import {
   withGibDirection,
 } from "./artTools";
 import { createDoorTool, createRoomTool, createStationTool } from "./placeTools";
+import { withRoomResize } from "./resizeTool";
 import { withRoomClick } from "./roomClick";
 import { createSelectTool } from "./selectTool";
 import type { CanvasTool, Overlay, ToolContext } from "./types";
@@ -45,7 +47,7 @@ export function createTool(
 
 function createPlainTool(id: ToolId, context: ToolContext, workspace: WorkspaceId): CanvasTool {
   if (id === "select") {
-    if (workspace === "rooms") return createSelectTool(context);
+    if (workspace === "rooms") return withRoomResize(createSelectTool(context), context);
     if (workspace === "ship") return withRoomClick(createSelectTool(context, false));
     return withRoomClick(
       createArtSelectTool(context),
@@ -65,8 +67,9 @@ export function useCanvasTool(
   id: ToolId,
   workspace: WorkspaceId,
   texts: Texts
-): { tool: CanvasTool; overlay: Overlay | null } {
+): { tool: CanvasTool; overlay: Overlay | null; cursor: string | null } {
   const [overlay, setOverlay] = useState<Overlay | null>(null);
+  const [cursor, setCursor] = useState<string | null>(null);
   const tool = useMemo(
     () =>
       createTool(
@@ -76,6 +79,7 @@ export function useCanvasTool(
           setOverlay: (next) => setOverlay((old) => (sameOverlay(old, next) ? old : next)),
           setGesture: setGestureCancel,
           say: (text) => useEditor.getState().setNotice({ kind: "info", text }),
+          setCursor,
         },
         workspace
       ),
@@ -85,8 +89,9 @@ export function useCanvasTool(
     () => () => {
       tool.cancel();
       setOverlay(null);
+      setCursor(null);
     },
     [tool]
   );
-  return { tool, overlay };
+  return { tool, overlay, cursor };
 }

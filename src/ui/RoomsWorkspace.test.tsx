@@ -89,6 +89,23 @@ describe("Rooms on the canvas", () => {
     expect(state().selection.rooms).toEqual([2]);
   });
 
+  it("resizes the selected room by a handle, with its size and the resize pointer", () => {
+    click(4.5, 0.5);
+    expect(screen.getByTestId("room-handles").querySelectorAll(".cv-handle")).toHaveLength(8);
+    fireEvent.pointerMove(canvas(), screenAt(5, 1));
+    expect(canvas().style.cursor).toBe("nwse-resize");
+    fireEvent.pointerDown(canvas(), { button: 0, ...screenAt(5, 1) });
+    fireEvent.pointerMove(canvas(), screenAt(6, 2));
+    fireEvent.pointerMove(canvas(), screenAt(7, 2));
+    expect(screen.getByTestId("ghost")).toHaveAttribute("data-ok", "true");
+    expect(screen.getByTestId("ghost-size")).toHaveTextContent(en.layout.sizeCells(3, 2));
+    fireEvent.pointerUp(canvas(), { button: 0, ...screenAt(7, 2) });
+    expect(ship().layout.rooms[2]).toMatchObject({ x: 4, y: 0, w: 3, h: 2 });
+    expect(steps()).toBe(1);
+    click(8, 8);
+    expect(screen.queryByTestId("room-handles")).not.toBeInTheDocument();
+  });
+
   it("draws rooms with the Room tool and doors with the Door tool", () => {
     press("KeyW");
     expect(canvas()).toHaveAttribute("data-tool", "room");

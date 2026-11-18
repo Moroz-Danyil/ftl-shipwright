@@ -3,14 +3,19 @@
  * player ship never above or left of the part of the screen the game shows,
  * never overlapping another room. Rooms past its right or bottom edge are
  * allowed; they are not visible in battle. Moving rooms takes along the doors
- * that only touch the moved rooms. Positions are shown counted from the
+ * that only touch the moved rooms; resizing a room keeps the doors where they
+ * are and its stations on their cells. Positions are shown counted from the
  * top-left of the rooms, the way a saved layout writes them.
  */
 import {
   addRoom,
   doorSides,
   roomsBoundsCells,
+  stationCellToXY,
+  stationInRoom,
+  stationXYToCell,
   syncDoorRooms,
+  updateBlueprint,
   updateLayout,
   type Point,
   type Rect,
@@ -167,9 +172,44 @@ export function addRoomChecked(ship: Ship, rect: Rect): EditResult {
 }
 
 /**
+ * Gives a room a new rectangle of cells (the Select tool's handles, the
+ * inspector's size fields). Doors stay where they are and take their room ids
+ * from the new geometry; a door with the room on both sides (its wall now
+ * lies inside the room) is removed. A station keeps its cell while that cell
+ * is still in the room; otherwise its number stays as it is, and the Overview
+ * reports a station outside its room.
+ */
+export function resizeRoom(ship: Ship, id: number, rect: Rect): EditResult {
+  const room = ship.layout.rooms.find((r) => r.id === id);
+  if (!room) return { ship };
+  const next: Room = { id, x: rect.x, y: rect.y, w: rect.w, h: rect.h };
+  if (next.x === room.x && next.y === room.y && next.w === room.w && next.h === room.h)
+    return { ship };
+  const problem = placementProblem(ship.layout.rooms, [next], new Set([id]), roomArea(ship));
+  if (problem) return { problem };
+  const rooms = ship.layout.rooms.map((r) => (r.id === id ? next : r));
+  const doors = ship.layout.doors.filter((door) => {
+    const [a, b] = doorSides({ rooms }, door);
+    return !(a === id && b === id);
+  });
+  const systems = ship.blueprint.systems.map((s) => {
+    const number = s.slot?.number;
+    if (s.room !== id || !s.slot || number === undefined || !stationInRoom(room, number)) return s;
+    const cell = stationCellToXY(room, number);
+    const x = room.x + cell.x - next.x;
+    const y = room.y + cell.y - next.y;
+    if (x < 0 || y < 0 || x >= next.w || y >= next.h) return s;
+    const kept = stationXYToCell(next, x, y);
+    return kept === number ? s : { ...s, slot: { ...s.slot, number: kept } };
+  });
+  const resized = updateBlueprint(updateLayout(ship, { rooms, doors }), { systems });
+  return { ship: syncDoorRooms(resized) };
+}
+
+/**
  * Changes a room's position and/or size (cells). A new position moves the
- * room like a drag (with its doors); a new size keeps the doors where they
- * are. Both follow the placement rules.
+ * room like a drag (with its doors); a new size is applied as by
+ * {@link resizeRoom}. Both follow the placement rules.
  */
 export function changeRoom(ship: Ship, id: number, patch: Partial<Rect>): EditResult {
   const room = ship.layout.rooms.find((r) => r.id === id);
@@ -184,9 +224,5 @@ export function changeRoom(ship: Ship, id: number, patch: Partial<Rect>): EditRe
   if (problem) return { problem };
   const moved = moveRooms(ship, [id], target.x - room.x, target.y - room.y);
   if (!moved.ship) return moved;
-  if (target.w === room.w && target.h === room.h) return moved;
-  const rooms = moved.ship.layout.rooms.map((r) =>
-    r.id === id ? { ...r, w: target.w, h: target.h } : r
-  );
-  return { ship: syncDoorRooms(updateLayout(moved.ship, { rooms })) };
+  return resizeRoom(moved.ship, id, target);
 }

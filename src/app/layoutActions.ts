@@ -1,6 +1,6 @@
 /**
- * Layout edits on the open ship, each one undo step: moving, adding and
- * deleting rooms, doors and stations, with the selection that follows, and
+ * Layout edits on the open ship, each one undo step: moving, resizing, adding
+ * and deleting rooms, doors and stations, with the selection that follows, and
  * centring the ship on the game's screen.
  */
 import type { Rect, Ship, StationDirection } from "../core";
@@ -13,6 +13,7 @@ import {
   changeRoom,
   moveRooms,
   outOfView,
+  resizeRoom,
   type PlaceProblem,
 } from "./layout/rooms";
 import { centreOnScreen } from "./layout/screen";
@@ -109,6 +110,19 @@ export function changeRoomValues(
   const ship = present();
   if (!ship) return undefined;
   const result = changeRoom(ship, id, patch);
+  if (result.problem) return result.problem;
+  if (result.ship !== ship) {
+    useEditor.getState().edit(() => result.ship);
+    warnOutOfView(result.ship, [id], texts);
+  }
+  return undefined;
+}
+
+/** Gives a room a new rectangle of cells (the Select tool's handles); returns the problem when refused. */
+export function resizeRoomTo(id: number, rect: Rect, texts?: Texts): PlaceProblem | undefined {
+  const ship = present();
+  if (!ship) return undefined;
+  const result = resizeRoom(ship, id, rect);
   if (result.problem) return result.problem;
   if (result.ship !== ship) {
     useEditor.getState().edit(() => result.ship);

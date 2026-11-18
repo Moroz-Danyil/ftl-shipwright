@@ -19,7 +19,8 @@ export interface ToolPointer {
 export type Overlay =
   | { kind: "hover"; target: Target }
   | { kind: "box"; rect: Rect }
-  | { kind: "ghost"; cells: Rect[]; ok: boolean }
+  /** Rooms where they would go; `size` labels the first with its size in cells (a resize). */
+  | { kind: "ghost"; cells: Rect[]; ok: boolean; size?: true }
   | { kind: "wall"; wall: WallSegment; exists: boolean }
   | { kind: "cell"; cell: Point; ok: boolean }
   | { kind: "outline"; rect: Rect }
@@ -44,6 +45,8 @@ export interface ToolContext {
   setGesture(cancel: (() => void) | null): void;
   /** Shows a short message (a refused move, a cell without a station system). */
   say(text: string): void;
+  /** Sets the pointer's look over the canvas (a CSS cursor), or gives it back to the tool's own (`null`). */
+  setCursor?(cursor: string | null): void;
 }
 
 /** Screen pixels the pointer must travel before a press becomes a drag. */

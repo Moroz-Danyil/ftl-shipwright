@@ -31,7 +31,7 @@ export function ShipCanvas() {
   const ref = useRef<HTMLDivElement>(null);
   const size = useElementSize(ref);
   const fittedDoc = useRef<number | undefined>(undefined);
-  const { tool, overlay } = useCanvasTool(toolId, workspace, texts);
+  const { tool, overlay, cursor: toolCursor } = useCanvasTool(toolId, workspace, texts);
   const { panning, handlers } = useCanvasInput(ref, tool);
   const explosion = useExplosion();
   const hasDoc = doc !== undefined;
@@ -86,6 +86,7 @@ export function ShipCanvas() {
       aria-label={texts.canvas.label}
       data-tool={toolId}
       data-tour="canvas"
+      style={toolCursor && !panning && !view.panHeld ? { cursor: toolCursor } : undefined}
       {...handlers}
     >
       <svg className="cv-svg" width={width} height={height} data-testid="ship-svg">

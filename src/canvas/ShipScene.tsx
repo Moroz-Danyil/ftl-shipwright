@@ -1,7 +1,7 @@
 /**
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
  * interiors, doors, system icons, crew, mounts, the selected gib's direction
- * fan (Hull), the objects flashed after a click in the Overview and the
+ * fan (Hull), the selected room's resize handles (Rooms), the objects flashed after a click in the Overview and the
  * current tool's overlay.
  * In Hull the hull, floor, shield and mounts are always shown (the cloak
  * follows its layer); the Gib tool shows only the hull and the gibs, and
@@ -17,6 +17,7 @@ import { GibFan } from "./GibFan";
 import { GridLines, SpotCell, ViewLimitFrame } from "./GridLayer";
 import { MountsLayer } from "./MountsLayer";
 import { OffScreenRooms } from "./OffScreenRooms";
+import { RoomHandles } from "./RoomHandles";
 import { ShipPictures } from "./ShipPictures";
 import { shownLayers } from "./shownLayers";
 import { Doors, Rooms } from "./ShipShapes";
@@ -126,6 +127,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
           )}
           {!gibView && <ViewLimitFrame ship={ship} />}
           <FlashRings ship={ship} art={snapshot.art} />
+          <RoomHandles />
           <ToolOverlay ship={ship} art={snapshot.art} overlay={overlay} />
           <SystemDropTarget ship={ship} />
         </>

@@ -278,7 +278,7 @@ export const en = {
       canvas: {
         title: "The canvas",
         body: (k: TourKeys) =>
-          `The ship on the game's grid. The dashed red frame is the part of a player ship the game shows: rooms cannot go above or left of it, and rooms past its right or bottom edge are drawn amber because they are not visible in battle. Click to select, drag to move. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
+          `The ship on the game's grid. The dashed red frame is the part of a player ship the game shows: rooms cannot go above or left of it, and rooms past its right or bottom edge are drawn amber because they are not visible in battle. Click to select, drag to move; in Rooms, drag the handles of a selected room to resize it. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
       },
       info: {
         title: "The Info panel",
@@ -337,7 +337,7 @@ export const en = {
     rooms: {
       select: {
         title: "Select tool",
-        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell; Delete removes the selection.",
+        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell. Drag a handle on the edge or corner of a selected room to resize it. Delete removes the selection.",
       },
       room: {
         title: "Room tool",
@@ -425,6 +425,8 @@ export const en = {
     noStationSystem: "This room has no system with a crew station.",
     outOfView:
       "Outside the game's screen: this part of the ship will not be visible in battle. It is better to keep the ship inside the red frame.",
+    /** The size of a room being resized, in cells. */
+    sizeCells: (w: number, h: number) => `${w} × ${h}`,
   },
 
   systems: {

@@ -1,6 +1,6 @@
 /**
  * What the current tool draws over the ship: the hover outline, the
- * selection box, ghost rooms (red when refused), the wall under the Door tool
+ * selection box, ghost rooms (red when refused, a resized one with its size), the wall under the Door tool
  * the cell under the Station tool, picture outlines and dragged mounts and gibs.
  * A gib's direction being dragged is drawn by its fan instead.
  */
@@ -8,6 +8,8 @@ import { CELL_SIZE, cellToPx, mountPositionPx, roomRectPx, type Rect, type Ship 
 import type { ShipArt } from "../app/art/model";
 import { MOUNT_HIT_RADIUS, gibRectPx } from "./artHitTest";
 import type { Target } from "../app/selection";
+import { useEditor } from "../app/store";
+import { useTexts } from "../text";
 import { doorRectPx } from "./doors";
 import { STATION_RADIUS, stationCentre } from "./hitTest";
 import type { Overlay } from "./tools/types";
@@ -69,6 +71,24 @@ function Hover({ ship, art, target }: { ship: Ship; art: ShipArt; target: Target
         </text>
       )}
     </g>
+  );
+}
+
+/** The size in cells of a room being resized, in the middle of its ghost at a fixed screen size. */
+function SizeLabel({ rect, w, h }: { rect: Rect; w: number; h: number }) {
+  const texts = useTexts();
+  const scale = useEditor((s) => s.view.camera.scale);
+  return (
+    <text
+      className="cv-ghost-size"
+      data-testid="ghost-size"
+      x={rect.x + rect.w / 2}
+      y={rect.y + rect.h / 2}
+      fontSize={13 / scale}
+      strokeWidth={3 / scale}
+    >
+      {texts.layout.sizeCells(w, h)}
+    </text>
   );
 }
 
@@ -153,6 +173,13 @@ export function ToolOverlay({ ship, art, overlay }: Props) {
               />
             );
           })}
+          {overlay.size && overlay.cells[0] && (
+            <SizeLabel
+              rect={roomRectPx(layout, overlay.cells[0])}
+              w={overlay.cells[0].w}
+              h={overlay.cells[0].h}
+            />
+          )}
         </g>
       );
     case "wall": {
