@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDoor, setAnchor, updateBlueprint, updateLayout } from "../../core";
+import { addDoor, loadShip, saveShip, setAnchor, updateBlueprint, updateLayout } from "../../core";
 import { EMPTY_SELECTION } from "../selection";
 import { cellPx as at, medbay, pilot, shields, testShip } from "../../testing/layoutFixtures";
 import { addDoorOnWall, doorAt, doorsOfRoom, isDoorWall, nearestWall } from "./doors";
@@ -77,12 +77,15 @@ describe("room placement rules", () => {
     expect(outOfView(low, [0, 1, 2])).toBe(false);
   });
 
-  it("never lets rooms go left of or above ship pixel 0, which would save a negative offset", () => {
-    // HORIZONTAL 40 moves the frame's left edge to -2.14, but cell -2 is left of pixel 0.
+  it("lets rooms use the whole frame, also left of ship pixel 0", () => {
+    // HORIZONTAL 40 moves the frame's left edge to cell -2.14: cell -2 is inside, -3 is not.
     const ship = updateLayout(testShip(), { horizontal: 40 });
-    expect(roomArea(ship)!.left).toBe(-1);
-    expect(addRoomChecked(ship, { x: -2, y: 3, w: 1, h: 1 }).problem).toBe("offScreen");
-    expect(addRoomChecked(ship, { x: -1, y: 3, w: 1, h: 1 }).ship).toBeDefined();
+    expect(roomArea(ship)!.left).toBeCloseTo(-1 - 40 / 35);
+    expect(addRoomChecked(ship, { x: -3, y: 3, w: 1, h: 1 }).problem).toBe("offScreen");
+    const placed = addRoomChecked(ship, { x: -2, y: 3, w: 1, h: 1 }).ship!;
+    // Saved, the anchor would be -1: it is written as 0 and HORIZONTAL takes the cell.
+    const written = loadShip(saveShip(placed)).layout;
+    expect(written).toMatchObject({ xOffset: 0, horizontal: 5 });
   });
 
   it("spans a rectangle between two cells in either order", () => {

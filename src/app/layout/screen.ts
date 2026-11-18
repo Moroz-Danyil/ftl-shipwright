@@ -97,9 +97,7 @@ function fitShift(wanted: number, low: number, high: number, size: number): numb
  * start at its left or top edge and reach past the right or bottom one (the
  * Overview lists them as not visible in battle); no room is ever pushed past
  * the top or left edge. Rooms, doors and pictures keep their numbers, so
- * they all move together. With the rooms inside the frame and the pixels left
- * over within 17, no room is left of or above ship pixel 0, so the written
- * offsets are never negative. Returns `ship` itself when nothing changes.
+ * they all move together. Returns `ship` itself when nothing changes.
  */
 export function centreOnScreen(ship: Ship): Ship {
   const { layout } = ship;

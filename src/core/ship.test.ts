@@ -163,7 +163,25 @@ describe("immutable edits", () => {
 });
 
 /** Every place on the screen the editor and the game draw something of the ship at. */
+/**
+ * Where everything is on the game's screen: ship pixels moved by
+ * `HORIZONTAL`/`VERTICAL`, as the game places the ship at offset · 35 + shift.
+ */
 function screenPlaces(ship: Ship) {
+  const { horizontal = 0, vertical = 0 } = ship.layout;
+  const move = (value: unknown, key = ""): unknown => {
+    if (Array.isArray(value)) return value.map((v) => move(v));
+    if (value && typeof value === "object")
+      return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, move(v, k)]));
+    if (typeof value !== "number") return value;
+    if (["x", "x1", "x2", "cx"].includes(key)) return value + horizontal;
+    if (["y", "y1", "y2", "cy"].includes(key)) return value + vertical;
+    return value;
+  };
+  return move(shipPixelPlaces(ship));
+}
+
+function shipPixelPlaces(ship: Ship) {
   const { layout, layoutXml: xml } = ship;
   return {
     rooms: layout.rooms.map((r) => roomRectPx(layout, r)),
@@ -269,8 +287,41 @@ describe("rooms written from cell (0, 0)", () => {
       [4, 0],
     ]);
     expect(n.layout.doors[0]).toMatchObject({ x: 0, y: 3 });
-    expect([n.layout.xOffset, n.layout.yOffset]).toEqual([-3, -1]);
+    // The anchor would be (-3, -1): it stays at 0 and the cells go into the screen shift.
+    expect([n.layout.xOffset, n.layout.yOffset]).toEqual([0, 0]);
+    expect([n.layout.horizontal, n.layout.vertical]).toEqual([-105, -35]);
     expect(n.layoutXml.img).toMatchObject({ x: 105, y: 35 });
+    expect(screenPlaces(n)).toEqual(screenPlaces(s));
+  });
+
+  it("never writes a negative offset: whole cells go into HORIZONTAL and VERTICAL", () => {
+    // A drone layout: no X_OFFSET or Y_OFFSET, VERTICAL 100, and a room drawn one row above
+    // the top row.
+    let s = createShip({ name: "PLAYER_SHIP_T", layout: "t", img: "t" });
+    s = { ...s, layout: { ...s.layout, xOffset: undefined, yOffset: undefined, vertical: 100 } };
+    s = addRoom(s, { x: 0, y: 0, w: 2, h: 2 });
+    s = addRoom(s, { x: 0, y: -1, w: 1, h: 1 });
+    deepFreeze(s);
+    const files = saveShip(s);
+    const written = loadShip(files);
+    expect(written.layout).toMatchObject({ xOffset: 0, yOffset: 0, vertical: 65 });
+    expect(written.layout.horizontal).toBeUndefined();
+    expect(files.layoutTxt).toContain("Y_OFFSET\n0\nVERTICAL\n65\n");
+    expect(written.layout.rooms.map((r) => [r.x, r.y])).toEqual([
+      [0, 1],
+      [0, 0],
+    ]);
+    expect(screenPlaces(written)).toEqual(screenPlaces(s));
+    // Reopened and saved again, nothing changes.
+    expect(saveShip(written)).toEqual(files);
+  });
+
+  it("moves an anchor that is negative already to 0 as well", () => {
+    let s = threeRooms();
+    s = { ...s, layout: { ...s.layout, xOffset: -2, yOffset: 1, horizontal: 10 } };
+    deepFreeze(s);
+    const n = normalizeRoomOrigin(s);
+    expect(n.layout).toMatchObject({ xOffset: 0, yOffset: 1, horizontal: 10 - 70 });
     expect(screenPlaces(n)).toEqual(screenPlaces(s));
   });
 

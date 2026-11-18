@@ -3,9 +3,9 @@
  * amber past its right or bottom edge (not visible in battle), red above or
  * left of it (the game may crash), with an outline round the whole room.
  */
-import { CELL_SIZE, anchorCells, roomRectPx, type Ship } from "../core";
+import { roomRectPx, type Ship } from "../core";
 import { roomsOffScreen, roomsOutOfView } from "../app/checks";
-import { roomAreaCells, viewLimitPx } from "./viewLimit";
+import { viewLimitPx } from "./viewLimit";
 
 /** How far the "outside" shape reaches round the frame, in ship pixels. */
 const FAR = 100000;
@@ -15,11 +15,8 @@ export function OffScreenRooms({ ship }: { ship: Ship }) {
   const out = roomsOutOfView(ship);
   if (off.length + out.length === 0) return null;
   const frame = viewLimitPx(ship.layout);
-  const area = roomAreaCells(ship.layout);
-  const anchor = anchorCells(ship.layout);
-  // The area's top and left edges: the frame's, or ship pixel 0 where that lies inside it.
-  const left = (anchor.x + area.left) * CELL_SIZE;
-  const top = (anchor.y + area.top) * CELL_SIZE;
+  const left = frame.x;
+  const top = frame.y;
   const right = frame.x + frame.w;
   const bottom = frame.y + frame.h;
   const outside = `M${-FAR} ${-FAR}H${FAR}V${FAR}H${-FAR}Z M${left} ${top}V${bottom}H${right}V${top}Z`;

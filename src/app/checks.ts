@@ -164,8 +164,7 @@ function roomsBy(ship: Ship, test: (area: CellBox, r: Rect) => boolean): number[
 
 /**
  * The rooms of a player ship that reach, even partly, above or left of the
- * part of the screen the game shows (or of ship pixel 0, which would be saved
- * as a negative offset); the game may crash with them.
+ * part of the screen the game shows; the game may crash with them.
  */
 export function roomsOffScreen(ship: Ship): number[] {
   return roomsBy(ship, beyondTopLeft);

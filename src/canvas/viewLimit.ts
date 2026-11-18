@@ -33,25 +33,19 @@ export function viewLimitCells(
 }
 
 /**
- * The frame for a player ship's rooms, in cells. Its top and left edges are
- * a hard limit: rooms above or left of the screen can crash the game, and
- * no room goes left of or above ship pixel 0 either, so a saved layout never
- * gets a negative `X_OFFSET` or `Y_OFFSET`. Past the right and bottom edges
- * rooms work but are not visible in battle. A cell only partly inside a
- * fractional edge (from `HORIZONTAL`/`VERTICAL`) counts as outside. The
+ * The frame for a player ship's rooms, in cells: the frame itself. Its top
+ * and left edges are a hard limit, as rooms above or left of the screen can
+ * crash the game; past the right and bottom edges rooms work but are not
+ * visible in battle. A cell only partly inside a fractional edge (from
+ * `HORIZONTAL`/`VERTICAL`) counts as outside. Saving keeps `X_OFFSET` and
+ * `Y_OFFSET` at 0 or more by moving whole cells into `HORIZONTAL`/
+ * `VERTICAL` (`normalizeRoomOrigin`), so rooms may use the whole frame. The
  * game's own ships all fit.
  */
 export function roomAreaCells(
   layout: Pick<ShipLayout, "xOffset" | "yOffset" | "horizontal" | "vertical">
 ): CellBox {
-  const frame = viewLimitCells(layout);
-  const anchor = anchorCells(layout);
-  return {
-    left: Math.max(frame.left, -anchor.x),
-    top: Math.max(frame.top, -anchor.y),
-    right: frame.right,
-    bottom: frame.bottom,
-  };
+  return viewLimitCells(layout);
 }
 
 /** Rounding slack for the fractional edges. */

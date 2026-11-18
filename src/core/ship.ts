@@ -54,32 +54,42 @@ export function saveShip(ship: Ship, options?: BlueprintWriteOptions): ShipFiles
 
 /**
  * The ship as the game expects it on disk: the smallest room x and the
- * smallest room y are 0, as in every ship of the game. The game places the
- * hull picture from the top-left of the rooms rather than from cell (0, 0),
- * so a layout whose rooms start elsewhere shows its rooms off the hull.
+ * smallest room y are 0, as in every ship of the game, and `X_OFFSET`/
+ * `Y_OFFSET` are never negative (no ship of the game has a negative one). The
+ * game places the hull picture from the top-left of the rooms rather than
+ * from cell (0, 0), so a layout whose rooms start elsewhere shows its rooms
+ * off the hull.
  *
  * Rooms and doors move by `(-minX, -minY)` cells and `X_OFFSET`/`Y_OFFSET`
  * grow by `(minX, minY)`, so every room keeps its place on the screen. The
  * hull picture's `img` x/y, measured from the anchor, move by
- * `(-minX, -minY) * 35` pixels, so the hull keeps its place too. Everything
- * else is measured from a room (stations), from the rooms' bounding box (the
- * shield ellipse) or from the hull picture (floor, cloak, mounts, gibs) and
- * stays as it is.
- * Returns `ship` itself when the rooms already start at (0, 0) or there are
- * no rooms.
+ * `(-minX, -minY) * 35` pixels, so the hull keeps its place too. An offset
+ * that would be negative is written as 0 and the difference goes into
+ * `HORIZONTAL`/`VERTICAL` (35 px per cell): the game places the ship at
+ * `offset * 35 + shift` pixels (see `canvas/viewLimit.ts`), so it stays where
+ * it was. Everything else is measured from a room (stations), from the
+ * rooms' bounding box (the shield ellipse) or from the hull picture (floor,
+ * cloak, mounts, gibs) and stays as it is.
+ * Returns `ship` itself when nothing has to change.
  */
 export function normalizeRoomOrigin(ship: Ship): Ship {
   const bounds = roomsBoundsCells(ship.layout);
-  if (!bounds || (bounds.x === 0 && bounds.y === 0)) return ship;
-  const dx = bounds.x;
-  const dy = bounds.y;
+  const dx = bounds?.x ?? 0;
+  const dy = bounds?.y ?? 0;
   const { layout, layoutXml } = ship;
+  const x = (layout.xOffset ?? 0) + dx;
+  const y = (layout.yOffset ?? 0) + dy;
+  if (dx === 0 && dy === 0 && x >= 0 && y >= 0) return ship;
+  const shifts: Partial<ShipLayout> = {};
+  if (x < 0) shifts.horizontal = (layout.horizontal ?? 0) + x * CELL_SIZE;
+  if (y < 0) shifts.vertical = (layout.vertical ?? 0) + y * CELL_SIZE;
   return {
     ...ship,
     layout: {
       ...layout,
-      xOffset: (layout.xOffset ?? 0) + dx,
-      yOffset: (layout.yOffset ?? 0) + dy,
+      ...shifts,
+      xOffset: Math.max(0, x),
+      yOffset: Math.max(0, y),
       rooms: layout.rooms.map((r) => ({ ...r, x: r.x - dx, y: r.y - dy })),
       doors: layout.doors.map((d) => ({ ...d, x: d.x - dx, y: d.y - dy })),
     },

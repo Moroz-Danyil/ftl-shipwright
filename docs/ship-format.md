@@ -48,7 +48,7 @@ Whitespace-separated tokens (vanilla puts every token on its own line). Keywords
 
 - Order in vanilla: `X_OFFSET Y_OFFSET VERTICAL HORIZONTAL ELLIPSE`, then all `ROOM`s, then all `DOOR`s (absent keywords skipped) [69/69]. Write in this order.
 - Room ids are `0 .. n-1` in file order [69/69]. Sizes in vanilla: 2×1, 1×2, 2×2 and one 3×2 [851 rooms].
-- `HORIZONTAL` and `VERTICAL` only move the ship on the game screen; the editor keeps them as they are, unless **Centre on screen** (Ship › Info) sets them together with the anchor.
+- `HORIZONTAL` and `VERTICAL` only move the ship on the game screen: the game places it at `X_OFFSET · 35 + HORIZONTAL` and `Y_OFFSET · 35 + VERTICAL` pixels (see the view-limit frame in [game-data.md](game-data.md#rooms-off-the-screen)). The editor keeps them as they are, unless **Centre on screen** (Ship › Info) sets them together with the anchor, or saving would make `X_OFFSET`/`Y_OFFSET` negative: then the offset is written as 0 and the shift takes the difference, 35 px per cell, so the ship stays where it was. No layout of the game has a negative offset; negative shifts are common.
 - The game's player ships are not centred in the 19 × 13 frame the game shows: the middle of each ship's rooms and hull picture together lies 36 to 81 px left of the frame's middle (65 on average) and 35 to 56 px above it (50 on average) [28 player layouts]. Centre on screen and a new empty ship use that average spot.
 
 ### Doors

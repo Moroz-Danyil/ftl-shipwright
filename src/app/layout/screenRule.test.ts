@@ -13,17 +13,17 @@ import { layoutChecks, roomsOffScreen, roomsOutOfView } from "../checks";
 import { addRoomChecked, moveRooms } from "./rooms";
 
 /** A player ship with the given anchor and screen shift, and no rooms. */
-function playerShip(x: number, y: number, horizontal?: number, vertical?: number): Ship {
+function playerShip(x?: number, y?: number, horizontal?: number, vertical?: number): Ship {
   const ship = createShip({ name: "PLAYER_SHIP_T", layout: "t", img: "t" });
   return { ...ship, layout: { ...ship.layout, xOffset: x, yOffset: y, horizontal, vertical } };
 }
 
 describe("rooms and the game's screen", () => {
-  it("never writes a negative offset for a ship whose rooms are inside the frame", () => {
-    for (const x of [0, 1, 3])
-      for (const y of [0, 2])
-        for (const horizontal of [undefined, -40, -17, 0, 5, 18, 27, 40, 70])
-          for (const vertical of [-40, -16, 0, 10, 35, 50]) {
+  it("never writes a negative offset, and keeps the rooms where they were on the screen", () => {
+    for (const x of [undefined, 0, 1, 3])
+      for (const y of [undefined, 0, 2])
+        for (const horizontal of [undefined, -40, -17, 0, 5, 18, 27, 40, 70, 140])
+          for (const vertical of [undefined, -40, -16, 0, 10, 35, 50, 100]) {
             let ship = playerShip(x, y, horizontal, vertical);
             const area = roomAreaCells(ship.layout);
             // The top-left-most room the rules allow, and one in the bottom-right corner.
@@ -36,9 +36,30 @@ describe("rooms and the game's screen", () => {
             expect(roomsOffScreen(ship)).toEqual([]);
             const written = loadShip(saveShip(ship)).layout;
             const label = `${x} ${y} ${horizontal} ${vertical}`;
-            expect(written.xOffset, label).toBeGreaterThanOrEqual(0);
-            expect(written.yOffset, label).toBeGreaterThanOrEqual(0);
+            expect(written.xOffset ?? 0, label).toBeGreaterThanOrEqual(0);
+            expect(written.yOffset ?? 0, label).toBeGreaterThanOrEqual(0);
+            // The rooms stay at the same place in the frame (offset · 35 + shift).
+            const inFrame = (l: typeof written) =>
+              l.rooms.map((r) => [
+                ((l.xOffset ?? 0) + r.x) * 35 + (l.horizontal ?? 0),
+                ((l.yOffset ?? 0) + r.y) * 35 + (l.vertical ?? 0),
+              ]);
+            expect(inFrame(written), label).toEqual(inFrame(ship.layout));
+            expect(roomsOffScreen({ ...ship, layout: written }), label).toEqual([]);
           }
+  });
+
+  it("lets a drone's rooms go up to the frame's top edge, and saves them at offset 0", () => {
+    // An enemy drone layout in a hangar slot: no X_OFFSET or Y_OFFSET, VERTICAL 100, so the
+    // frame's top edge is row -2.86.
+    let ship = playerShip(undefined, undefined, undefined, 100);
+    ship = addRoom(ship, { x: 0, y: 0, w: 2, h: 2 });
+    expect(roomAreaCells(ship.layout).top).toBeCloseTo(-100 / 35);
+    expect(addRoomChecked(ship, { x: 0, y: -3, w: 1, h: 1 }).problem).toBe("offScreen");
+    ship = addRoomChecked(ship, { x: 0, y: -1, w: 1, h: 1 }).ship!;
+    const reopened = loadShip(saveShip(ship));
+    expect(reopened.layout).toMatchObject({ xOffset: 0, yOffset: 0, vertical: 65 });
+    expect(roomsOffScreen(reopened)).toEqual([]);
   });
 
   it("lets rooms go past the right and bottom edges, out of sight but saved at 0 or more", () => {
@@ -57,7 +78,7 @@ describe("rooms and the game's screen", () => {
     expect([written.xOffset, written.yOffset]).toEqual([1, 2]);
   });
 
-  it("reports rooms drawn above the frame as a problem: saved, they need a negative offset", () => {
+  it("reports rooms drawn above the frame as a problem", () => {
     // A Kestrel-like layout: anchor (1, 2), VERTICAL -16, so the frame's top edge is row -1.54.
     let ship = playerShip(1, 2, undefined, -16);
     ship = addRoom(ship, { x: 0, y: 0, w: 2, h: 2 });
@@ -70,7 +91,8 @@ describe("rooms and the game's screen", () => {
     expect(layoutChecks(opened)).toContainEqual(
       expect.objectContaining({ code: "rooms-off-screen", severity: "problem", rooms: [1, 2] })
     );
-    expect(normalizeRoomOrigin(opened).layout.yOffset).toBe(-1);
+    // Saved, the anchor would be -1: it is written as 0, VERTICAL takes the cell.
+    expect(normalizeRoomOrigin(opened).layout).toMatchObject({ yOffset: 0, vertical: -16 - 35 });
   });
 
   it.skipIf(!HAS_GAME_DATA)(
@@ -106,6 +128,9 @@ describe("rooms and the game's screen", () => {
     let opened = addRoom(ship, { x: above.x, y: top - 2, w: 1, h: 2 });
     opened = addRoom(opened, { x: above.x, y: top - 3, w: 1, h: 1 });
     expect(roomsOffScreen(opened)).toHaveLength(2);
-    expect(normalizeRoomOrigin(opened).layout.yOffset).toBeLessThan(0);
+    // The anchor would be negative: it is written as 0, and VERTICAL takes the cells.
+    const written = normalizeRoomOrigin(opened).layout;
+    expect(written.yOffset).toBe(0);
+    expect(written.vertical!).toBeLessThan(ship.layout.vertical ?? 0);
   });
 });
