@@ -3,7 +3,7 @@
  * look it asks for. The Select tool is the same in every workspace (it picks
  * and drags anything); in Rooms it also resizes the selected room with its
  * handles. Every Hull tool also turns the selected gib's direction with its
- * fan, and every Rooms tool places rooms being pasted.
+ * fan, and every Rooms and Hull tool places rooms being pasted.
  */
 import { useEffect, useMemo, useState } from "react";
 import { setGestureCancel } from "../../app/gesture";
@@ -40,7 +40,7 @@ export function createTool(
   workspace: WorkspaceId = "rooms"
 ): CanvasTool {
   const tool = createPlainTool(id, context, workspace);
-  if (workspace === "hull") return withGibDirection(tool, context);
+  if (workspace === "hull") return withPaste(withGibDirection(tool, context), context);
   if (workspace === "rooms") return withPaste(tool, context);
   return tool;
 }

@@ -5,14 +5,15 @@ import type { Platform } from "../platform/types";
 import type { Texts } from "../text";
 import { cancelGesture } from "./gesture";
 import type { CommandId, MoveDirection } from "./keys";
-import { deleteSelectedArt, nudgeArt, turnSelectedMounts } from "./artActions";
+import { pickableNow } from "../canvas/tools/selectTool";
+import { nudgeArt, turnSelectedMounts } from "./artActions";
 import {
   copySelection,
   cutSelection,
   duplicateSelection,
   pasteClipboard,
 } from "./clipboardActions";
-import { deleteSelected, nudgeSelection } from "./layoutActions";
+import { deleteSelected, hasCanvasThings, nudgeSelection, selectAll } from "./layoutActions";
 import { removeSelectedSlots } from "./loadoutActions";
 import { saveShipMod } from "./saveMod";
 import { EMPTY_SELECTION } from "./selection";
@@ -49,11 +50,11 @@ export function runCommand(command: CommandId, context: CommandContext): boolean
   else if (command === "cancel") {
     if (!cancelGesture()) state.select(EMPTY_SELECTION);
   } else if (command === "delete") {
-    if (state.workspace === "hull") return deleteSelectedArt();
-    if (state.workspace === "ship") return removeSelectedSlots();
-    if (state.workspace !== "rooms") return false;
+    if (state.workspace === "ship" && removeSelectedSlots()) return true;
+    if (!hasCanvasThings(state.selection)) return false;
     void deleteSelected(context);
-  } else if (command === "copy") return copySelection(context.texts);
+  } else if (command === "selectAll") return selectAll(pickableNow());
+  else if (command === "copy") return copySelection(context.texts);
   else if (command === "cut") return cutSelection(context);
   else if (command === "paste") return pasteClipboard(context.texts);
   else if (command === "duplicate") return duplicateSelection(context.texts);

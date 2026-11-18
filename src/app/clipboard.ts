@@ -1,7 +1,7 @@
 /**
- * The editor's own clipboard: what Copy took from Rooms (rooms with the doors
- * between them) and from Hull (weapon mounts and gibs), and how it goes into
- * a ship again. It lives as long as the app runs, so it can be pasted into
+ * The editor's own clipboard: what Copy took (rooms with the doors between
+ * them, weapon mounts and gibs, or rooms with mounts and gibs together), and
+ * how it goes into a ship again. It lives as long as the app runs, so it can be pasted into
  * another ship opened later.
  *
  * Rooms are copied with everything the blueprint holds for their systems
@@ -46,15 +46,17 @@ export interface ClipDoor extends WallSegment {
   outer: boolean;
 }
 
-/** Rooms copied in Rooms: their cells where they were, their doors and their systems. */
+/** Copied rooms: their cells where they were, their doors and their systems. */
 export interface RoomsClip {
   rooms: Rect[];
   doors: ClipDoor[];
   /** The systems of the rooms, each with `room` as an index into `rooms`. */
   systems: ShipSystem[];
+  /** Mounts and gibs copied together with the rooms, pasted shifted as far as the rooms. */
+  art?: ArtClip;
 }
 
-/** Mounts and gibs copied in Hull, in hull pixels. */
+/** Copied mounts and gibs, in hull pixels. */
 export interface ArtClip {
   mounts: Mount[];
   /** Each gib with its number in the ship it came from and its picture. */

@@ -1,11 +1,11 @@
 /**
  * The Rooms inspector: with nothing selected, the palette of systems; for a
  * selected room, its systems, the palette, position and size; for a door, a
- * station or several things, their panel. Help for the current tool comes
+ * station or several things (of any kind, with how many of each), their panel. Help for the current tool comes
  * next and Delete (for any selection) last; with the Station tool the choice
  * of which station it places comes first.
  */
-import { selectionSize, singleTarget } from "../../app/selection";
+import { canvasCounts, selectionSize, singleTarget } from "../../app/selection";
 import { currentTool, useEditor } from "../../app/store";
 import type { Ship } from "../../core";
 import { useTexts } from "../../text";
@@ -26,13 +26,7 @@ function Several() {
         <span className="ed-heading-title">
           {texts.inspector.severalTitle(selectionSize(selection))}
         </span>
-        <span className="muted">
-          {texts.inspector.severalParts(
-            selection.rooms.length,
-            selection.doors.length,
-            selection.stations.length
-          )}
-        </span>
+        <span className="muted">{texts.inspector.severalParts(canvasCounts(selection))}</span>
       </div>
     </>
   );

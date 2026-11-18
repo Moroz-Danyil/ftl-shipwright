@@ -25,6 +25,7 @@ export type CommandId =
   | "cut"
   | "paste"
   | "duplicate"
+  | "selectAll"
   | `move.${MoveDirection}`
   | `moveFar.${MoveDirection}`
   | "mount.rotate"
@@ -80,6 +81,7 @@ export const FIXED_BINDINGS: KeyBinding[] = [
   { keys: "Ctrl+X", command: "cut" },
   { keys: "Ctrl+V", command: "paste" },
   { keys: "Ctrl+D", command: "duplicate" },
+  { keys: "Ctrl+A", command: "selectAll" },
   { keys: "[", command: "mount.rotate" },
   { keys: "]", command: "mount.mirror" },
   ...(["Up", "Down", "Left", "Right"] as const).flatMap((d) => {

@@ -1,17 +1,15 @@
 /**
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
  * interiors, doors, system icons, crew, mounts, the selected gibs and hull
- * picture outlined, the selected gib's direction
- * fan (Hull), the selected room's resize handles and the rooms being pasted
- * (Rooms), the objects flashed after a click in the Overview and the
- * current tool's overlay.
+ * picture outlined, the selected gib's direction fan (Hull), the selected
+ * room's resize handles (Rooms), the rooms being pasted, the objects flashed
+ * after a click in the Overview and the current tool's overlay.
  * In Hull the hull, floor, shield and mounts are always shown (the cloak
  * follows its layer); the Gib tool shows only the hull and the gibs, and
  * during the explosion preview only the gibs are drawn.
  */
 import { useMemo } from "react";
 import { hullRectPx, type Rect } from "../core";
-import { pasteProblem, shiftedClip } from "../app/clipboard";
 import { singleTarget } from "../app/selection";
 import { currentTool, useEditor } from "../app/store";
 import { gibRectPx } from "./artHitTest";
@@ -27,6 +25,7 @@ import { Doors, Rooms } from "./ShipShapes";
 import { Stations } from "./Stations";
 import { Interiors, LaterTint, SystemDropTarget, SystemIcons } from "./RoomContents";
 import { ToolOverlay } from "./ToolOverlay";
+import { pastingGhost } from "./tools/pasteTool";
 import type { Overlay } from "./tools/types";
 import { equippedWeaponFrames } from "./weaponDraw";
 
@@ -84,14 +83,7 @@ export function ShipScene({ area, overlay, explosion }: Props) {
       : overlay?.kind === "direction" && overlay.gib === fanGib
         ? overlay.direction
         : ship.layoutXml.gibs[fanGib]?.direction;
-  const shownOverlay: Overlay | null =
-    pasting && workspace === "rooms"
-      ? {
-          kind: "ghost",
-          cells: shiftedClip(pasting.clip, pasting.offset),
-          ok: !pasteProblem(ship, pasting.clip, pasting.offset),
-        }
-      : overlay;
+  const shownOverlay: Overlay | null = pasting ? pastingGhost(ship, pasting) : overlay;
 
   return (
     <>

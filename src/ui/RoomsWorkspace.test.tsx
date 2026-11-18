@@ -446,7 +446,7 @@ describe("Rooms inspector", () => {
   it("counts several selected things", () => {
     act(() => state().select(selectionOf({ kind: "room", id: 0 }, { kind: "door", index: 1 })));
     expect(within(inspector()).getByText(en.inspector.severalTitle(2))).toBeInTheDocument();
-    expect(within(inspector()).getByText(en.inspector.severalParts(1, 1, 0))).toBeInTheDocument();
+    expect(within(inspector()).getByText("1 room, 1 door")).toBeInTheDocument();
   });
 
   it("turns and deletes a selected station", () => {

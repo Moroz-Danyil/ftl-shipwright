@@ -56,15 +56,19 @@ describe("deleting the selection", () => {
     expect(ship().layout.doors).toHaveLength(2);
   });
 
-  it("runs from the Delete key in Rooms only", async () => {
+  it("runs from the Delete key in every workspace", async () => {
     const platform = createFakePlatform();
-    state().select(selectionOf({ kind: "door", index: 0 }));
     state().setWorkspace("hull");
     expect(runCommand("delete", { platform, texts: en })).toBe(false);
-    state().setWorkspace("rooms");
+    state().select(selectionOf({ kind: "door", index: 0 }));
     expect(runCommand("delete", { platform, texts: en })).toBe(true);
     await Promise.resolve();
     expect(ship().layout.doors).toHaveLength(3);
+    state().setWorkspace("ship");
+    state().select(selectionOf({ kind: "door", index: 0 }));
+    expect(runCommand("delete", { platform, texts: en })).toBe(true);
+    await Promise.resolve();
+    expect(ship().layout.doors).toHaveLength(2);
   });
 });
 

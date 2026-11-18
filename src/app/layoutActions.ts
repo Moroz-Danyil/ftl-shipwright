@@ -1,13 +1,14 @@
 /**
  * Layout edits on the open ship, each one undo step: moving, resizing, adding
  * and deleting rooms, doors and stations, with the selection that follows,
- * moving a whole selection (rooms with mounts, gibs and the hull picture), and
- * centring the ship on the game's screen.
+ * moving, deleting and selecting a whole selection (rooms with mounts, gibs
+ * and the hull picture), and centring the ship on the game's screen.
  */
 import { CELL_SIZE, type Rect, type Ship, type StationDirection } from "../core";
 import type { Texts } from "../text";
-import { moveGibs } from "./art/gibs";
-import { moveMounts } from "./art/mounts";
+import { moveGibs, removeGibs } from "./art/gibs";
+import type { ShipSnapshot } from "./art/model";
+import { moveMounts, removeMounts } from "./art/mounts";
 import { movePicture } from "./art/pictures";
 import type { CommandContext } from "./commands";
 import { addDoorOnWall, type WallSegment } from "./layout/doors";
@@ -22,7 +23,7 @@ import {
 } from "./layout/rooms";
 import { centreOnScreen } from "./layout/screen";
 import { placeStation, setStationDirection } from "./layout/stations";
-import { EMPTY_SELECTION, isEmptySelection, selectionOf } from "./selection";
+import { EMPTY_SELECTION, selectionOf, type Selection } from "./selection";
 import { useEditor } from "./store";
 
 const present = () => useEditor.getState().doc?.history.present.ship;
@@ -93,11 +94,26 @@ export function nudgeSelection(dx: number, dy: number, texts: Texts, far = false
   return true;
 }
 
-/** Deletes the selection; rooms that hold systems are deleted only after the user agrees. */
+/** True when the selection holds rooms, doors, stations, mounts or gibs (what Delete removes). */
+export function hasCanvasThings(selection: Selection): boolean {
+  const { rooms, doors, stations, mounts, gibs } = selection;
+  return rooms.length + doors.length + stations.length + mounts.length + gibs.length > 0;
+}
+
+/** The snapshot without the selected rooms, doors, stations, mounts and gibs. */
+export function withoutSelection(snapshot: ShipSnapshot, selection: Selection): ShipSnapshot {
+  const ship = removeMounts(deleteSelection(snapshot.ship, selection), selection.mounts);
+  return removeGibs({ ...snapshot, ship }, selection.gibs);
+}
+
+/**
+ * Deletes the selected rooms, doors, stations, mounts and gibs as one undo
+ * step; rooms that hold systems are deleted only after the user agrees.
+ */
 export async function deleteSelected(context: CommandContext): Promise<boolean> {
   const ship = present();
   const { selection } = useEditor.getState();
-  if (!ship || isEmptySelection(selection)) return false;
+  if (!ship || !hasCanvasThings(selection)) return false;
   const systems = systemsInRooms(ship, selection.rooms).length;
   if (systems > 0) {
     const { title, message, confirm } = context.texts.layout.confirmDelete;
@@ -105,7 +121,26 @@ export async function deleteSelected(context: CommandContext): Promise<boolean> 
     if (!(await useEditor.getState().askConfirm(request))) return false;
   }
   if (useEditor.getState().doc?.history.present.ship !== ship) return false;
-  useEditor.getState().edit((s) => deleteSelection(s, selection), EMPTY_SELECTION);
+  useEditor.getState().editSnapshot((s) => withoutSelection(s, selection), EMPTY_SELECTION);
+  return true;
+}
+
+/**
+ * Selects every room, mount and gib of the ship that the canvas shows
+ * (`shown`), then opens the workspace that edits them; false when there is none.
+ */
+export function selectAll(shown: { rooms: boolean; mounts: boolean; gibs: boolean }): boolean {
+  const ship = present();
+  if (!ship) return false;
+  const all: Selection = {
+    ...EMPTY_SELECTION,
+    rooms: shown.rooms ? ship.layout.rooms.map((r) => r.id).sort((a, b) => a - b) : [],
+    mounts: shown.mounts ? ship.layoutXml.mounts.map((_, i) => i) : [],
+    gibs: shown.gibs ? ship.layoutXml.gibs.map((_, i) => i) : [],
+  };
+  if (!hasCanvasThings(all)) return false;
+  useEditor.getState().select(all);
+  useEditor.getState().followSelection();
   return true;
 }
 

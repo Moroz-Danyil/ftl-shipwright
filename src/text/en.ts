@@ -304,7 +304,7 @@ export const en = {
       undo: {
         title: "Undo and redo",
         body: (k: TourKeys) =>
-          `Every change can be undone. Undo: ${k.undo.join(" or ")}. Redo: ${k.redo.join(" or ")}. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms in Rooms and mounts and gibs in Hull, also into another ship; Ctrl+D duplicates them.`,
+          `Every change can be undone. Undo: ${k.undo.join(" or ")}. Redo: ${k.redo.join(" or ")}. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms in Rooms and mounts and gibs in Hull (copied together, they paste together), also into another ship; Ctrl+D duplicates them. Ctrl+A selects every room, mount and gib shown.`,
       },
       overview: {
         title: "Overview",
@@ -343,7 +343,7 @@ export const en = {
     rooms: {
       select: {
         title: "Select tool",
-        body: `${SELECT_ON_CANVAS} Arrows move the selection by one cell. Drag a handle on the edge or corner of a selected room to resize it. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms with their doors and systems (pasted rooms follow the pointer until a click places them; a system the ship already has stays out), Ctrl+D duplicates them. Delete removes the selection.`,
+        body: `${SELECT_ON_CANVAS} Arrows move the selection by one cell. Drag a handle on the edge or corner of a selected room to resize it. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms with their doors and systems (pasted rooms follow the pointer until a click places them; a system the ship already has stays out; mounts and gibs copied with them come along), Ctrl+D duplicates them. Ctrl+A selects every room, mount and gib shown. Delete removes the selection, of any kind.`,
       },
       room: {
         title: "Room tool",
@@ -361,7 +361,7 @@ export const en = {
     hull: {
       select: {
         title: "Select tool",
-        body: `${SELECT_ON_CANVAS} Arrows move the selection by 1 px, Shift + arrows by 10 px (by one cell when rooms are in it). Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste mounts and gibs (under the pointer), Ctrl+D duplicates them.`,
+        body: `${SELECT_ON_CANVAS} Arrows move the selection by 1 px, Shift + arrows by 10 px (by one cell when rooms are in it). Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste mounts and gibs (under the pointer; copied together with rooms, they follow the pointer with the rooms), Ctrl+D duplicates them. Ctrl+A selects every room, mount and gib shown. Delete removes the selection, of any kind.`,
       },
       movePicture: {
         title: "Move picture tool",
@@ -449,6 +449,8 @@ export const en = {
       [mounts > 0 && plural(mounts, "mount", "mounts"), gibs > 0 && plural(gibs, "gib", "gibs")]
         .filter(Boolean)
         .join(" and "),
+    /** What was copied at once: rooms, then mounts and gibs ("2 rooms with 1 door, plus 1 mount"). */
+    together: (parts: string[]) => parts.join(", plus "),
     copied: (what: string) => `Copied ${what}. Ctrl+V pastes them.`,
     cut: (what: string) => `Cut ${what}. Ctrl+V pastes them.`,
     place: "Click where the rooms go; Esc or a right click cancels.",
@@ -582,13 +584,6 @@ export const en = {
     explosionSpeed: "Explosion speed",
     speed: (speed: number) => `×${speed}`,
     speedNamed: (speed: number) => `Play the explosion at ×${speed}`,
-    several: (mounts: number, gibs: number) =>
-      [
-        mounts > 0 ? plural(mounts, "mount", "mounts") : "",
-        gibs > 0 ? plural(gibs, "gib", "gibs") : "",
-      ]
-        .filter((part) => part !== "")
-        .join(", "),
   },
 
   loadout: {
@@ -924,11 +919,22 @@ export const en = {
     directions: { up: "Up", down: "Down", left: "Left", right: "Right" },
     several: "Selected",
     severalTitle: (n: number) => `${n} things`,
-    severalParts: (rooms: number, doors: number, stations: number) =>
+    /** How many of each kind are selected, e.g. "2 rooms, 1 door, 3 mounts". */
+    severalParts: (n: {
+      rooms: number;
+      doors: number;
+      stations: number;
+      mounts: number;
+      gibs: number;
+      hullPicture: boolean;
+    }) =>
       [
-        rooms > 0 ? plural(rooms, "room", "rooms") : "",
-        doors > 0 ? plural(doors, "door", "doors") : "",
-        stations > 0 ? plural(stations, "station", "stations") : "",
+        n.rooms > 0 ? plural(n.rooms, "room", "rooms") : "",
+        n.doors > 0 ? plural(n.doors, "door", "doors") : "",
+        n.stations > 0 ? plural(n.stations, "station", "stations") : "",
+        n.mounts > 0 ? plural(n.mounts, "mount", "mounts") : "",
+        n.gibs > 0 ? plural(n.gibs, "gib", "gibs") : "",
+        n.hullPicture ? "the hull picture" : "",
       ]
         .filter((part) => part !== "")
         .join(", "),
@@ -1394,6 +1400,7 @@ export const en = {
       workspace: "opens a workspace",
       mount: "turns the selected mount",
       clipboard: "copies, cuts, pastes or duplicates the selection",
+      selectAll: "selects every room, mount and gib shown",
     },
     fixedTitle: "Fixed keys",
     fixedKeys: [
@@ -1408,6 +1415,7 @@ export const en = {
       ["Rotate / mirror the selected mount", "[ · ]"],
       ["Copy · cut · paste", "Ctrl+C · Ctrl+X · Ctrl+V"],
       ["Duplicate", "Ctrl+D"],
+      ["Select all rooms, mounts and gibs", "Ctrl+A"],
     ] as Array<[string, string]>,
   },
 

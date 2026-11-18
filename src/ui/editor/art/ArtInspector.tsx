@@ -1,16 +1,17 @@
 /**
- * The Hull inspector: the selected mount or gib; otherwise the
+ * The Hull inspector: the selected mount or gib; otherwise, for several
+ * things of any kind, how many of each with Duplicate and Delete, then the
  * pictures, the Move picture options, the mounts, the explosion pieces and
  * tool help, each in a section that folds away.
  */
-import { deleteSelectedArt } from "../../../app/artActions";
-import { DuplicateButton } from "../DuplicateButton";
 import type { MovablePicture } from "../../../app/art/pictures";
-import { selectionSize, singleTarget } from "../../../app/selection";
+import { hasCanvasThings } from "../../../app/layoutActions";
+import { canvasCounts, selectionSize, singleTarget } from "../../../app/selection";
 import { PICTURES_SECTION, currentTool, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
 import { Section } from "../../common/Section";
+import { DeleteButton } from "../layout/DeleteButton";
 import { ToolHelp } from "../layout/ToolHelp";
 import { GibList } from "./GibList";
 import { GibPanel } from "./GibPanel";
@@ -64,26 +65,17 @@ export function ArtInspector() {
   const target = singleTarget(selection);
   if (target?.kind === "mount") return <MountPanel ship={ship} index={target.index} />;
   if (target?.kind === "gib") return <GibPanel ship={ship} index={target.index} />;
-  const several = selection.mounts.length + selection.gibs.length;
+  const several = selectionSize(selection) > 1;
   return (
     <>
       <div className="ed-heading">
         <span className="eyebrow">{texts.inspector.hull.eyebrow}</span>
         <span className="ed-heading-title">{texts.inspector.hull.title}</span>
       </div>
-      {several > 1 && selectionSize(selection) === several && (
+      {several && (
         <div className="ed-row">
-          <span>{texts.art.several(selection.mounts.length, selection.gibs.length)}</span>
-          <span className="ed-buttons">
-            <DuplicateButton small />
-            <button
-              type="button"
-              className="btn btn--small btn--danger"
-              onClick={() => deleteSelectedArt()}
-            >
-              {texts.art.delete}
-            </button>
-          </span>
+          <span>{texts.inspector.severalParts(canvasCounts(selection))}</span>
+          {hasCanvasThings(selection) && <DeleteButton small />}
         </div>
       )}
       {tool === "movePicture" && <MoveOptions />}

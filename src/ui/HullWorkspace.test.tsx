@@ -233,6 +233,48 @@ describe("Select from another workspace", () => {
   });
 });
 
+describe("Hull: a mixed selection", () => {
+  beforeEach(() =>
+    act(() =>
+      state().edit((s) => addMount(s, { x: 100, y: 80, rotate: false, mirror: false, gib: 0 }))
+    )
+  );
+
+  function click(p: Point, shiftKey = false) {
+    fireEvent.pointerDown(canvas(), { button: 0, shiftKey, ...screenAt(p) });
+    fireEvent.pointerUp(canvas(), { button: 0, shiftKey, ...screenAt(p) });
+  }
+
+  it("counts each kind, and Delete in the inspector deletes all of it", async () => {
+    click({ x: 125, y: 95 });
+    click({ x: 192, y: 52 }, true);
+    expect(state().workspace).toBe("hull");
+    const panel = inspector();
+    expect(within(panel).getByText("1 room, 1 mount")).toBeInTheDocument();
+    expect(within(panel).getByRole("button", { name: en.clipboard.duplicate })).toBeInTheDocument();
+    fireEvent.click(within(panel).getByRole("button", { name: en.inspector.delete }));
+    await waitFor(() => expect(snap().ship.layoutXml.mounts).toHaveLength(0));
+    expect(snap().ship.layout.rooms).toHaveLength(2);
+    expect(steps()).toBe(2);
+  });
+
+  it("is made with Ctrl+A, which leaves a text field alone", () => {
+    act(() => {
+      fireEvent.keyDown(window, { code: "KeyA", key: "a", ctrlKey: true });
+    });
+    expect(state().selection).toMatchObject({ rooms: [0, 1, 2], mounts: [0] });
+    expect(within(inspector()).getByText("3 rooms, 1 mount")).toBeInTheDocument();
+    act(() => state().select({ ...state().selection, rooms: [], mounts: [] }));
+    const field = document.createElement("input");
+    document.body.append(field);
+    act(() => {
+      fireEvent.keyDown(field, { code: "KeyA", key: "a", ctrlKey: true });
+    });
+    expect(state().selection.rooms).toEqual([]);
+    field.remove();
+  });
+});
+
 describe("Hull: the Gib tool's view", () => {
   it("shows only the hull and the gibs while the Gib tool is chosen", async () => {
     act(() =>

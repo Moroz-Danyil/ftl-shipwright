@@ -2,18 +2,20 @@
  * Copy, cut, paste and duplicate (Ctrl+C, Ctrl+X, Ctrl+V, Ctrl+D) with the
  * editor's own clipboard, in Rooms and Hull; each change is one undo step.
  *
- * In Rooms, pasted or duplicated rooms follow the pointer while it is on the
- * canvas, until a click places them (Esc or a right click cancels); with the
- * pointer elsewhere they go straight to the first free place next to where
- * they were copied. In Hull, pasted mounts and gibs land under the pointer,
- * or a few pixels from the copied ones; duplicates always land a few pixels
- * off. Duplicating leaves the clipboard as it is. What is pasted is selected.
- * Rooms carry their systems; a system the ship has already stays out, and
+ * Copy takes the selected rooms, mounts and gibs; copied together, the
+ * mounts and gibs ride with the rooms. Pasted or duplicated rooms follow the
+ * pointer while it is on the canvas, until a click places them (Esc or a
+ * right click cancels); with the pointer elsewhere they go straight to the
+ * first free place next to where they were copied. Mounts and gibs copied
+ * without rooms land under the pointer, or a few pixels from the copied
+ * ones; duplicates always land a few pixels off. Rooms paste in Rooms, mounts
+ * and gibs in Hull, and what was copied together pastes together in both.
+ * Duplicating leaves the clipboard as it is. What is pasted is selected.
+ * Rooms carry their systems; a system the ship already has stays out, and
  * the notice names it.
  */
-import { shipToHullPx } from "../core";
+import { CELL_SIZE, shipToHullPx } from "../core";
 import type { Texts } from "../text";
-import { deleteSelectedArt } from "./artActions";
 import {
   ART_PASTE_OFFSET,
   artOffsetUnder,
@@ -30,7 +32,7 @@ import {
 import type { CommandContext } from "./commands";
 import { setGestureCancel } from "./gesture";
 import { outOfView, type PlaceProblem } from "./layout/rooms";
-import { deleteSelection } from "./layout/remove";
+import { withoutSelection } from "./layoutActions";
 import { systemName } from "./names";
 import { canvasPointer } from "./pointer";
 import { EMPTY_SELECTION } from "./selection";
@@ -40,27 +42,32 @@ const state = () => useEditor.getState();
 const snapshot = () => state().doc?.history.present;
 const say = (text: string) => state().setNotice({ kind: "info", text });
 
-/** Copies the selected rooms (Rooms) or mounts and gibs (Hull); false when there is nothing to copy. */
-export function copySelection(texts: Texts, cut = false): boolean {
-  const { workspace, selection, clipboard, setClipboard } = state();
+/** Rooms and Hull have the clipboard; Ship has none. */
+const hasClipboard = () => state().workspace !== "ship";
+
+/** The selected rooms (with the selected mounts and gibs riding on them) and the selected mounts and gibs. */
+function clipsOfSelection(): { rooms?: RoomsClip; art?: ArtClip } {
   const snap = snapshot();
-  if (!snap) return false;
-  const words = cut ? texts.clipboard.cut : texts.clipboard.copied;
-  if (workspace === "rooms") {
-    const rooms = copyRooms(snap.ship, selection.rooms);
-    if (!rooms) return false;
-    setClipboard({ ...clipboard, rooms });
-    say(words(texts.clipboard.rooms(rooms.rooms.length, rooms.systems.length, rooms.doors.length)));
-    return true;
-  }
-  if (workspace === "hull") {
-    const art = copyArt(snap, selection);
-    if (!art) return false;
-    setClipboard({ ...clipboard, art });
-    say(words(texts.clipboard.art(art.mounts.length, art.gibs.length)));
-    return true;
-  }
-  return false;
+  if (!snap) return {};
+  const { selection } = state();
+  const art = copyArt(snap, selection);
+  const rooms = copyRooms(snap.ship, selection.rooms);
+  return { rooms: rooms && (art ? { ...rooms, art } : rooms), art };
+}
+
+/** Copies the selected rooms, mounts and gibs; false when there is nothing to copy. */
+export function copySelection(texts: Texts, cut = false): boolean {
+  if (!hasClipboard()) return false;
+  const { clipboard, setClipboard } = state();
+  const { rooms, art } = clipsOfSelection();
+  if (!rooms && !art) return false;
+  setClipboard({ ...clipboard, ...(rooms && { rooms }), ...(art && { art }) });
+  const parts: string[] = [];
+  if (rooms)
+    parts.push(texts.clipboard.rooms(rooms.rooms.length, rooms.systems.length, rooms.doors.length));
+  if (art) parts.push(texts.clipboard.art(art.mounts.length, art.gibs.length));
+  say((cut ? texts.clipboard.cut : texts.clipboard.copied)(texts.clipboard.together(parts)));
+  return true;
 }
 
 /**
@@ -69,34 +76,31 @@ export function copySelection(texts: Texts, cut = false): boolean {
  */
 export function cutSelection(context: CommandContext): boolean {
   if (!copySelection(context.texts, true)) return false;
-  const { workspace, selection, edit } = state();
-  if (workspace === "hull") deleteSelectedArt();
-  else edit((s) => deleteSelection(s, selection), EMPTY_SELECTION);
+  const { selection, editSnapshot } = state();
+  editSnapshot((s) => withoutSelection(s, selection), EMPTY_SELECTION);
   return true;
 }
 
-/** Pastes what was copied in this workspace; false when the clipboard has nothing for it. */
+/**
+ * Pastes: in Rooms the rooms copied last (with the mounts and gibs copied
+ * together with them); in Hull the mounts and gibs copied last, with their
+ * rooms when they were copied together. False when there is nothing for it.
+ */
 export function pasteClipboard(texts: Texts): boolean {
   const { workspace, clipboard } = state();
-  if (workspace === "rooms" && clipboard.rooms) return startRoomsPaste(clipboard.rooms, texts);
-  if (workspace === "hull" && clipboard.art) return pasteArtClip(clipboard.art, true, texts);
+  const { rooms, art } = clipboard;
+  if (workspace === "rooms" && rooms) return startRoomsPaste(rooms, texts);
+  if (workspace === "hull" && rooms?.art && rooms.art === art) return startRoomsPaste(rooms, texts);
+  if (workspace === "hull" && art) return pasteArtClip(art, true, texts);
   return false;
 }
 
 /** Pastes a copy of the selection at once, without changing the clipboard. */
 export function duplicateSelection(texts: Texts): boolean {
-  const { workspace, selection } = state();
-  const snap = snapshot();
-  if (!snap) return false;
-  if (workspace === "rooms") {
-    const clip = copyRooms(snap.ship, selection.rooms);
-    return clip ? startRoomsPaste(clip, texts) : false;
-  }
-  if (workspace === "hull") {
-    const clip = copyArt(snap, selection);
-    return clip ? pasteArtClip(clip, false, texts) : false;
-  }
-  return false;
+  if (!hasClipboard()) return false;
+  const { rooms, art } = clipsOfSelection();
+  if (rooms) return startRoomsPaste(rooms, texts);
+  return art ? pasteArtClip(art, false, texts) : false;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,23 +124,40 @@ function startRoomsPaste(clip: RoomsClip, texts: Texts): boolean {
   return true;
 }
 
-/** Adds copied rooms shifted by whole cells and selects them; returns the problem when refused. */
+/**
+ * Adds copied rooms shifted by whole cells, with the mounts and gibs copied
+ * together with them shifted as far, and selects them; returns the problem
+ * when the rooms are refused. Mounts that would be more than eight stay out,
+ * with their gibs, and the notice says so.
+ */
 export function placeRooms(
   clip: RoomsClip,
   offset: Offset,
   texts?: Texts
 ): PlaceProblem | undefined {
-  const ship = snapshot()?.ship;
-  if (!ship) return undefined;
-  const result = pasteRooms(ship, clip, offset);
+  const snap = snapshot();
+  if (!snap) return undefined;
+  const result = pasteRooms(snap.ship, clip, offset);
   if (result.problem) return result.problem;
-  state().edit(() => result.ship, { ...EMPTY_SELECTION, rooms: result.ids });
+  const withRooms = { ...snap, ship: result.ship };
+  const art = clip.art
+    ? pasteArt(withRooms, clip.art, { dx: offset.dx * CELL_SIZE, dy: offset.dy * CELL_SIZE })
+    : undefined;
+  const placed = art && !art.full ? art : undefined;
+  state().editSnapshot(() => placed?.snapshot ?? withRooms, {
+    ...EMPTY_SELECTION,
+    rooms: result.ids,
+    mounts: placed?.mounts ?? [],
+    gibs: placed?.gibs ?? [],
+  });
   if (!texts) return undefined;
   const data = state().game.data;
   const messages = [
     ...(result.leftOut.length > 0
       ? [texts.clipboard.systemsLeftOut(result.leftOut.map((s) => systemName(data, s)))]
       : []),
+    ...(art?.full ? [texts.art.mountProblems.full] : []),
+    ...(placed && placed.skipped > 0 ? [texts.clipboard.gibsLeftOut(placed.skipped)] : []),
     ...(outOfView(result.ship, result.ids) ? [texts.layout.outOfView] : []),
   ];
   if (messages.length > 0) say(messages.join(" "));
@@ -162,7 +183,7 @@ export function endPasting(): void {
 }
 
 // ---------------------------------------------------------------------------
-// Hull
+// Mounts and gibs
 
 /** Pastes mounts and gibs under the pointer (`underPointer`, when it is on the canvas) or a few pixels off. */
 function pasteArtClip(clip: ArtClip, underPointer: boolean, texts: Texts): boolean {

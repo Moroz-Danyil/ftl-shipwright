@@ -176,3 +176,15 @@ export function workspaceFor(selection: Selection, current: WorkspaceId): Worksp
   const homes = homesOf(selection);
   return homes.length === 0 || homes.includes(current) ? current : homes[0];
 }
+
+/** How many things of each kind on the canvas are selected (the inspector's count). */
+export function canvasCounts(selection: Selection) {
+  return {
+    rooms: selection.rooms.length,
+    doors: selection.doors.length,
+    stations: selection.stations.length,
+    mounts: selection.mounts.length,
+    gibs: selection.gibs.length,
+    hullPicture: selection.hullPicture,
+  };
+}

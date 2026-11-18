@@ -26,7 +26,13 @@ function fixedAction(texts: Texts, command: CommandId): string {
   if (command.startsWith("mount.")) return actions.mount;
   if (command === "copy" || command === "cut" || command === "paste" || command === "duplicate")
     return actions.clipboard;
-  if (command === "redo" || command === "save" || command === "cancel" || command === "pan")
+  if (
+    command === "redo" ||
+    command === "save" ||
+    command === "cancel" ||
+    command === "pan" ||
+    command === "selectAll"
+  )
     return actions[command];
   return actions.delete;
 }
