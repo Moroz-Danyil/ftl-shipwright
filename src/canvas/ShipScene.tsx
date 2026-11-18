@@ -1,6 +1,7 @@
 /**
  * Everything drawn on the canvas in ship pixels: pictures, grid, rooms,
- * interiors, doors, system icons, crew, mounts, the selected gib's direction
+ * interiors, doors, system icons, crew, mounts, the selected gibs and hull
+ * picture outlined, the selected gib's direction
  * fan (Hull), the selected room's resize handles and the rooms being pasted
  * (Rooms), the objects flashed after a click in the Overview and the
  * current tool's overlay.
@@ -9,7 +10,7 @@
  * during the explosion preview only the gibs are drawn.
  */
 import { useMemo } from "react";
-import type { Rect } from "../core";
+import { hullRectPx, type Rect } from "../core";
 import { pasteProblem, shiftedClip } from "../app/clipboard";
 import { singleTarget } from "../app/selection";
 import { currentTool, useEditor } from "../app/store";
@@ -28,6 +29,21 @@ import { Interiors, LaterTint, SystemDropTarget, SystemIcons } from "./RoomConte
 import { ToolOverlay } from "./ToolOverlay";
 import type { Overlay } from "./tools/types";
 import { equippedWeaponFrames } from "./weaponDraw";
+
+/** The outline of the selected hull picture. */
+function HullRing({ rect }: { rect: Rect }) {
+  return (
+    <rect
+      className="cv-selection-ring"
+      data-testid="hull-selected"
+      x={rect.x}
+      y={rect.y}
+      width={rect.w}
+      height={rect.h}
+      vectorEffect="non-scaling-stroke"
+    />
+  );
+}
 
 interface Props {
   /** The visible part of the ship, in ship pixels (for the grid). */
@@ -117,6 +133,9 @@ export function ShipScene({ area, overlay, explosion }: Props) {
               />
             );
           })}
+          {selection.hullPicture && snapshot.art.hull && (
+            <HullRing rect={hullRectPx(ship.layout, ship.layoutXml)} />
+          )}
           {(layers.mounts || equipment) && (
             <MountsLayer
               layout={ship.layout}

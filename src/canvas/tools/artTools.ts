@@ -1,9 +1,8 @@
 /**
  * The Hull tools: Move picture drags a picture; Mount adds mounts and
- * drags them; Gib selects and drags gibs; Select picks mounts (and gibs when
- * they are shown). Drags move by whole pixels and are one undo step. With
- * any of them, the handles of the selected gib's direction fan turn its
- * direction range.
+ * drags them; Gib selects and drags gibs. Drags move by whole pixels and are
+ * one undo step. With any Hull tool, Select included, the handles of the
+ * selected gib's direction fan turn its direction range.
  */
 import { mountPositionPx, type Point, type Range, type Ship } from "../../core";
 import { addMountAtPoint, changeGib, moveSelectedArt, moveShipPicture } from "../../app/artActions";
@@ -199,16 +198,6 @@ export function createMountTool(context: ToolContext): CanvasTool {
 
 export function createGibTool(context: ToolContext): CanvasTool {
   return createArtPicker(context, findGib, clear);
-}
-
-/** What the Select tool in Hull picks at the pointer: a mount, else a gib when they are shown. */
-export const artTargetAt: Finder = (ship, art, pointer) =>
-  findMount(ship, art, pointer) ??
-  (useEditor.getState().view.layers.gibs ? findGib(ship, art, pointer) : undefined);
-
-/** The Select tool in Hull: mounts, and gibs when they are shown. */
-export function createArtSelectTool(context: ToolContext): CanvasTool {
-  return createArtPicker(context, artTargetAt, clear);
 }
 
 /** The selected gib (when exactly one thing, a gib, is selected) and its fan. */

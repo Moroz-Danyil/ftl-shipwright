@@ -7,7 +7,7 @@ import { deleteSelectedArt } from "../../../app/artActions";
 import { DuplicateButton } from "../DuplicateButton";
 import type { MovablePicture } from "../../../app/art/pictures";
 import { selectionSize, singleTarget } from "../../../app/selection";
-import { currentTool, useEditor } from "../../../app/store";
+import { PICTURES_SECTION, currentTool, useEditor } from "../../../app/store";
 import { useTexts } from "../../../text";
 import { Help } from "../../common/Help";
 import { Section } from "../../common/Section";
@@ -87,7 +87,7 @@ export function ArtInspector() {
         </div>
       )}
       {tool === "movePicture" && <MoveOptions />}
-      <Section id="art-pictures" title={texts.sections.pictures} icon="pictures">
+      <Section id={PICTURES_SECTION} title={texts.sections.pictures} icon="pictures">
         <PicturesPanel />
       </Section>
       <MountList />

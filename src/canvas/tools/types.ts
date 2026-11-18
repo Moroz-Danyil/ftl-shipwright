@@ -19,8 +19,20 @@ export interface ToolPointer {
 export type Overlay =
   | { kind: "hover"; target: Target }
   | { kind: "box"; rect: Rect }
-  /** Rooms where they would go; `size` labels the first with its size in cells (a resize). */
-  | { kind: "ghost"; cells: Rect[]; ok: boolean; size?: true }
+  /**
+   * Rooms where they would go; `size` labels the first with its size in cells
+   * (a resize). Mounts (centres), gibs and an outline of the hull picture
+   * (ship pixels) moved with them come along.
+   */
+  | {
+      kind: "ghost";
+      cells: Rect[];
+      ok: boolean;
+      size?: true;
+      mounts?: Point[];
+      gibs?: Rect[];
+      outline?: Rect;
+    }
   | { kind: "wall"; wall: WallSegment; exists: boolean }
   | { kind: "cell"; cell: Point; ok: boolean }
   | { kind: "outline"; rect: Rect }

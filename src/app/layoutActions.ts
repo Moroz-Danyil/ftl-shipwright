@@ -1,10 +1,14 @@
 /**
  * Layout edits on the open ship, each one undo step: moving, resizing, adding
- * and deleting rooms, doors and stations, with the selection that follows, and
+ * and deleting rooms, doors and stations, with the selection that follows,
+ * moving a whole selection (rooms with mounts, gibs and the hull picture), and
  * centring the ship on the game's screen.
  */
-import type { Rect, Ship, StationDirection } from "../core";
+import { CELL_SIZE, type Rect, type Ship, type StationDirection } from "../core";
 import type { Texts } from "../text";
+import { moveGibs } from "./art/gibs";
+import { moveMounts } from "./art/mounts";
+import { movePicture } from "./art/pictures";
 import type { CommandContext } from "./commands";
 import { addDoorOnWall, type WallSegment } from "./layout/doors";
 import { deleteSelection, systemsInRooms } from "./layout/remove";
@@ -38,26 +42,53 @@ function warnOutOfView(ship: Ship, ids: number[], texts: Texts | undefined): voi
 }
 
 /**
- * Moves the selected rooms by whole cells (doors follow as the rules say).
- * Returns the problem when the move is refused.
+ * Moves everything selected that moves, as one undo step: rooms (doors follow
+ * as the rules say), mounts, gibs and the hull picture. With rooms in the
+ * selection (dx, dy) are whole cells and the rest moves by as many pixels;
+ * without, they are pixels. The hull picture moves as the Move picture tool
+ * moves it: the floor, cloak and gibs with it, the mounts too unless "keep
+ * mounts" is on (a selected mount still moves). Returns the problem when the
+ * rooms cannot go there; then nothing moves.
  */
-export function moveSelectedRooms(dx: number, dy: number, texts?: Texts): PlaceProblem | undefined {
+export function moveSelection(dx: number, dy: number, texts?: Texts): PlaceProblem | undefined {
   const ship = present();
-  const { selection, edit } = useEditor.getState();
-  if (!ship || selection.rooms.length === 0) return undefined;
-  const result = moveRooms(ship, selection.rooms, dx, dy);
-  if (result.problem) return result.problem;
-  if (result.ship !== ship) {
-    edit(() => result.ship);
-    warnOutOfView(result.ship, selection.rooms, texts);
+  const { selection, artTool, edit, setArtTool } = useEditor.getState();
+  if (!ship || (dx === 0 && dy === 0)) return undefined;
+  const cells = selection.rooms.length > 0;
+  let next = ship;
+  if (cells) {
+    const result = moveRooms(ship, selection.rooms, dx, dy);
+    if (result.problem) return result.problem;
+    next = result.ship;
   }
+  const px = cells ? dx * CELL_SIZE : dx;
+  const py = cells ? dy * CELL_SIZE : dy;
+  const hull = selection.hullPicture;
+  // Mounts and gibs ride on the hull picture, so only those it leaves behind move here.
+  const mounts = hull && !artTool.keepMounts ? [] : selection.mounts;
+  next = moveGibs(moveMounts(next, mounts, px, py), hull ? [] : selection.gibs, px, py);
+  if (hull) {
+    next = movePicture(next, "hull", px, py, artTool.keepMounts);
+    setArtTool({ active: "hull" });
+  }
+  if (next === ship) return undefined;
+  edit(() => next);
+  if (cells) warnOutOfView(next, selection.rooms, texts);
   return undefined;
 }
 
-/** Arrow keys: moves the selected rooms by one cell, or says why it cannot. */
-export function nudgeSelection(dx: number, dy: number, texts: Texts): boolean {
-  if (useEditor.getState().selection.rooms.length === 0) return false;
-  const problem = moveSelectedRooms(dx, dy, texts);
+/**
+ * Arrow keys: moves the selection by one cell when rooms are in it, else by
+ * 1 px (10 px with `far`), or says why it cannot; false when nothing
+ * selected moves.
+ */
+export function nudgeSelection(dx: number, dy: number, texts: Texts, far = false): boolean {
+  const { selection } = useEditor.getState();
+  const cells = selection.rooms.length > 0;
+  if (!cells && selection.mounts.length + selection.gibs.length === 0 && !selection.hullPicture)
+    return false;
+  const step = cells || !far ? 1 : 10;
+  const problem = moveSelection(dx * step, dy * step, texts);
   if (problem) useEditor.getState().setNotice({ kind: "info", text: problemText(texts, problem) });
   return true;
 }

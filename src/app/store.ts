@@ -18,6 +18,7 @@ import {
   selectionOf,
   singleTarget,
   validSelection,
+  workspaceFor,
   type Selection,
 } from "./selection";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "../text";
@@ -308,9 +309,16 @@ export interface EditorState {
   markSaved(snapshot: ShipSnapshot, target: SaveTarget, origin: ShipOrigin): void;
   /**
    * Selects. A single room with systems also opens the Rooms inspector's
-   * "Systems in this room" section, which then stays open as any section does.
+   * "Systems in this room" section, and the hull picture alone the Hull
+   * inspector's Pictures section; they then stay open as any section does.
    */
   select(selection: Selection): void;
+  /**
+   * After a click or drag on the canvas: opens the workspace that edits the
+   * selection (see `workspaceFor`), with its Select tool; the current one
+   * stays when it edits any of it.
+   */
+  followSelection(): void;
   /** Opens Rooms with the Select tool and the room selected (with its systems' section open). */
   goToRoom(id: number): void;
   setStationSystem(system: number | null): void;
@@ -378,6 +386,9 @@ let nextFlashKey = 1;
 
 /** The id of the Rooms inspector's "Systems in this room" section. */
 export const ROOM_SYSTEMS_SECTION = "room-systems";
+
+/** The id of the Hull inspector's Pictures section. */
+export const PICTURES_SECTION = "art-pictures";
 
 const initialTools = (): Record<WorkspaceId, ToolId> => ({
   ship: "select",
@@ -517,17 +528,31 @@ export const useEditor = create<EditorState>()((set, get) => {
       const ship = get().doc?.history.present.ship;
       const next = ship ? validSelection(ship, selection) : selection;
       const target = singleTarget(next);
-      const opensSystems =
-        target?.kind === "room" &&
-        !!ship?.blueprint.systems.some((s) => s.room === target.id) &&
-        !get().openSections[ROOM_SYSTEMS_SECTION];
+      const opens =
+        target?.kind === "room" && !!ship?.blueprint.systems.some((s) => s.room === target.id)
+          ? ROOM_SYSTEMS_SECTION
+          : target?.kind === "hullPicture"
+            ? PICTURES_SECTION
+            : undefined;
       set({
         selection: next,
         infoPick: null,
-        ...(opensSystems && {
-          openSections: { ...get().openSections, [ROOM_SYSTEMS_SECTION]: true },
-        }),
+        ...(opens &&
+          !get().openSections[opens] && {
+            openSections: { ...get().openSections, [opens]: true },
+          }),
       });
+    },
+    followSelection: () => {
+      const { workspace, tools, selection } = get();
+      const next = workspaceFor(selection, workspace);
+      if (next !== workspace)
+        set({
+          workspace: next,
+          tools: { ...tools, [next]: "select" },
+          infoPick: null,
+          pasting: null,
+        });
     },
     goToRoom: (id) => {
       const { workspace, tools } = get();

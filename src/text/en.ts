@@ -20,6 +20,10 @@ const list = (ids: number[] | undefined) =>
 const rooms = (ids: number[] | undefined) =>
   `${ids && ids.length > 1 ? "rooms" : "room"} ${list(ids)}`;
 
+/** What the Select tool does on the canvas, the same in every workspace. */
+const SELECT_ON_CANVAS =
+  "Press on anything and drag to move it at once: a weapon mount, a gib (when the gibs are shown), a room (by whole cells) or the hull picture (where nothing else is). A click selects, Shift+click adds or removes, a drag on empty canvas selects with a box (over the hull picture, hold Shift). Dragging a selected thing moves the whole selection, by whole cells when rooms are in it. A click or drag on a thing opens the workspace that edits it: Rooms for rooms, doors and stations, Hull for mounts, gibs and the hull picture.";
+
 /** The texts of an overview item; some have more (the value it shows while ok). */
 interface ItemTexts {
   title: string;
@@ -265,7 +269,7 @@ export const en = {
       roomsInspector: {
         title: "Rooms: systems and rooms",
         body: () =>
-          "With nothing selected, Rooms lists the game's systems as tiles: green when installed at the start, amber when bought later, red when not on the ship. Drag a tile onto a room to put the system there. Click a room on the canvas to edit everything about it: its systems (their starting level first), crew station, position and size. In Ship and Hull, a click on a room brings you here with it selected.",
+          "With nothing selected, Rooms lists the game's systems as tiles: green when installed at the start, amber when bought later, red when not on the ship. Drag a tile onto a room to put the system there. Click a room on the canvas to edit everything about it: its systems (their starting level first), crew station, position and size. A click on a room in Ship or Hull brings you here with it selected; a click on a mount, a gib or the hull picture opens Hull.",
       },
       hullInspector: {
         title: "Hull: pictures, mounts and explosion",
@@ -280,7 +284,7 @@ export const en = {
       canvas: {
         title: "The canvas",
         body: (k: TourKeys) =>
-          `The ship on the game's grid. The dashed red frame is the part of a player ship the game shows: rooms cannot go above or left of it, and rooms past its right or bottom edge are drawn amber because they are not visible in battle. Click to select, drag to move; in Rooms, drag the handles of a selected room to resize it. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
+          `The ship on the game's grid. The dashed red frame is the part of a player ship the game shows: rooms cannot go above or left of it, and rooms past its right or bottom edge are drawn amber because they are not visible in battle. With Select, press on anything (a weapon mount, a gib, a room or the hull picture) and drag to move it; a click selects it and opens the workspace that edits it. Shift+click and a box select things of any kind together, and they move together. In Rooms, drag the handles of a selected room to resize it. The mouse wheel zooms; drag with the middle button, or hold ${k.pan.join(" or ")} and drag, to pan.`,
       },
       info: {
         title: "The Info panel",
@@ -333,13 +337,13 @@ export const en = {
     ship: {
       select: {
         title: "Select tool",
-        body: "Click a slot in the bar under the ship to select it; Delete removes its weapon or drone. Hover a slot to see its mount on the hull. Preview in hangar shows the ship as the game's hangar does.",
+        body: `Click a slot in the bar under the ship to select it; Delete removes its weapon or drone. Hover a slot to see its mount on the hull. On the ship: ${SELECT_ON_CANVAS} Preview in hangar shows the ship as the game's hangar does.`,
       },
     },
     rooms: {
       select: {
         title: "Select tool",
-        body: "Click to select, Shift+click to add or remove, drag on empty space to select with a box. Drag selected rooms to move them; arrows move them by one cell. Drag a handle on the edge or corner of a selected room to resize it. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms with their doors and systems (pasted rooms follow the pointer until a click places them; a system the ship already has stays out), Ctrl+D duplicates them. Delete removes the selection.",
+        body: `${SELECT_ON_CANVAS} Arrows move the selection by one cell. Drag a handle on the edge or corner of a selected room to resize it. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste rooms with their doors and systems (pasted rooms follow the pointer until a click places them; a system the ship already has stays out), Ctrl+D duplicates them. Delete removes the selection.`,
       },
       room: {
         title: "Room tool",
@@ -357,7 +361,7 @@ export const en = {
     hull: {
       select: {
         title: "Select tool",
-        body: "Click a mount to select it, drag it to move it. Arrows move the selection by 1 px, Shift + arrows by 10 px. Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste mounts and gibs (under the pointer), Ctrl+D duplicates them.",
+        body: `${SELECT_ON_CANVAS} Arrows move the selection by 1 px, Shift + arrows by 10 px (by one cell when rooms are in it). Ctrl+C, Ctrl+X and Ctrl+V copy, cut and paste mounts and gibs (under the pointer), Ctrl+D duplicates them.`,
       },
       movePicture: {
         title: "Move picture tool",

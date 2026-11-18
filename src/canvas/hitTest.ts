@@ -53,19 +53,20 @@ function doorAtPoint(ship: Ship, p: Point, tolerance: number): number | undefine
 
 /**
  * The station, door or room at a ship pixel. `tolerance` is how far from a
- * wall (in ship pixels) a click still hits a door on it.
+ * wall (in ship pixels) a click still hits a door on it; `options` leave
+ * out stations or doors (a hidden layer), so the room under them counts.
  */
 export function hitTest(
   ship: Ship,
   p: Point,
   tolerance = 5,
-  options: { stations?: boolean } = {}
+  options: { stations?: boolean; doors?: boolean } = {}
 ): Target | null {
   if (options.stations !== false) {
     const system = stationAt(ship, p);
     if (system !== undefined) return { kind: "station", system };
   }
-  const door = doorAtPoint(ship, p, tolerance);
+  const door = options.doors === false ? undefined : doorAtPoint(ship, p, tolerance);
   if (door !== undefined) return { kind: "door", index: door };
   const cell = pxToCell(ship.layout, p.x, p.y);
   const room = roomAtCell(ship.layout, cell.x, cell.y);

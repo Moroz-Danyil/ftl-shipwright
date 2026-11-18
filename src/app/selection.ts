@@ -1,11 +1,12 @@
 /**
  * What is selected on the canvas: rooms (by id), doors (by index into the
  * layout's doors), crew stations (by index of their system in the
- * blueprint), weapon mounts, gibs, and weapon and drone slots (by index).
- * Selections are plain immutable data.
+ * blueprint), weapon mounts, gibs, weapon and drone slots (by index), and
+ * the hull picture. Selections are plain immutable data.
  */
 import type { Ship } from "../core";
 import { isStationSystem, stationOf } from "./layout/stations";
+import type { WorkspaceId } from "./workspaces";
 
 export interface Selection {
   rooms: number[];
@@ -15,6 +16,8 @@ export interface Selection {
   gibs: number[];
   weapons: number[];
   drones: number[];
+  /** The hull picture (picked by a click with Select). */
+  hullPicture: boolean;
 }
 
 /** One thing on the canvas. */
@@ -25,7 +28,8 @@ export type Target =
   | { kind: "mount"; index: number }
   | { kind: "gib"; index: number }
   | { kind: "weapon"; index: number }
-  | { kind: "drone"; index: number };
+  | { kind: "drone"; index: number }
+  | { kind: "hullPicture" };
 
 export const EMPTY_SELECTION: Selection = {
   rooms: [],
@@ -35,9 +39,12 @@ export const EMPTY_SELECTION: Selection = {
   gibs: [],
   weapons: [],
   drones: [],
+  hullPicture: false,
 };
 
 const LISTS = ["rooms", "doors", "stations", "mounts", "gibs", "weapons", "drones"] as const;
+type List = (typeof LISTS)[number];
+
 const KEYS = {
   room: "rooms",
   door: "doors",
@@ -48,7 +55,9 @@ const KEYS = {
   drone: "drones",
 } as const;
 
-function targetKey(target: Target): { list: keyof Selection; value: number } {
+type ListTarget = Exclude<Target, { kind: "hullPicture" }>;
+
+function targetKey(target: ListTarget): { list: List; value: number } {
   const list = KEYS[target.kind];
   const value =
     target.kind === "room" ? target.id : target.kind === "station" ? target.system : target.index;
@@ -64,16 +73,18 @@ export function isEmptySelection(selection: Selection): boolean {
 }
 
 export function selectionSize(selection: Selection): number {
-  return LISTS.reduce((n, list) => n + selection[list].length, 0);
+  return LISTS.reduce((n, list) => n + selection[list].length, selection.hullPicture ? 1 : 0);
 }
 
 export function isSelected(selection: Selection, target: Target): boolean {
+  if (target.kind === "hullPicture") return selection.hullPicture;
   const { list, value } = targetKey(target);
   return selection[list].includes(value);
 }
 
 export function addTarget(selection: Selection, target: Target): Selection {
   if (isSelected(selection, target)) return selection;
+  if (target.kind === "hullPicture") return { ...selection, hullPicture: true };
   const { list, value } = targetKey(target);
   return { ...selection, [list]: [...selection[list], value].sort((a, b) => a - b) };
 }
@@ -81,13 +92,14 @@ export function addTarget(selection: Selection, target: Target): Selection {
 /** Adds the target, or removes it when it is already selected (Shift+click). */
 export function toggleTarget(selection: Selection, target: Target): Selection {
   if (!isSelected(selection, target)) return addTarget(selection, target);
+  if (target.kind === "hullPicture") return { ...selection, hullPicture: false };
   const { list, value } = targetKey(target);
   return { ...selection, [list]: selection[list].filter((v) => v !== value) };
 }
 
 /** Everything in either selection. */
 export function mergeSelections(a: Selection, b: Selection): Selection {
-  const out = { ...EMPTY_SELECTION };
+  const out = { ...EMPTY_SELECTION, hullPicture: a.hullPicture || b.hullPicture };
   for (const list of LISTS)
     out[list] = [...new Set([...a[list], ...b[list]])].sort((m, n) => m - n);
   return out;
@@ -96,6 +108,7 @@ export function mergeSelections(a: Selection, b: Selection): Selection {
 /** The one selected thing, when exactly one is selected. */
 export function singleTarget(selection: Selection): Target | undefined {
   if (selectionSize(selection) !== 1) return undefined;
+  if (selection.hullPicture) return { kind: "hullPicture" };
   if (selection.rooms.length === 1) return { kind: "room", id: selection.rooms[0] };
   if (selection.doors.length === 1) return { kind: "door", index: selection.doors[0] };
   if (selection.stations.length === 1) return { kind: "station", system: selection.stations[0] };
@@ -121,6 +134,45 @@ export function validSelection(ship: Ship, selection: Selection): Selection {
     gibs: selection.gibs.filter((i) => i < ship.layoutXml.gibs.length),
     weapons: selection.weapons.filter((i) => i < (ship.blueprint.weaponList?.items.length ?? 0)),
     drones: selection.drones.filter((i) => i < (ship.blueprint.droneList?.items.length ?? 0)),
+    hullPicture: selection.hullPicture,
   };
   return LISTS.every((list) => valid[list].length === selection[list].length) ? selection : valid;
+}
+
+/** The workspace whose inspector edits each kind of thing. */
+const HOME: Record<Target["kind"], WorkspaceId> = {
+  room: "rooms",
+  door: "rooms",
+  station: "rooms",
+  mount: "hull",
+  gib: "hull",
+  hullPicture: "hull",
+  weapon: "ship",
+  drone: "ship",
+};
+
+/** The workspaces that edit something of the selection, in the order Rooms, Hull, Ship. */
+function homesOf(selection: Selection): WorkspaceId[] {
+  const kinds: Array<[Target["kind"], boolean]> = [
+    ["room", selection.rooms.length > 0],
+    ["door", selection.doors.length > 0],
+    ["station", selection.stations.length > 0],
+    ["mount", selection.mounts.length > 0],
+    ["gib", selection.gibs.length > 0],
+    ["hullPicture", selection.hullPicture],
+    ["weapon", selection.weapons.length > 0],
+    ["drone", selection.drones.length > 0],
+  ];
+  return [...new Set(kinds.filter(([, any]) => any).map(([kind]) => HOME[kind]))];
+}
+
+/**
+ * The workspace that shows a selection made in `current`: `current` itself
+ * when it edits any of it (or nothing is selected), else the one that edits
+ * its first kind (rooms, doors and stations: Rooms; mounts, gibs and the
+ * hull picture: Hull; slots: Ship).
+ */
+export function workspaceFor(selection: Selection, current: WorkspaceId): WorkspaceId {
+  const homes = homesOf(selection);
+  return homes.length === 0 || homes.includes(current) ? current : homes[0];
 }

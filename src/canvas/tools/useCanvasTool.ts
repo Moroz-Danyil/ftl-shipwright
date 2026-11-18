@@ -1,10 +1,9 @@
 /**
  * The current tool of the canvas, with the overlay it draws and the pointer
- * look it asks for. The Select tool moves and resizes rooms only in Rooms and
- * picks mounts and gibs in Hull; in Ship and
- * Hull a plain click on a room opens it in Rooms. Every Hull tool also turns
- * the selected gib's direction with its fan, and every Rooms tool places
- * rooms being pasted.
+ * look it asks for. The Select tool is the same in every workspace (it picks
+ * and drags anything); in Rooms it also resizes the selected room with its
+ * handles. Every Hull tool also turns the selected gib's direction with its
+ * fan, and every Rooms tool places rooms being pasted.
  */
 import { useEffect, useMemo, useState } from "react";
 import { setGestureCancel } from "../../app/gesture";
@@ -12,8 +11,6 @@ import { useEditor } from "../../app/store";
 import type { ToolId, WorkspaceId } from "../../app/workspaces";
 import type { Texts } from "../../text";
 import {
-  artTargetAt,
-  createArtSelectTool,
   createGibTool,
   createMountTool,
   createMovePictureTool,
@@ -22,7 +19,6 @@ import {
 import { withPaste } from "./pasteTool";
 import { createDoorTool, createRoomTool, createStationTool } from "./placeTools";
 import { withRoomResize } from "./resizeTool";
-import { withRoomClick } from "./roomClick";
 import { createSelectTool } from "./selectTool";
 import type { CanvasTool, Overlay, ToolContext } from "./types";
 
@@ -51,12 +47,8 @@ export function createTool(
 
 function createPlainTool(id: ToolId, context: ToolContext, workspace: WorkspaceId): CanvasTool {
   if (id === "select") {
-    if (workspace === "rooms") return withRoomResize(createSelectTool(context), context);
-    if (workspace === "ship") return withRoomClick(createSelectTool(context, false));
-    return withRoomClick(
-      createArtSelectTool(context),
-      (ship, art, pointer) => artTargetAt(ship, art, pointer) !== undefined
-    );
+    const select = createSelectTool(context);
+    return workspace === "rooms" ? withRoomResize(select, context) : select;
   }
   if (id === "room") return createRoomTool(context);
   if (id === "door") return createDoorTool(context);

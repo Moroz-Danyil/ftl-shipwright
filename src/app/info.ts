@@ -29,16 +29,21 @@ export type InfoSubject =
   /** Nothing is selected: the ship itself. */
   | { kind: "ship" };
 
+/** The things on the canvas Select picks in every workspace (the hull picture has no page). */
+const CANVAS_PARTS = ["rooms", "doors", "stations", "mounts", "gibs"] as const;
+
 /**
- * The parts of the selection each workspace works with: Ship's canvas and
- * slot bar select rooms, doors, stations and slots; Rooms the layout; Hull
- * the mounts and gibs. The rest of the selection stays, unseen, for when its
- * workspace is opened again.
+ * The parts of the selection each workspace shows: what Select picks on the
+ * canvas, and in Ship the slots of its slot bar too. Slots selected in Ship
+ * stay, unseen, for when Ship is opened again.
  */
-const WORKSPACE_PARTS: Record<WorkspaceId, Array<keyof Selection>> = {
-  ship: ["rooms", "doors", "stations", "weapons", "drones"],
-  rooms: ["rooms", "doors", "stations"],
-  hull: ["mounts", "gibs"],
+const WORKSPACE_PARTS: Record<
+  WorkspaceId,
+  ReadonlyArray<Exclude<keyof Selection, "hullPicture">>
+> = {
+  ship: [...CANVAS_PARTS, "weapons", "drones"],
+  rooms: CANVAS_PARTS,
+  hull: CANVAS_PARTS,
 };
 
 /** The part of the selection the workspace shows. */

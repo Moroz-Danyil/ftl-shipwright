@@ -18,20 +18,25 @@ describe("the Info panel's subject", () => {
     expect(infoSubject(two, null, "rooms")).toEqual({ kind: "several", selection: two });
   });
 
-  it("takes the part of the selection the workspace works with", () => {
+  it("takes the things on the canvas in every workspace, and the slots in Ship", () => {
     const mixed = selectionOf(
       { kind: "room", id: 1 },
       { kind: "gib", index: 0 },
       { kind: "weapon", index: 1 }
     );
-    expect(workspaceSelection(mixed, "hull")).toEqual(selectionOf({ kind: "gib", index: 0 }));
-    expect(workspaceSelection(mixed, "rooms")).toEqual(selectionOf({ kind: "room", id: 1 }));
-    expect(infoSubject(mixed, null, "hull")).toEqual({ kind: "gib", index: 0 });
-    expect(infoSubject(mixed, null, "ship")).toEqual({
-      kind: "several",
-      selection: selectionOf({ kind: "room", id: 1 }, { kind: "weapon", index: 1 }),
-    });
+    const canvas = selectionOf({ kind: "room", id: 1 }, { kind: "gib", index: 0 });
+    expect(workspaceSelection(mixed, "hull")).toEqual(canvas);
+    expect(workspaceSelection(mixed, "rooms")).toEqual(canvas);
+    expect(infoSubject(mixed, null, "hull")).toEqual({ kind: "several", selection: canvas });
+    expect(infoSubject(mixed, null, "ship")).toEqual({ kind: "several", selection: mixed });
     expect(infoSubject(selectionOf({ kind: "mount", index: 0 }), null, "rooms")).toEqual({
+      kind: "mount",
+      index: 0,
+    });
+    expect(infoSubject(selectionOf({ kind: "weapon", index: 0 }), null, "hull")).toEqual({
+      kind: "ship",
+    });
+    expect(infoSubject(selectionOf({ kind: "hullPicture" }), null, "hull")).toEqual({
       kind: "ship",
     });
   });

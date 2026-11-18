@@ -1,10 +1,19 @@
 /**
  * What the current tool draws over the ship: the hover outline, the
  * selection box, ghost rooms (red when refused, a resized one with its size), the wall under the Door tool
- * the cell under the Station tool, picture outlines and dragged mounts and gibs.
+ * the cell under the Station tool, picture outlines and dragged mounts and gibs
+ * (with the rooms and the hull picture when they move together).
  * A gib's direction being dragged is drawn by its fan instead.
  */
-import { CELL_SIZE, cellToPx, mountPositionPx, roomRectPx, type Rect, type Ship } from "../core";
+import {
+  CELL_SIZE,
+  cellToPx,
+  mountPositionPx,
+  roomRectPx,
+  type Point,
+  type Rect,
+  type Ship,
+} from "../core";
 import type { ShipArt } from "../app/art/model";
 import { MOUNT_HIT_RADIUS, gibRectPx } from "./artHitTest";
 import type { Target } from "../app/selection";
@@ -92,6 +101,35 @@ function SizeLabel({ rect, w, h }: { rect: Rect; w: number; h: number }) {
   );
 }
 
+/** Mounts and gibs where they would go. */
+function ArtGhost({ mounts, gibs }: { mounts: Point[]; gibs: Rect[] }) {
+  return (
+    <g data-testid="art-ghost">
+      {mounts.map((p, i) => (
+        <circle
+          key={`m${i}`}
+          className="cv-ghost"
+          cx={p.x}
+          cy={p.y}
+          r={MOUNT_HIT_RADIUS}
+          vectorEffect="non-scaling-stroke"
+        />
+      ))}
+      {gibs.map((r, i) => (
+        <rect
+          key={`g${i}`}
+          className="cv-ghost"
+          x={r.x}
+          y={r.y}
+          width={r.w}
+          height={r.h}
+          vectorEffect="non-scaling-stroke"
+        />
+      ))}
+    </g>
+  );
+}
+
 interface Props {
   ship: Ship;
   art: ShipArt;
@@ -119,31 +157,7 @@ export function ToolOverlay({ ship, art, overlay }: Props) {
         />
       );
     case "artGhost":
-      return (
-        <g data-testid="art-ghost">
-          {overlay.mounts.map((p, i) => (
-            <circle
-              key={`m${i}`}
-              className="cv-ghost"
-              cx={p.x}
-              cy={p.y}
-              r={MOUNT_HIT_RADIUS}
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
-          {overlay.gibs.map((r, i) => (
-            <rect
-              key={`g${i}`}
-              className="cv-ghost"
-              x={r.x}
-              y={r.y}
-              width={r.w}
-              height={r.h}
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
-        </g>
-      );
+      return <ArtGhost mounts={overlay.mounts} gibs={overlay.gibs} />;
     case "box":
       return (
         <rect
@@ -173,6 +187,20 @@ export function ToolOverlay({ ship, art, overlay }: Props) {
               />
             );
           })}
+          {overlay.outline && (
+            <rect
+              className="cv-box"
+              data-testid="picture-outline"
+              x={overlay.outline.x}
+              y={overlay.outline.y}
+              width={overlay.outline.w}
+              height={overlay.outline.h}
+              vectorEffect="non-scaling-stroke"
+            />
+          )}
+          {(overlay.mounts || overlay.gibs) && (
+            <ArtGhost mounts={overlay.mounts ?? []} gibs={overlay.gibs ?? []} />
+          )}
           {overlay.size && overlay.cells[0] && (
             <SizeLabel
               rect={roomRectPx(layout, overlay.cells[0])}

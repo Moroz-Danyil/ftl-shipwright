@@ -93,7 +93,7 @@ describe("selecting a room with systems", () => {
   });
 });
 
-describe("a room click in Ship and Hull", () => {
+describe("a click or drag in Ship and Hull", () => {
   it("in Ship, opens Rooms with the room selected", () => {
     open("ship");
     click(ROOM_1);
@@ -104,15 +104,21 @@ describe("a room click in Ship and Hull", () => {
     expect(within(inspector()).getByRole("region", { name: "Piloting" })).toBeInTheDocument();
   });
 
-  it("in Ship, stays for a door, a Shift-click or a drag", () => {
+  it("in Ship, opens Rooms for a door, a Shift-click and a drag, which moves the room", () => {
     open("ship");
     click(cellPx(2, 0.5));
-    expect(state().workspace).toBe("ship");
+    expect(state().workspace).toBe("rooms");
     expect(state().selection.doors).toEqual([0]);
+    open("ship");
     click(ROOM_1, true);
-    expect(state().workspace).toBe("ship");
-    drag(ROOM_1, cellPx(3.5, 1.5));
-    expect(state().workspace).toBe("ship");
+    expect(state().workspace).toBe("rooms");
+    expect(state().selection).toMatchObject({ rooms: [1], doors: [0] });
+    open("ship");
+    drag(cellPx(4.5, 0.5), cellPx(4.5, 2.5));
+    expect(state().workspace).toBe("rooms");
+    expect(state().selection.rooms).toEqual([2]);
+    expect(ship().layout.rooms[2]).toMatchObject({ x: 4, y: 2 });
+    expect(screen.getByTestId("room-handles")).toHaveAttribute("data-room", "2");
   });
 
   it("in Hull, opens Rooms for a room, while a click on a mount still selects the mount", () => {

@@ -206,6 +206,33 @@ describe("Hull: mounts and gibs", () => {
   });
 });
 
+describe("Select from another workspace", () => {
+  it("drags a mount in Rooms, then shows it in Hull", () => {
+    act(() =>
+      state().edit((s) => addMount(s, { x: 100, y: 80, rotate: false, mirror: false, gib: 0 }))
+    );
+    press("Digit2");
+    drag({ x: 125, y: 95 }, { x: 131, y: 95 });
+    expect(snap().ship.layoutXml.mounts[0]).toMatchObject({ x: 106, y: 80 });
+    expect(state().workspace).toBe("hull");
+    expect(within(inspector()).getByText(en.art.mount(1))).toBeInTheDocument();
+    expect(screen.getByTestId("mount-1")).toHaveAttribute("data-selected", "true");
+  });
+
+  it("drags the hull picture in Ship, then shows Hull's pictures", () => {
+    press("Digit1");
+    drag({ x: 40, y: 100 }, { x: 44, y: 100 });
+    expect(snap().ship.layoutXml.img).toMatchObject({ x: -6, y: -20 });
+    expect(state().workspace).toBe("hull");
+    expect(screen.getByTestId("hull-selected")).toBeInTheDocument();
+    const section = within(inspector()).getByRole("region", { name: en.sections.pictures });
+    expect(
+      within(section).getByRole("button", { name: new RegExp(`^${en.sections.pictures}`) })
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(steps()).toBe(1);
+  });
+});
+
 describe("Hull: the Gib tool's view", () => {
   it("shows only the hull and the gibs while the Gib tool is chosen", async () => {
     act(() =>

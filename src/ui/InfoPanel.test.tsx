@@ -330,14 +330,14 @@ describe("the Info panel and the workspaces", () => {
   });
 
   it("describes the part of the selection the workspace works with", () => {
-    act(() => state().select(selectionOf({ kind: "room", id: 0 }, { kind: "gib", index: 0 })));
-    // Ship and Rooms show the room; Hull the gib.
-    expect(subject()).toBe("room");
+    act(() => state().select(selectionOf({ kind: "room", id: 0 }, { kind: "weapon", index: 0 })));
+    // Ship shows the room and the slot; Rooms and Hull the room only.
+    expect(subject()).toBe("several");
     act(() => state().setWorkspace("rooms"));
     expect(subject()).toBe("room");
     act(() => state().setWorkspace("hull"));
-    expect(subject()).toBe("gib");
-    act(() => state().select(selectionOf({ kind: "room", id: 1 })));
-    expect(subject()).toBe("ship");
+    expect(subject()).toBe("room");
+    act(() => state().select(selectionOf({ kind: "room", id: 0 }, { kind: "gib", index: 0 })));
+    expect(subject()).toBe("several");
   });
 });
